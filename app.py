@@ -53,12 +53,19 @@ def etapa1_seccion(slug):
     if seccion is None:
         abort(404)
     ctx = {"seccion": seccion, "active": f"etapa1:{slug}"}
-    # Si existe una plantilla propia para la sección (etapa1/<slug>.html) se usa;
-    # de lo contrario se muestra la plantilla genérica con el contenido pendiente.
-    try:
-        return render_template(f"etapa1/{slug}.html", **ctx)
-    except TemplateNotFound:
-        return render_template("etapa1/seccion.html", **ctx)
+    # Plantillas cuyo nombre de archivo no coincide con el slug de la URL.
+    alias = {
+        "fuentes-datos": "etapa1/fuentes_datos.html",
+    }
+    # Orden de búsqueda: alias explícito -> etapa1/<slug>.html -> plantilla genérica.
+    for nombre in (alias.get(slug), f"etapa1/{slug}.html", "etapa1/seccion.html"):
+        if not nombre:
+            continue
+        try:
+            return render_template(nombre, **ctx)
+        except TemplateNotFound:
+            continue
+    return render_template("etapa1/seccion.html", **ctx)
 
 
 if __name__ == "__main__":
