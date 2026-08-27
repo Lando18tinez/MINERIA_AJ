@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Banner de Bienvenida y Presentación del Proyecto -->
+<div class="content-card p-4 p-md-5 mb-5 border-start border-4 border-warning bg-white shadow-sm">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <span class="badge-eco mb-2 d-inline-block">
+        <i class="bi bi-geo-alt-fill text-warning me-1"></i>Enfoque Regional: Bogotá D.C. & Contexto Nacional
+      </span>
+      <h1 class="display-6 fw-bold text-dark mt-2 mb-3">
+        Transición hacia la movilidad sostenible por medio de la adopción vehicular híbrida y eléctrica para la reducción de la huella de carbono en el transporte en Bogotá
+      </h1>
+      <p class="lead text-muted mb-4">
+        Plataforma analítica y exploratoria de minería de datos orientada a caracterizar la adopción de tecnologías de propulsión limpia (BEV, HEV, PHEV) y cuantificar su impacto en la mitigación de emisiones de CO<sub>2</sub>-eq y contaminantes locales.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('etapa1_seccion', slug='problema-contexto') }}" class="btn btn-energy">
+          <i class="bi bi-play-circle-fill me-1"></i> Explorar Etapa 1
+        </a>
+        <a href="{{ url_for('participantes') }}" class="btn btn-outline-forest">
+          <i class="bi bi-people me-1"></i> Equipo de Investigación
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-4 text-center mt-4 mt-lg-0">
+      <div class="p-4 bg-light rounded-3 border">
+        <i class="bi bi-ev-front display-3 text-success mb-2"></i>
+        <h5 class="fw-bold mb-1">Fase de Comprensión</h5>
+        <p class="small text-muted mb-0">Delimitación metodológica, requerimientos de información y análisis de calidad de microdatos RUNT.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Encabezado de Secciones -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h2 class="h4 fw-bold mb-1 text-dark">
+      <i class="bi bi-grid-fill text-success me-2"></i>Estructura del Entregable · Etapa 1
+    </h2>
+    <p class="text-muted small mb-0">Navega a través de los 8 componentes fundamentales de la etapa de comprensión.</p>
+  </div>
+  <span class="badge bg-dark px-3 py-2 text-uppercase">8 Módulos</span>
+</div>
+
+<!-- Rejilla con las 8 Secciones de la Etapa 1 -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+  {% for s in etapa1_secciones %}
+    <div class="col">
+      <div class="content-card card h-100 border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge rounded-pill bg-success bg-opacity-10 text-success fw-bold px-3 py-2">
+              Sección {{ s.num }}
+            </span>
+            <i class="bi bi-chevron-right text-muted"></i>
+          </div>
+          <h5 class="card-title fw-bold text-dark fs-6 mb-3">
+            {{ s.titulo }}
+          </h5>
+          <div class="mt-auto pt-3 border-top">
+            <a class="btn btn-sm btn-outline-secondary w-100 stretched-link"
+               href="{{ url_for('etapa1_seccion', slug=s.slug) }}">
+              Consultar Sección <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
