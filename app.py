@@ -51,8 +51,16 @@ def etapa1_seccion(slug):
     seccion = next((s for s in ETAPA1_SECCIONES if s["slug"] == slug), None)
     if seccion is None:
         abort(404)
+
+    # Mapeo entre slug y archivo html
+    plantillas = {
+        "fuentes-datos": "etapa1/fuentes_datos.html",
+        # Aquí iremos agregando las demás conforme las creemos
+    }
+
+    template_a_renderizar = plantillas.get(slug, "etapa1/seccion.html")
     return render_template(
-        "etapa1/seccion.html", seccion=seccion, active=f"etapa1:{slug}"
+        template_a_renderizar, seccion=seccion, active=f"etapa1:{slug}"
     )
 
 
