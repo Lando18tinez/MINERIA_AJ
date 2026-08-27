@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}6. Diccionario de Datos · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Migas de Pan (Breadcrumbs) -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 1: Comprensión</li>
+    <li class="breadcrumb-item active" aria-current="page">6. Diccionario de Datos</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de la Sección -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+  <div>
+    <span class="badge-eco mb-2 d-inline-block">
+      <i class="bi bi-book-half text-warning me-1"></i>Metadatos y Estructura Semántica
+    </span>
+    <h1 class="h2 fw-bold text-dark mb-1">6. Diccionario de Datos</h1>
+    <p class="text-muted mb-0">Especificación técnica, tipos de datos, granularidad y reglas de derivación de las 18 variables del dataset consolidado.</p>
+  </div>
+  <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 fs-6">
+    <i class="bi bi-code-square me-1"></i>18 Atributos Estandarizados
+  </span>
+</div>
+
+<!-- 1. NOTA METODOLÓGICA SOBRE RECTIFICACIÓN (_R) -->
+<div class="content-card card p-4 mb-5 border-start border-4 border-primary bg-white shadow-sm">
+  <div class="d-flex align-items-start gap-3">
+    <i class="bi bi-info-circle-fill fs-3 text-primary mt-1"></i>
+    <div>
+      <h5 class="fw-bold text-dark mb-1">Convención de Variables Rectificadas (Sufijo <code>_R</code>)</h5>
+      <p class="small text-muted mb-0">
+        Debido a inconsistencias y valores atípicos en la base bruta del RUNT (por ejemplo, registros de cilindraje nulo o erróneo en vehículos a gasolina, o confusión entre potencia mecánica y eléctrica), los campos con sufijo <code>_R</code> fueron imputados y rectificados de forma determinista consultando catálogos de especificaciones de fabricantes por combinación única de <code>Marca</code> y <code>Línea</code>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- 2. TABLA DEL DICCIONARIO DE DATOS -->
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="h4 fw-bold text-dark mb-0">
+      <i class="bi bi-table text-success me-2"></i>Matriz de Atributos y Metadatos
+    </h3>
+    <span class="badge bg-light text-dark border">Esquema Relacional / DataFrame</span>
+  </div>
+
+  <div class="table-responsive content-card border">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+      <thead class="table-light">
+        <tr class="text-nowrap">
+          <th scope="col" style="width: 15%;">Nombre de Variable</th>
+          <th scope="col" style="width: 12%;">Tipo de Dato</th>
+          <th scope="col" style="width: 10%;">Rol</th>
+          <th scope="col" style="width: 25%;">Descripción y Definición Semántica</th>
+          <th scope="col" style="width: 18%;">Valores / Rango / Unidad</th>
+          <th scope="col" style="width: 20%;">Fuente / Regla de Cálculo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 1. ID_Registro -->
+        <tr>
+          <td><code>ID_Registro</code></td>
+          <td><span class="badge bg-secondary">String / Object</span></td>
+          <td><span class="badge bg-dark">Primary Key</span></td>
+          <td>Identificador único unívoco asignado a cada observación vehicular.</td>
+          <td>Cadena alfanumérica secuencial (ej. <code>REG_00001</code>)</td>
+          <td>Generado en pipeline de ingesta.</td>
+        </tr>
+
+        <!-- 2. Fecha_Matricula -->
+        <tr>
+          <td><code>Fecha_Matricula</code></td>
+          <td><span class="badge bg-warning text-dark">Datetime</span></td>
+          <td>Atributo</td>
+          <td>Fecha oficial de registro de la matrícula inicial ante el organismo de tránsito.</td>
+          <td>Formato <code>AAAA-MM-DD</code> (2014-01-01 a 2024-12-31)</td>
+          <td>RUNT 2.0 (Microdatos).</td>
+        </tr>
+
+        <!-- 3. Ano_Registro -->
+        <tr>
+          <td><code>Ano_Registro</code></td>
+          <td><span class="badge bg-primary">Integer (int64)</span></td>
+          <td>Temporal</td>
+          <td>Año calendario de la matrícula, utilizado para agregaciones y series de tiempo.</td>
+          <td>Valores enteros: [2014 – 2024]</td>
+          <td>Extraído de <code>Fecha_Matricula</code>.</td>
+        </tr>
+
+        <!-- 4. Codigo_Depto_DANE -->
+        <tr>
+          <td><code>Codigo_Depto_DANE</code></td>
+          <td><span class="badge bg-secondary">String (2)</span></td>
+          <td><span class="badge bg-secondary">Foreign Key</span></td>
+          <td>Código DIVIPOLA departamental de dos dígitos según el estándar DANE.</td>
+          <td><code>11</code> (Bogotá), <code>05</code> (Antioquia), <code>25</code> (Cundinamarca), etc.</td>
+          <td>DANE DIVIPOLA / Homologación RUNT.</td>
+        </tr>
+
+        <!-- 5. Codigo_Municipio_DANE -->
+        <tr>
+          <td><code>Codigo_Municipio_DANE</code></td>
+          <td><span class="badge bg-secondary">String (5)</span></td>
+          <td><span class="badge bg-secondary">Foreign Key</span></td>
+          <td>Código DIVIPOLA municipal de cinco dígitos para georreferenciación local.</td>
+          <td><code>11001</code> (Bogotá D.C.), <code>05001</code> (Medellín), etc.</td>
+          <td>DANE DIVIPOLA / Homologación RUNT.</td>
+        </tr>
+
+        <!-- 6. Combustible -->
+        <tr>
+          <td><code>Combustible</code></td>
+          <td><span class="badge bg-info text-dark">Categorical</span></td>
+          <td>Atributo Clave</td>
+          <td>Tecnología de propulsión y fuente energética registrada para el automotor.</td>
+          <td><code>ELECTRICO</code> (BEV), <code>GASO ELEC</code> (HEV/PHEV), <code>DIES ELEC</code></td>
+          <td>RUNT 2.0 / Filtrado por tipos de propulsión limpia.</td>
+        </tr>
+
+        <!-- 7. Clase -->
+        <tr>
+          <td><code>Clase</code></td>
+          <td><span class="badge bg-info text-dark">Categorical</span></td>
+          <td>Atributo</td>
+          <td>Tipología y diseño de carrocería del vehículo según clasificación de tránsito.</td>
+          <td><code>AUTOMOVIL</code>, <code>CAMIONETA</code>, <code>BUS</code>, <code>CAMION</code>, <code>MOTOCICLETA</code>, etc.</td>
+          <td>RUNT 2.0 (Normalizado).</td>
+        </tr>
+
+        <!-- 8. Servicio -->
+        <tr>
+          <td><code>Servicio</code></td>
+          <td><span class="badge bg-info text-dark">Categorical</span></td>
+          <td>Atributo</td>
+          <td>Modalidad y régimen de operación del automotor.</td>
+          <td><code>PARTICULAR</code>, <code>PUBLICO</code>, <code>OFICIAL</code></td>
+          <td>RUNT 2.0.</td>
+        </tr>
+
+        <!-- 9. Marca -->
+        <tr>
+          <td><code>Marca</code></td>
+          <td><span class="badge bg-info text-dark">Categorical</span></td>
+          <td>Atributo</td>
+          <td>Nombre comercial estandarizado del fabricante del vehículo.</td>
+          <td><code>TOYOTA</code>, <code>BYD</code>, <code>RENAULT</code>, <code>MAZDA</code>, <code>KIA</code>, <code>FOTON</code>, etc.</td>
+          <td>RUNT 2.0 (Homologado con catálogo).</td>
+        </tr>
+
+        <!-- 10. Potencia_R -->
+        <tr>
+          <td><code>Potencia_R</code></td>
+          <td><span class="badge bg-success">Float (float64)</span></td>
+          <td>Métrica Técnica</td>
+          <td>Potencia máxima combinada o del motor eléctrico en kilovatios (kW).</td>
+          <td>Rango: [1.2 kW – 450.0 kW]</td>
+          <td>RUNT 2.0 rectificado con catálogo de fabricante.</td>
+        </tr>
+
+        <!-- 11. Cilindraje_R -->
+        <tr>
+          <td><code>Cilindraje_R</code></td>
+          <td><span class="badge bg-primary">Integer (int64)</span></td>
+          <td>Métrica Técnica</td>
+          <td>Cilindrada volumétrica del motor térmico en centímetros cúbicos (cc).</td>
+          <td><code>0 cc</code> (para BEV 100% eléctricos) o [998 cc – 3500 cc] (híbridos)</td>
+          <td>RUNT 2.0 rectificado (0 forzado para BEV).</td>
+        </tr>
+
+        <!-- 12. Capacidad_Pasajeros_R -->
+        <tr>
+          <td><code>Capacidad_Pasajeros_R</code></td>
+          <td><span class="badge bg-primary">Integer (int64)</span></td>
+          <td>Métrica Técnica</td>
+          <td>Número de plazas autorizadas para transporte de personas.</td>
+          <td>Rango: [1 – 160] (ej. 2-5 en livianos, 80 en buses SITP)</td>
+          <td>RUNT 2.0 rectificado con catálogo.</td>
+        </tr>
+
+        <!-- 13. Capacidad_Carga_R -->
+        <tr>
+          <td><code>Capacidad_Carga_R</code></td>
+          <td><span class="badge bg-success">Float (float64)</span></td>
+          <td>Métrica Técnica</td>
+          <td>Capacidad máxima útil de carga neta transportable en kilogramos (kg).</td>
+          <td>Rango: [0.0 kg – 18000.0 kg]</td>
+          <td>RUNT 2.0 rectificado (0 en livianos particulares).</td>
+        </tr>
+
+        <!-- 14. Numero_Puntos_Carga -->
+        <tr>
+          <td><code>Numero_Puntos_Carga</code></td>
+          <td><span class="badge bg-primary">Integer (int64)</span></td>
+          <td>Contextual</td>
+          <td>Estaciones y conectores de recarga pública disponibles en el departamento.</td>
+          <td>Valores enteros: [0 – 120]</td>
+          <td>Directorio UPME / Catastro Distrital.</td>
+        </tr>
+
+        <!-- 15. PIB_per_capita -->
+        <tr>
+          <td><code>PIB_per_capita</code></td>
+          <td><span class="badge bg-success">Float (float64)</span></td>
+          <td>Contextual</td>
+          <td>Producto Interno Bruto per cápita anual del departamento en millones COP.</td>
+          <td>Rango: [8.5 – 42.0] Millones COP</td>
+          <td>DANE Cuentas Nacionales (Enlace por DIVIPOLA).</td>
+        </tr>
+
+        <!-- 16. Poblacion_Total -->
+        <tr>
+          <td><code>Poblacion_Total</code></td>
+          <td><span class="badge bg-primary">Integer (int64)</span></td>
+          <td>Contextual</td>
+          <td>Población total proyectada para el departamento en el año de registro.</td>
+          <td>Rango: [45.000 – 7.900.000] habitantes</td>
+          <td>DANE Proyecciones Demográficas.</td>
+        </tr>
+
+        <!-- 17. Factor_Emision_WTW -->
+        <tr>
+          <td><code>Factor_Emision_WTW</code></td>
+          <td><span class="badge bg-success">Float (float64)</span></td>
+          <td>Ambiental</td>
+          <td>Factor de emisión de ciclo de vida del pozo a la rueda en g CO₂-eq/km.</td>
+          <td>BEV: <code>~35.4</code>, HEV: <code>~110.2</code>, Fósil Base: <code>~195.8</code></td>
+          <td>Ecoinvent / FECOC / UPME.</td>
+        </tr>
+
+        <!-- 18. Huella_CO2_Evitada_Ton -->
+        <tr>
+          <td><code>Huella_CO2_Evitada_Ton</code></td>
+          <td><span class="badge bg-success">Float (float64)</span></td>
+          <td>Impacto Derivado</td>
+          <td>Toneladas de CO₂-eq mitigadas anualmente por el vehículo frente a la línea base fósil.</td>
+          <td>Rango: [0.85 – 35.20] Ton CO₂-eq / año</td>
+          <td>Calculado: <code>(Factor_Fosil - Factor_WTW) × km_año / 10⁶</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 3. RESUMEN DE TIPOLOGÍA DE VARIABLES -->
+<div class="row g-4 mb-5">
+  <div class="col-md-4">
+    <div class="content-card card p-3 h-100 border-start border-4 border-info">
+      <h6 class="fw-bold text-dark mb-2">Variables Categóricas y Llaves</h6>
+      <p class="small text-muted mb-0">Permiten la agregación territorial, filtrado por tecnología (BEV vs. HEV) y partición por segmentos de uso (Particular vs. Público).</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="content-card card p-3 h-100 border-start border-4 border-success">
+      <h6 class="fw-bold text-dark mb-2">Variables Técnicas Rectificadas</h6>
+      <p class="small text-muted mb-0">Atributos continuos y discretos limpios sin valores nulos, listos para algoritmos de clustering y reducción de dimensionalidad.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="content-card card p-3 h-100 border-start border-4 border-warning">
+      <h6 class="fw-bold text-dark mb-2">Variables Derivadas de Impacto</h6>
+      <p class="small text-muted mb-0">Métricas cuantitativas que integran factores internacionales LCA para medir la descarbonización en toneladas de CO₂ evitadas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+  <a class="btn btn-outline-forest" href="{{ url_for('etapa1_seccion', slug='dataset') }}">
+    <i class="bi bi-arrow-left me-1"></i> 5. Dataset
+  </a>
+  <a class="btn btn-energy" href="{{ url_for('etapa1_seccion', slug='calidad-inicial') }}">
+    7. Calidad Inicial de Datos <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}

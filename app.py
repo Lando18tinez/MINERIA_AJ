@@ -70,20 +70,6 @@ def etapa1_seccion(slug):
         template_a_renderizar, seccion=seccion, active=f"etapa1:{slug}"
     )
 
-    for nombre in (alias.get(slug), f"etapa1/{slug}.html", "etapa1/seccion.html"):
-        if not nombre:
-            continue
-        try:
-            return render_template(nombre, **ctx)
-        except TemplateNotFound:
-            continue
-    return render_template("etapa1/seccion.html", **ctx)
-
-    template_a_renderizar = plantillas.get(slug, "etapa1/seccion.html")
-    return render_template(
-        template_a_renderizar, seccion=seccion, active=f"etapa1:{slug}"
-    )
-
 
 if __name__ == "__main__":
     app.run(debug=True)
