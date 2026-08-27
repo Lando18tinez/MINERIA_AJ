@@ -1,0 +1,29 @@
+/* Estilos propios del proyecto. Bootstrap se carga antes que este archivo. */
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+main h1 {
+  font-size: 1.75rem;
+}
+
+.dropdown-menu {
+  --bs-dropdown-min-width: 20rem;
+}
+
+/* Foto de participante: recuadro cuadrado uniforme */
+.participante-foto {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.participante-foto--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e9ecef;
+  color: #6c757d;
+  font-size: 0.9rem;
+}

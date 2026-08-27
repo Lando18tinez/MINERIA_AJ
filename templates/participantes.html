@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Participantes · {{ proyecto }}{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Participantes</h1>
+
+  <div class="row row-cols-1 row-cols-sm-2 g-4">
+    {% for p in participantes %}
+      <div class="col">
+        <div class="card h-100 text-center">
+          {% if p.foto %}
+            <img src="{{ url_for('static', filename='img/' ~ p.foto) }}"
+                 class="card-img-top participante-foto" alt="Foto de {{ p.nombre }}">
+          {% else %}
+            <div class="participante-foto participante-foto--placeholder">
+              Sin foto
+            </div>
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title mb-0">{{ p.nombre }}</h5>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

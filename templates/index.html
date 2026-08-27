@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio · {{ proyecto }}{% endblock %}
+
+{% block content %}
+  <h1 class="mb-3">{{ proyecto }}</h1>
+  <p class="lead">
+    Proyecto de minería de datos. Usa el menú <strong>Etapa 1</strong> para
+    navegar por las secciones de la fase de comprensión.
+  </p>
+
+  <div class="row row-cols-1 row-cols-md-2 g-3 mt-2">
+    {% for s in etapa1_secciones %}
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">{{ s.num }}. {{ s.titulo }}</h5>
+            <a class="stretched-link"
+               href="{{ url_for('etapa1_seccion', slug=s.slug) }}">Abrir</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
