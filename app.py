@@ -52,11 +52,22 @@ def etapa1_seccion(slug):
     if seccion is None:
         abort(404)
 
-    # Mapeo entre slug y archivo html
+    # Mapeo entre slug del menú y ruta de plantilla HTML
     plantillas = {
+        "problema-contexto": "etapa1/problema_contexto.html",
+        "preguntas": "etapa1/preguntas.html",
+        "necesidades-informacion": "etapa1/necesidades_informacion.html",
         "fuentes-datos": "etapa1/fuentes_datos.html",
-        # Aquí iremos agregando las demás conforme las creemos
+        "dataset": "etapa1/dataset.html",
+        "diccionario-datos": "etapa1/diccionario_datos.html",
+        "calidad-inicial": "etapa1/calidad_inicial.html",
+        "limitaciones": "etapa1/limitaciones.html",
     }
+
+    template_a_renderizar = plantillas.get(slug, "etapa1/seccion.html")
+    return render_template(
+        template_a_renderizar, seccion=seccion, active=f"etapa1:{slug}"
+    )
 
     template_a_renderizar = plantillas.get(slug, "etapa1/seccion.html")
     return render_template(
