@@ -1,4 +1,5 @@
 from flask import Flask, render_template, abort
+from jinja2 import TemplateNotFound
 
 app = Flask(__name__)
 
@@ -52,7 +53,7 @@ def etapa1_seccion(slug):
     if seccion is None:
         abort(404)
 
-    # Mapeo entre slug del menú y ruta de plantilla HTML
+    # Mapeo de slugs a sus plantillas correspondientes
     plantillas = {
         "problema-contexto": "etapa1/problema_contexto.html",
         "preguntas": "etapa1/preguntas.html",
@@ -68,6 +69,15 @@ def etapa1_seccion(slug):
     return render_template(
         template_a_renderizar, seccion=seccion, active=f"etapa1:{slug}"
     )
+
+    for nombre in (alias.get(slug), f"etapa1/{slug}.html", "etapa1/seccion.html"):
+        if not nombre:
+            continue
+        try:
+            return render_template(nombre, **ctx)
+        except TemplateNotFound:
+            continue
+    return render_template("etapa1/seccion.html", **ctx)
 
     template_a_renderizar = plantillas.get(slug, "etapa1/seccion.html")
     return render_template(

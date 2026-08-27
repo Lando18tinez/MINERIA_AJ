@@ -23,14 +23,14 @@
   <div class="d-flex justify-content-between">
     {% set idx = seccion.num - 1 %}
     {% if idx > 0 %}
-      <a class="btn btn-outline-secondary"
+      <a class="btn btn-outline-forest"
          href="{{ url_for('etapa1_seccion', slug=etapa1_secciones[idx - 1].slug) }}">
         &larr; {{ etapa1_secciones[idx - 1].titulo }}
       </a>
     {% else %}<span></span>{% endif %}
 
     {% if idx < etapa1_secciones|length - 1 %}
-      <a class="btn btn-outline-secondary"
+      <a class="btn btn-outline-forest"
          href="{{ url_for('etapa1_seccion', slug=etapa1_secciones[idx + 1].slug) }}">
         {{ etapa1_secciones[idx + 1].titulo }} &rarr;
       </a>
