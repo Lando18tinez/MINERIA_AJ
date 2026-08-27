@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}4. Fuentes de Datos · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Migas de Pan (Breadcrumbs) -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 1: Comprensión</li>
+    <li class="breadcrumb-item active" aria-current="page">4. Fuentes de Datos</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de la Sección -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+  <div>
+    <span class="badge-eco mb-2 d-inline-block">
+      <i class="bi bi-diagram-3-fill text-warning me-1"></i>Arquitectura de Datos Multi-Nivel
+    </span>
+    <h1 class="h2 fw-bold text-dark mb-1">4. Fuentes de Datos</h1>
+    <p class="text-muted mb-0">Ecosistema integral de recolección primaria, microdatos administrativos secundarios y factores de emisión terciarios.</p>
+  </div>
+  <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 fs-6">
+    <i class="bi bi-check2-all me-1"></i>6 Fuentes Clave
+  </span>
+</div>
+
+<!-- Diagrama Conceptual del Ecosistema de Datos -->
+<div class="content-card card p-4 mb-5 border-start border-4 border-success">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-hdd-network-fill text-success me-2"></i>Ecosistema de Fuentes del Proyecto
+  </h5>
+  <div class="bg-dark text-light p-3 rounded-3 overflow-auto font-monospace small">
+<pre class="text-light mb-0" style="font-family: 'Courier New', Courier, monospace; line-height: 1.2;">
+                         ┌────────────────────────────────────────────────────────┐
+                         │           ECOSISTEMA DE FUENTES DEL PROYECTO           │
+                         └───────────────────────────┬────────────────────────────┘
+                                                     │
+         ┌───────────────────────────────────────────┼───────────────────────────────────────────┐
+         │                                           │                                           │
+         ▼                                           ▼                                           ▼
+┌─────────────────────────────────┐   ┌─────────────────────────────────┐   ┌─────────────────────────────────┐
+│        FUENTES PRIMARIAS        │   │       FUENTES SECUNDARIAS       │   │       FUENTES TERCIARIAS        │
+│ 1. Encuesta Propia (Intención)  │   │ 1. RUNT 2.0 (Microdatos BEV/HEV)│   │ 1. IEA & CAF Data Hub (Global)  │
+│ 2. Sensores RMCAB / IDEAM       │   │ 2. Parque Automotor & PIB DANE  │   │ 2. Ecoinvent / Factores WTW     │
+└─────────────────────────────────┘   └─────────────────────────────────┘   └─────────────────────────────────┘
+</pre>
+  </div>
+</div>
+
+<!-- 1. FUENTES PRIMARIAS -->
+<div class="mb-5">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <span class="badge bg-primary px-3 py-2 text-uppercase">Nivel 1</span>
+    <h3 class="h4 fw-bold text-dark mb-0">Fuentes Primarias (Recolección Directa e Instrumental)</h3>
+  </div>
+  <p class="text-muted small mb-4">Captura directa de la intención conductual del usuario y mediciones físicas ambientales en tiempo real.</p>
+
+  <div class="row g-4">
+    <!-- Fuente Primaria A: Encuesta Propia -->
+    <div class="col-lg-6">
+      <div class="content-card card h-100 border-start border-4 border-primary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">Fuente Primaria A · Nueva Fuente</span>
+            <span class="badge bg-light text-dark border">Web Form / CSV</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark">Encuesta Propia de Percepción, Elección y Barreras de Adopción Tecnológica</h5>
+          <p class="card-subtitle text-muted small mb-3">
+            <i class="bi bi-person-workspace me-1"></i><strong>Responsable:</strong> Equipo de Investigación del Proyecto (Conductores y compradores en Bogotá y Cundinamarca).
+          </p>
+          
+          <h6 class="fw-bold fs-7 text-uppercase text-secondary mt-3 mb-2">Variables que Satisface:</h6>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i><code>Intencion_Compra_Tecnologia</code>: Preferencia declarada (BEV, HEV, Fósil).</li>
+            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i><code>Barreras_Adopcion</code>: Precio inicial, autonomía, red de recarga y repuestos.</li>
+            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i><code>Disposicion_a_Pagar</code>: Presupuesto techo para adquisición y mantenimiento.</li>
+            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i><code>Sensibilidad_Incentivos</code>: Exención de pico y placa y beneficios fiscales.</li>
+            <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i><code>Perfil_Movilidad_Diaria</code>: Kilometraje diario y disponibilidad de garaje eléctrico.</li>
+          </ul>
+
+          <div class="p-3 bg-light rounded-2 border small text-muted">
+            <strong class="text-dark"><i class="bi bi-info-circle me-1"></i>Justificación Técnica:</strong>
+            Los registros del RUNT evidencian <em>qué</em> vehículos se matriculan, pero no revelan las motivaciones ni las barreras cualitativas del comprador; este instrumento llena el vacío conductual del modelo.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fuente Primaria B: Sensores RMCAB / IDEAM -->
+    <div class="col-lg-6">
+      <div class="content-card card h-100 border-start border-4 border-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-info bg-opacity-10 text-info fw-bold">Fuente Primaria B · Calidad del Aire</span>
+            <span class="badge bg-light text-dark border">API Socrata / CSV</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark">Red de Monitoreo de Calidad del Aire de Bogotá (RMCAB) / IDEAM</h5>
+          <p class="card-subtitle text-muted small mb-3">
+            <i class="bi bi-building me-1"></i><strong>Entidad:</strong> Secretaría Distrital de Ambiente (SDA) / IDEAM 
+            (<a href="https://www.datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Calidad-del-Aire-en-Colombia/g4t8-zkc3/about_data" target="_blank" class="text-decoration-none">Dataset g4t8-zkc3 <i class="bi bi-box-arrow-up-right"></i></a>).
+          </p>
+          
+          <h6 class="fw-bold fs-7 text-uppercase text-secondary mt-3 mb-2">Variables Clave:</h6>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-1"><i class="bi bi-activity text-info me-2"></i><code>Concentracion_PM2.5</code> & <code>Concentracion_PM10</code> (µg/m³).</li>
+            <li class="mb-1"><i class="bi bi-activity text-info me-2"></i><code>Concentracion_CO</code>, <code>Concentracion_NO2</code> & <code>SO2</code> (ppm / ppb).</li>
+            <li class="mb-1"><i class="bi bi-activity text-info me-2"></i><code>Estacion_Monitoreo</code> & <code>Fecha_Hora_Medicion</code> (Series horarias continuas).</li>
+          </ul>
+
+          <div class="p-3 bg-light rounded-2 border small text-muted">
+            <strong class="text-dark"><i class="bi bi-info-circle me-1"></i>Justificación Técnica:</strong>
+            Valida los puntos críticos de degradación atmosférica urbana generada por combustión fósil, justificando espacialmente la necesidad de flotas limpias en corredores de alta carga.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. FUENTES SECUNDARIAS -->
+<div class="mb-5">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <span class="badge bg-success px-3 py-2 text-uppercase">Nivel 2</span>
+    <h3 class="h4 fw-bold text-dark mb-0">Fuentes Secundarias (Registros Oficiales y Estadísticas Administrativas)</h3>
+  </div>
+  <p class="text-muted small mb-4">Bases de microdatos oficiales de automotores matriculados y agregados macroeconómicos departamentales.</p>
+
+  <div class="row g-4">
+    <!-- Fuente Secundaria A: RUNT 2.0 -->
+    <div class="col-lg-6">
+      <div class="content-card card h-100 border-start border-4 border-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold">Fuente Secundaria A · Tabla de Hechos</span>
+            <span class="badge bg-light text-dark border">API Socrata / CSV</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark">Microdatos de Vehículos Eléctricos e Híbridos (RUNT 2.0)</h5>
+          <p class="card-subtitle text-muted small mb-3">
+            <i class="bi bi-building me-1"></i><strong>Entidad:</strong> Ministerio de Transporte / Concesión RUNT 
+            (<a href="https://www.datos.gov.co/Transporte/VEH-CULOS-EL-CTRICOS-E-H-BRIDOS-MATRICULADOS-EN-CO/ntxy-q9ix/about_data" target="_blank" class="text-decoration-none">Dataset ntxy-q9ix <i class="bi bi-box-arrow-up-right"></i></a>).
+          </p>
+          
+          <h6 class="fw-bold fs-7 text-uppercase text-secondary mt-3 mb-2">Variables Clave:</h6>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-1"><i class="bi bi-car-front text-success me-2"></i><code>Fecha_Matricula</code> & <code>Ano_Registro</code> (2014–2024).</li>
+            <li class="mb-1"><i class="bi bi-car-front text-success me-2"></i><code>Municipio_DIVIPOLA</code> & <code>Departamento</code>.</li>
+            <li class="mb-1"><i class="bi bi-car-front text-success me-2"></i><code>Combustible</code> (BEV, HEV, PHEV), <code>Clase</code>, <code>Marca</code> & <code>Servicio</code>.</li>
+            <li class="mb-1"><i class="bi bi-car-front text-success me-2"></i><code>Potencia_kW</code>, <code>Cilindraje_cc</code>, <code>Capacidad_Pasajeros</code> & <code>Carga_kg</code> (N > 56.545).</li>
+          </ul>
+
+          <div class="p-3 bg-light rounded-2 border small text-muted">
+            <strong class="text-dark"><i class="bi bi-info-circle me-1"></i>Justificación Técnica:</strong>
+            Eje central de la investigación (tabla de hechos principal) para el modelado de series temporales, segmentación algorítmica y caracterización del parque automotor limpio.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fuente Secundaria B: Crecimiento Parque & DANE -->
+    <div class="col-lg-6">
+      <div class="content-card card h-100 border-start border-4 border-secondary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold">Fuente Secundaria B · Normalización</span>
+            <span class="badge bg-light text-dark border">CSV / XLS</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark">Parque Automotor Total RUNT & Estadísticas DANE</h5>
+          <p class="card-subtitle text-muted small mb-3">
+            <i class="bi bi-building me-1"></i><strong>Entidades:</strong> MinTransporte / DANE 
+            (<a href="https://www.datos.gov.co/Transporte/CRECIMIENTO-DEL-PARQUE-AUTOMOTOR-RUNT2-0/u3vn-bdcy/about_data" target="_blank" class="text-decoration-none">Dataset u3vn-bdcy <i class="bi bi-box-arrow-up-right"></i></a>).
+          </p>
+          
+          <h6 class="fw-bold fs-7 text-uppercase text-secondary mt-3 mb-2">Variables Clave:</h6>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-1"><i class="bi bi-bar-chart-steps text-secondary me-2"></i><code>Total_Flota_Activa_Fosil</code> (Parque total registrado).</li>
+            <li class="mb-1"><i class="bi bi-bar-chart-steps text-secondary me-2"></i><code>Poblacion_Total_Depto</code> & <code>Poblacion_Urbana</code> (DIVIPOLA).</li>
+            <li class="mb-1"><i class="bi bi-bar-chart-steps text-secondary me-2"></i><code>PIB_per_capita_Depto</code> & <code>Tasa_Desocupacion</code>.</li>
+          </ul>
+
+          <div class="p-3 bg-light rounded-2 border small text-muted">
+            <strong class="text-dark"><i class="bi bi-info-circle me-1"></i>Justificación Técnica:</strong>
+            Permite estimar la cuota de penetración real de la electromovilidad (% sobre flota global) y calcular tasas comparativas normalizadas por cada 100.000 habitantes.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. FUENTES TERCIARIAS -->
+<div class="mb-5">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <span class="badge bg-warning text-dark px-3 py-2 text-uppercase">Nivel 3</span>
+    <h3 class="h4 fw-bold text-dark mb-0">Fuentes Terciarias (Compilaciones Internacionales y Factores de Emisión)</h3>
+  </div>
+  <p class="text-muted small mb-4">Parámetros de referencia global y coeficientes estandarizados para el Análisis de Ciclo de Vida (LCA).</p>
+
+  <div class="row g-4">
+    <!-- Fuente Terciaria A: IEA & CAF -->
+    <div class="col-lg-6">
+      <div class="content-card card h-100 border-start border-4 border-warning">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-warning bg-opacity-25 text-dark fw-bold">Fuente Terciaria A · Marco Global</span>
+            <span class="badge bg-light text-dark border">Data Explorer / XLS</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark">Global EV Outlook & Data Hub (IEA / CAF)</h5>
+          <p class="card-subtitle text-muted small mb-3">
+            <i class="bi bi-globe-americas me-1"></i><strong>Entidades:</strong> International Energy Agency (IEA) & Banco de Desarrollo de América Latina (CAF).
+          </p>
+          
+          <h6 class="fw-bold fs-7 text-uppercase text-secondary mt-3 mb-2">Variables Clave:</h6>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-1"><i class="bi bi-globe text-warning me-2"></i><code>EV_Sales_Units_Global</code> & <code>EV_Stock_Share_%</code>.</li>
+            <li class="mb-1"><i class="bi bi-globe text-warning me-2"></i><code>Grid_Carbon_Intensity</code> (g CO₂/kWh por país).</li>
+            <li class="mb-1"><i class="bi bi-globe text-warning me-2"></i><code>EV_Charging_Points_Stock</code> (Infraestructura mundial).</li>
+          </ul>
+
+          <div class="p-3 bg-light rounded-2 border small text-muted">
+            <strong class="text-dark"><i class="bi bi-info-circle me-1"></i>Justificación Técnica:</strong>
+            Suministra la línea base y los parámetros de referencia de estado del arte para contrastar las métricas de adopción de Colombia y Bogotá frente a la trayectoria global.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fuente Terciaria B: Factores LCA / WTW -->
+    <div class="col-lg-6">
+      <div class="content-card card h-100 border-start border-4 border-danger">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">Fuente Terciaria B · Factores Ambientales</span>
+            <span class="badge bg-light text-dark border">XML / Tablas Técnicas</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark">Factores de Emisión Well-to-Wheel (Ecoinvent / UPME / FECOC)</h5>
+          <p class="card-subtitle text-muted small mb-3">
+            <i class="bi bi-tree me-1"></i><strong>Entidades:</strong> Ecoinvent Centre & Unidad de Planeación Minero-Energética (UPME).
+          </p>
+          
+          <h6 class="fw-bold fs-7 text-uppercase text-secondary mt-3 mb-2">Variables Clave:</h6>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-1"><i class="bi bi-calculator text-danger me-2"></i><code>Factor_WTW_gCO2_km</code> (Factores directos e indirectos).</li>
+            <li class="mb-1"><i class="bi bi-calculator text-danger me-2"></i><code>Consumo_Especifico_kWh_km</code> & <code>Factor_Carbono_Red_Colombia</code> (g CO₂-eq/kWh).</li>
+            <li class="mb-1"><i class="bi bi-calculator text-danger me-2"></i><code>Factor_Emision_Fosil_Base</code> (Línea base diésel y gasolina).</li>
+          </ul>
+
+          <div class="p-3 bg-light rounded-2 border small text-muted">
+            <strong class="text-dark"><i class="bi bi-info-circle me-1"></i>Justificación Técnica:</strong>
+            Insumo de modelado paramétrico fundamental para transformar el conteo vehicular en la métrica cuantitativa de impacto <code>Huella_CO2_Evitada_Ton</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. MATRIZ SINTÉTICA COMPARATIVA -->
+<div class="mb-5">
+  <h3 class="h4 fw-bold text-dark mb-3">
+    <i class="bi bi-table text-success me-2"></i>Matriz Sinóptica de Fuentes de Información
+  </h3>
+  <div class="table-responsive content-card border">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th scope="col" style="width: 10%;">Nivel</th>
+          <th scope="col" style="width: 22%;">Nombre de la Fuente</th>
+          <th scope="col" style="width: 18%;">Entidad Responsable</th>
+          <th scope="col" style="width: 13%;">Formato / Acceso</th>
+          <th scope="col" style="width: 17%;">Granularidad / Cobertura</th>
+          <th scope="col" style="width: 20%;">Rol y Utilidad en el Proyecto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge bg-primary">Primaria</span></td>
+          <td><strong class="text-dark">Encuesta Propia de Adopción</strong></td>
+          <td>Equipo de Investigación</td>
+          <td>Web Form / CSV</td>
+          <td>Individual / Conductores Bogotá y Sabana</td>
+          <td>Evalúa intención de compra, disposición de pago y barreras de adopción técnica.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-info text-dark">Primaria</span></td>
+          <td><strong>Calidad del Aire (Sensores)</strong></td>
+          <td>SDA / IDEAM</td>
+          <td>API / CSV (<code>g4t8-zkc3</code>)</td>
+          <td>Horaria / Estaciones Bogotá y Nacional</td>
+          <td>Monitorea la concentración ambiental de PM<sub>2.5</sub>, CO y NO<sub>2</sub>.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-success">Secundaria</span></td>
+          <td><strong>Registro Vehicular BEV/HEV</strong></td>
+          <td>RUNT 2.0 / MinTransporte</td>
+          <td>API / CSV (<code>ntxy-q9ix</code>)</td>
+          <td>Microdato (N > 56.545 automotores)</td>
+          <td><strong>Tabla de hechos principal</strong> para clustering y análisis temporal.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-secondary">Secundaria</span></td>
+          <td><strong>Parque Total y PIB DANE</strong></td>
+          <td>MinTransporte / DANE</td>
+          <td>CSV (<code>u3vn-bdcy</code>) / XLS</td>
+          <td>Departamental / Anual 2014–2024</td>
+          <td>Calcula penetración porcentual y normalización de registros per cápita.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-warning text-dark">Terciaria</span></td>
+          <td><strong>Global EV Data Hub</strong></td>
+          <td>IEA / CAF</td>
+          <td>CSV / Data Explorer</td>
+          <td>Agregado País / Series Anuales</td>
+          <td>Establece el marco de contraste a escala global.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-danger">Terciaria</span></td>
+          <td><strong>Factores de Ciclo de Vida WTW</strong></td>
+          <td>Ecoinvent / UPME</td>
+          <td>Tablas Técnicas / XML</td>
+          <td>Factores en g CO₂/km y kWh/km</td>
+          <td>Permite computar matemáticamente la variable <code>Huella_CO2_Evitada_Ton</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 5. REFERENCIAS BIBLIOGRÁFICAS (APA 7.ª EDICIÓN) -->
+<div class="content-card card p-4 border-top border-3 border-dark bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Referencias Bibliográficas (Normas APA 7.ª edición)
+  </h5>
+  <ul class="list-unstyled small mb-0 ps-3" style="text-indent: -1.5rem; padding-left: 1.5rem;">
+    <li class="mb-2">
+      Alarcón, Y. C., &amp; Rodríguez, N. Y. (2017). <em>Análisis de Ciclo de Vida para diferentes fuentes energéticas usadas en los vehículos de transporte de pasajeros de la ciudad de Bogotá</em> (Tesis de maestría, Universidad Nacional de Colombia).
+    </li>
+    <li class="mb-2">
+      Alfaro Quintero, D. F. (2026). <em>Evolución y análisis de la adopción de vehículos eléctricos e híbridos en Colombia: Un enfoque de machine learning</em> (Tesis de maestría, Universidad EAN).
+    </li>
+    <li class="mb-2">
+      Banco de Desarrollo de América Latina y el Caribe [CAF]. (2024). <em>Transporte y cambio climático: Moviendo la frontera verde en América Latina y el Caribe</em>. CAF.
+    </li>
+    <li class="mb-2">
+      Departamento Administrativo Nacional de Estadística [DANE]. (2022). <em>Cuentas nacionales departamentales: PIB por departamento</em>. DANE.
+    </li>
+    <li class="mb-2">
+      International Energy Agency [IEA]. (2023). <em>Global EV Outlook 2023: Catching up with climate ambitions</em>. IEA.
+    </li>
+    <li class="mb-0">
+      Valencia Hernández, V. (2022). <em>Difusión de vehículos de fuentes de propulsión alternativas y la elección de los usuarios en sistemas de transporte en Colombia</em> (Tesis de maestría, Universidad Nacional de Colombia).
+    </li>
+  </ul>
+</div>
+
+<!-- Botones de Navegación entre Secciones -->
+<div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+  <a class="btn btn-outline-forest" href="{{ url_for('etapa1_seccion', slug='necesidades-informacion') }}">
+    <i class="bi bi-arrow-left me-1"></i> 3. Necesidades de Información
+  </a>
+  <a class="btn btn-energy" href="{{ url_for('etapa1_seccion', slug='dataset') }}">
+    5. Dataset <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}
