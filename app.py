@@ -1,4 +1,5 @@
 from flask import Flask, render_template, abort
+from jinja2 import TemplateNotFound
 
 app = Flask(__name__)
 
@@ -51,9 +52,13 @@ def etapa1_seccion(slug):
     seccion = next((s for s in ETAPA1_SECCIONES if s["slug"] == slug), None)
     if seccion is None:
         abort(404)
-    return render_template(
-        "etapa1/seccion.html", seccion=seccion, active=f"etapa1:{slug}"
-    )
+    ctx = {"seccion": seccion, "active": f"etapa1:{slug}"}
+    # Si existe una plantilla propia para la sección (etapa1/<slug>.html) se usa;
+    # de lo contrario se muestra la plantilla genérica con el contenido pendiente.
+    try:
+        return render_template(f"etapa1/{slug}.html", **ctx)
+    except TemplateNotFound:
+        return render_template("etapa1/seccion.html", **ctx)
 
 
 if __name__ == "__main__":
