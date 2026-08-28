@@ -1,0 +1,282 @@
+{% extends "etapa1/seccion.html" %}
+
+{% block seccion_contenido %}
+
+  {# ------------------------------------------------------------------ #}
+  {# Introducción                                                        #}
+  {# ------------------------------------------------------------------ #}
+  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
+    <h2 class="h4 fw-bold text-dark mb-3">
+      <i class="bi bi-clipboard-data text-success me-2"></i>&iquest;Qu&eacute; informaci&oacute;n se necesita?
+    </h2>
+    <p class="mb-0">
+      A partir de la pregunta principal y las cuatro preguntas secundarias, el
+      proyecto requiere informaci&oacute;n en <strong>cinco frentes</strong>:
+      temporal, t&eacute;cnico-tipol&oacute;gico, territorial, ambiental y
+      normativo-contextual. Cada necesidad se traduce en variables concretas que
+      luego se buscar&aacute;n en las <a href="{{ url_for('etapa1_seccion', slug='fuentes-datos') }}">fuentes de datos</a>
+      (Secci&oacute;n 4) y se documentar&aacute;n en el
+      <a href="{{ url_for('etapa1_seccion', slug='diccionario-datos') }}">diccionario de datos</a>
+      (Secci&oacute;n 6).
+    </p>
+  </article>
+
+  {# ------------------------------------------------------------------ #}
+  {# Matriz necesidad -> pregunta -> variables                           #}
+  {# ------------------------------------------------------------------ #}
+  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
+    <h2 class="h4 fw-bold text-dark mb-3">
+      <i class="bi bi-diagram-3 text-success me-2"></i>Matriz de necesidades de informaci&oacute;n
+    </h2>
+
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Necesidad de informaci&oacute;n</th>
+            <th scope="col">Pregunta que responde</th>
+            <th scope="col">Variables / indicadores</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Ritmo y momento de adopci&oacute;n</strong><br>
+              <span class="small text-muted">Volumen de matr&iacute;culas por a&ntilde;o y por tecnolog&iacute;a (h&iacute;brido vs. el&eacute;ctrico puro), 2014&ndash;2024.</span>
+            </td>
+            <td class="small">Secundaria 1 &middot; Dimensi&oacute;n temporal</td>
+            <td class="small">
+              <code>Anio_Registro</code>, <code>Fecha_Matricula</code>,
+              <code>Combustible</code> (El&eacute;ctrico, Gaso-El&eacute;ctrico, Di&eacute;sel-El&eacute;ctrico)
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Perfil t&eacute;cnico y tipol&oacute;gico del veh&iacute;culo</strong><br>
+              <span class="small text-muted">Clase de carrocer&iacute;a, servicio, marca y caracter&iacute;sticas mec&aacute;nicas.</span>
+            </td>
+            <td class="small">Secundaria 2 &middot; Preferencias y segmentos</td>
+            <td class="small">
+              <code>Clase</code> (Camioneta, Autom&oacute;vil, Bus, Moto),
+              <code>Servicio</code> (Particular, P&uacute;blico),
+              <code>Marca</code>, <code>Potencia_kW</code>, <code>Cilindraje_cc</code>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Distribuci&oacute;n territorial</strong><br>
+              <span class="small text-muted">Concentraci&oacute;n de veh&iacute;culos limpios por territorio y su relaci&oacute;n con poblaci&oacute;n e infraestructura de carga.</span>
+            </td>
+            <td class="small">Secundaria 3 &middot; Dimensi&oacute;n territorial</td>
+            <td class="small">
+              <code>Departamento</code>, <code>Municipio</code>,
+              <code>Poblacion_Total</code>, <code>Puntos_Carga_Depto</code>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Impacto ambiental evitado</strong><br>
+              <span class="small text-muted">Toneladas de CO<sub>2</sub>-eq dejadas de emitir por la sustituci&oacute;n de veh&iacute;culos f&oacute;siles.</span>
+            </td>
+            <td class="small">Secundaria 4 &middot; Impacto ambiental</td>
+            <td class="small">
+              <code>Huella_CO2_Estimada_Ton</code>, kil&oacute;metros anuales promedio,
+              factor de emisi&oacute;n <em>Well-to-Wheel</em> por combustible
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Contexto normativo y de incentivos</strong><br>
+              <span class="small text-muted">Hitos de pol&iacute;tica p&uacute;blica que permiten interpretar los cambios de tendencia.</span>
+            </td>
+            <td class="small">Pregunta principal (interpretaci&oacute;n de inflexiones)</td>
+            <td class="small">
+              Ley 1964 de 2019, documentos CONPES de calidad del aire, exenci&oacute;n
+              de pico y placa, Estrategia Nacional de Movilidad El&eacute;ctrica
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small text-muted mb-0">
+      Nota: los nombres de columna son provisionales y se consolidan en el
+      diccionario de datos una vez descargadas las fuentes oficiales.
+    </p>
+  </article>
+
+  {# ------------------------------------------------------------------ #}
+  {# Naturaleza de la información                                         #}
+  {# ------------------------------------------------------------------ #}
+  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
+    <h2 class="h4 fw-bold text-dark mb-4">
+      <i class="bi bi-layers text-success me-2"></i>Naturaleza de la informaci&oacute;n requerida
+    </h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+      <div class="col">
+        <div class="content-card h-100 p-3">
+          <span class="badge-forest mb-2">Primaria</span>
+          <p class="small mb-0 text-muted">
+            Registros administrativos de matr&iacute;culas de veh&iacute;culos
+            h&iacute;bridos y el&eacute;ctricos (microdato por veh&iacute;culo).
+          </p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="content-card h-100 p-3">
+          <span class="badge-forest mb-2">Secundaria</span>
+          <p class="small mb-0 text-muted">
+            Poblaci&oacute;n por territorio, parque automotor total, calidad del aire
+            e infraestructura de recarga p&uacute;blica.
+          </p>
+        </div>
+      </div>
+      <div class="col">
+        <div class="content-card h-100 p-3">
+          <span class="badge-forest mb-2">Terciaria / referencia</span>
+          <p class="small mb-0 text-muted">
+            Factores de emisi&oacute;n en ciclo de vida <em>Well-to-Wheel</em> y
+            par&aacute;metros de kilometraje anual promedio por tipo de veh&iacute;culo.
+          </p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {# ------------------------------------------------------------------ #}
+  {# Ficha técnica del requerimiento de información                       #}
+  {# ------------------------------------------------------------------ #}
+  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
+    <h2 class="h4 fw-bold text-dark mb-4">
+      <i class="bi bi-card-checklist text-success me-2"></i>Ficha t&eacute;cnica del requerimiento
+    </h2>
+
+    <dl class="row mb-0">
+      <dt class="col-sm-4 col-lg-3">Entidades involucradas</dt>
+      <dd class="col-sm-8 col-lg-9">
+        <ul class="mb-0">
+          <li><strong>RUNT</strong> (Registro &Uacute;nico Nacional de Tr&aacute;nsito) y <strong>Ministerio de Transporte</strong> &middot; matr&iacute;culas y parque automotor (<code>datos.gov.co</code>).</li>
+          <li><strong>DANE</strong> &middot; proyecciones de poblaci&oacute;n por territorio.</li>
+          <li><strong>Secretar&iacute;a Distrital de Ambiente</strong> / <strong>IDEAM</strong> &middot; calidad del aire.</li>
+          <li><strong>Ministerio de Minas y Energ&iacute;a</strong> / <strong>UPME</strong> &middot; pol&iacute;tica de transici&oacute;n energ&eacute;tica y matriz el&eacute;ctrica.</li>
+          <li><strong>Secretar&iacute;a Distrital de Movilidad</strong> / <strong>SIMUR</strong> &middot; encuestas de movilidad y esquema de pico y placa.</li>
+          <li><strong>CAF</strong> y literatura acad&eacute;mica (tesis UNAL, EAN) &middot; factores de emisi&oacute;n <em>Well-to-Wheel</em>.</li>
+        </ul>
+      </dd>
+
+      <dt class="col-sm-4 col-lg-3 border-top pt-3 mt-3">Variables relevantes</dt>
+      <dd class="col-sm-8 col-lg-9 border-top pt-3 mt-3">
+        Identificaci&oacute;n temporal (<code>Anio_Registro</code>, <code>Fecha_Matricula</code>),
+        tecnol&oacute;gicas (<code>Combustible</code>), t&eacute;cnicas
+        (<code>Clase</code>, <code>Servicio</code>, <code>Marca</code>, <code>Potencia_kW</code>, <code>Cilindraje_cc</code>),
+        territoriales (<code>Departamento</code>, <code>Municipio</code>, <code>Poblacion_Total</code>, <code>Puntos_Carga_Depto</code>)
+        y ambientales (<code>Huella_CO2_Estimada_Ton</code>, factor de emisi&oacute;n, km anuales).
+      </dd>
+
+      <dt class="col-sm-4 col-lg-3 border-top pt-3 mt-3">Periodo de an&aacute;lisis</dt>
+      <dd class="col-sm-8 col-lg-9 border-top pt-3 mt-3">
+        <strong>2014&ndash;2024</strong> (serie anual, 11 a&ntilde;os). El l&iacute;mite
+        inferior corresponde al inicio de registros significativos de veh&iacute;culos
+        limpios en Colombia; el superior, al &uacute;ltimo a&ntilde;o calendario cerrado.
+      </dd>
+
+      <dt class="col-sm-4 col-lg-3 border-top pt-3 mt-3">Cobertura geogr&aacute;fica</dt>
+      <dd class="col-sm-8 col-lg-9 border-top pt-3 mt-3">
+        <ul class="mb-0">
+          <li><strong>Regional (foco):</strong> Bogot&aacute; D.C.</li>
+          <li><strong>Nacional (comparaci&oacute;n):</strong> Colombia &mdash; 32 departamentos + Bogot&aacute;.</li>
+          <li><strong>Global (referencial):</strong> indicadores agregados de literatura y CAF, sin microdato.</li>
+        </ul>
+      </dd>
+
+      <dt class="col-sm-4 col-lg-3 border-top pt-3 mt-3">Poblaci&oacute;n / unidad de an&aacute;lisis</dt>
+      <dd class="col-sm-8 col-lg-9 border-top pt-3 mt-3">
+        La unidad es el <strong>veh&iacute;culo automotor h&iacute;brido o el&eacute;ctrico
+        matriculado</strong> (un registro por matr&iacute;cula). Unidad secundaria de
+        agregaci&oacute;n: <em>a&ntilde;o &times; territorio &times; clase de veh&iacute;culo</em>.
+      </dd>
+
+      <dt class="col-sm-4 col-lg-3 border-top pt-3 mt-3">Nivel de granularidad</dt>
+      <dd class="col-sm-8 col-lg-9 border-top pt-3 mt-3">
+        <ul class="mb-0">
+          <li><strong>Registro:</strong> microdato individual por veh&iacute;culo, con atributos t&eacute;cnicos.</li>
+          <li><strong>Temporal:</strong> fecha de matr&iacute;cula, agregable a mes y a&ntilde;o.</li>
+          <li><strong>Territorial:</strong> municipio y departamento.</li>
+          <li><strong>Calidad del aire:</strong> estaci&oacute;n de monitoreo, promedio anual.</li>
+        </ul>
+      </dd>
+    </dl>
+  </article>
+
+  {# ------------------------------------------------------------------ #}
+  {# Comparación multiescala                                             #}
+  {# ------------------------------------------------------------------ #}
+  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
+    <h2 class="h4 fw-bold text-dark mb-3">
+      <i class="bi bi-bar-chart-steps text-success me-2"></i>Variables para comparar las escalas global, nacional y regional
+    </h2>
+    <p>
+      Para que el an&aacute;lisis de tres niveles (Secci&oacute;n 1) sea comparable,
+      cada escala aporta variables propias y todas se normalizan con m&eacute;tricas comunes.
+    </p>
+
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Escala</th>
+            <th scope="col">Variable de comparaci&oacute;n</th>
+            <th scope="col">Fuente / naturaleza</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge-eco">Global</span></td>
+            <td class="small">Participaci&oacute;n de veh&iacute;culos cero emisiones (BEV) en ventas; toneladas de CO<sub>2</sub> del transporte por pa&iacute;s.</td>
+            <td class="small">Indicadores agregados (CAF, literatura).</td>
+          </tr>
+          <tr>
+            <td><span class="badge-eco">Nacional</span></td>
+            <td class="small">Matr&iacute;culas de veh&iacute;culos limpios por departamento; % sobre el parque total; emisiones GEI del transporte (&asymp;&nbsp;11&nbsp;% / 38&nbsp;Mt CO<sub>2</sub>-eq al a&ntilde;o).</td>
+            <td class="small">RUNT, Ministerio de Minas y Energ&iacute;a.</td>
+          </tr>
+          <tr>
+            <td><span class="badge-eco">Regional</span></td>
+            <td class="small">Matr&iacute;culas en Bogot&aacute; vs. total nacional (%); buses el&eacute;ctricos del SITP; puntos de carga por localidad.</td>
+            <td class="small">RUNT, Secretar&iacute;a de Movilidad, TransMilenio.</td>
+          </tr>
+          <tr class="table-light">
+            <td><strong>Normalizadores comunes</strong></td>
+            <td class="small" colspan="2">
+              Veh&iacute;culos limpios <strong>per c&aacute;pita</strong> (por cada 1.000 habitantes) &middot;
+              <strong>% de veh&iacute;culos limpios</strong> sobre el parque total &middot;
+              <strong>CO<sub>2</sub>-eq evitado por habitante</strong>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small text-muted mb-0">
+      La escala global es referencial: acota el fen&oacute;meno pero no se modela con
+      microdatos, ya que el dataset del proyecto es de alcance nacional y regional.
+    </p>
+  </article>
+
+  {# ------------------------------------------------------------------ #}
+  {# Criterios de suficiencia                                            #}
+  {# ------------------------------------------------------------------ #}
+  <article class="content-card p-4 p-md-5 bg-white border shadow-sm">
+    <h2 class="h4 fw-bold text-dark mb-3">
+      <i class="bi bi-check2-circle text-success me-2"></i>Criterios de suficiencia
+    </h2>
+    <p>La informaci&oacute;n se considera suficiente para la Etapa 1 si permite:</p>
+    <ul class="mb-0">
+      <li>Reconstruir la <strong>serie anual 2014&ndash;2024</strong> de matr&iacute;culas por tecnolog&iacute;a en Bogot&aacute; y Colombia.</li>
+      <li>Segmentar el parque por <strong>clase, servicio, marca, potencia y cilindraje</strong>.</li>
+      <li>Comparar la adopci&oacute;n entre <strong>departamentos</strong> y normalizarla <strong>per c&aacute;pita</strong>.</li>
+      <li>Asociar a cada veh&iacute;culo un <strong>factor de emisi&oacute;n</strong> para estimar la huella de carbono evitada.</li>
+      <li>Ubicar temporalmente los <strong>hitos normativos</strong> frente a los cambios de tendencia observados.</li>
+    </ul>
+  </article>
+
+{% endblock %}

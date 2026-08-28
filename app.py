@@ -52,20 +52,23 @@ def etapa1_seccion(slug):
     seccion = next((s for s in ETAPA1_SECCIONES if s["slug"] == slug), None)
     if seccion is None:
         abort(404)
-    ctx = {"seccion": seccion, "active": f"etapa1:{slug}"}
-    # Plantillas cuyo nombre de archivo no coincide con el slug de la URL.
-    alias = {
+
+    # Mapeo de slugs a sus plantillas correspondientes
+    plantillas = {
+        "problema-contexto": "etapa1/problema_contexto.html",
+        "preguntas": "etapa1/preguntas.html",
+        "necesidades-informacion": "etapa1/necesidades_informacion.html",
         "fuentes-datos": "etapa1/fuentes_datos.html",
+        "dataset": "etapa1/dataset.html",
+        "diccionario-datos": "etapa1/diccionario_datos.html",
+        "calidad-inicial": "etapa1/calidad_inicial.html",
+        "limitaciones": "etapa1/limitaciones.html",
     }
-    # Orden de búsqueda: alias explícito -> etapa1/<slug>.html -> plantilla genérica.
-    for nombre in (alias.get(slug), f"etapa1/{slug}.html", "etapa1/seccion.html"):
-        if not nombre:
-            continue
-        try:
-            return render_template(nombre, **ctx)
-        except TemplateNotFound:
-            continue
-    return render_template("etapa1/seccion.html", **ctx)
+
+    template_a_renderizar = plantillas.get(slug, "etapa1/seccion.html")
+    return render_template(
+        template_a_renderizar, seccion=seccion, active=f"etapa1:{slug}"
+    )
 
 
 if __name__ == "__main__":

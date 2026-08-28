@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}5. Dataset Integrado · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Migas de Pan (Breadcrumbs) -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 1: Comprensión</li>
+    <li class="breadcrumb-item active" aria-current="page">5. Dataset</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de la Sección -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+  <div>
+    <span class="badge-eco mb-2 d-inline-block">
+      <i class="bi bi-database-check text-warning me-1"></i>Estructura y Consolidación de Datos
+    </span>
+    <h1 class="h2 fw-bold text-dark mb-1">5. Dataset Consolidado</h1>
+    <p class="text-muted mb-0">Microdatos depurados del parque vehicular híbrido y eléctrico enriquecidos con variables sociodemográficas y factores de emisión.</p>
+  </div>
+  <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 fs-6">
+    <i class="bi bi-shield-check me-1"></i>Dataset Validado (N = 56.545)
+  </span>
+</div>
+
+<!-- 1. TARJETAS DE RESUMEN MÉTRICO (Cumplimiento de Rúbrica) -->
+<div class="row g-3 mb-5">
+  <div class="col-6 col-md-3">
+    <div class="content-card card p-3 text-center border-start border-4 border-success h-100">
+      <span class="text-muted small text-uppercase fw-bold">Volumen Total</span>
+      <h3 class="display-6 fw-bold text-success my-1">56.545</h3>
+      <span class="text-muted small">Registros limpios (RUNT)</span>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="content-card card p-3 text-center border-start border-4 border-primary h-100">
+      <span class="text-muted small text-uppercase fw-bold">Total Columnas</span>
+      <h3 class="display-6 fw-bold text-primary my-1">18</h3>
+      <span class="text-muted small">Variables estructuradas</span>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="content-card card p-3 text-center border-start border-4 border-warning h-100">
+      <span class="text-muted small text-uppercase fw-bold">Periodo Temporal</span>
+      <h3 class="display-6 fw-bold text-dark my-1">10 <span class="fs-6 text-muted">Años</span></h3>
+      <span class="text-muted small">Serie 2014 – 2024</span>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="content-card card p-3 text-center border-start border-4 border-secondary h-100">
+      <span class="text-muted small text-uppercase fw-bold">Cobertura Espacial</span>
+      <h3 class="display-6 fw-bold text-secondary my-1">33</h3>
+      <span class="text-muted small">Deptos + Bogotá D.C.</span>
+    </div>
+  </div>
+</div>
+
+<!-- 2. FICHA TÉCNICA Y COMPOSICIÓN DEL DATASET -->
+<div class="row g-4 mb-5">
+  <div class="col-lg-6">
+    <div class="content-card card h-100 p-4 border-start border-4 border-primary">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-file-earmark-text text-primary me-2"></i>Ficha Técnica del Conjunto de Datos
+      </h5>
+      <ul class="list-unstyled small mb-0">
+        <li class="py-2 border-bottom d-flex justify-content-between">
+          <strong class="text-muted">Unidad de Análisis:</strong>
+          <span class="text-dark fw-bold">Registro individual de vehículo matriculado</span>
+        </li>
+        <li class="py-2 border-bottom d-flex justify-content-between">
+          <strong class="text-muted">Granularidad:</strong>
+          <span>Microdato individual por vehículo</span>
+        </li>
+        <li class="py-2 border-bottom d-flex justify-content-between">
+          <strong class="text-muted">Fuente Primaria de Hechos:</strong>
+          <span>RUNT 2.0 / MinTransporte (datos.gov.co)</span>
+        </li>
+        <li class="py-2 border-bottom d-flex justify-content-between">
+          <strong class="text-muted">Enriquecimiento Contextual:</strong>
+          <span>DANE (DIVIPOLA/PIB), SIMUR y Factores LCA</span>
+        </li>
+        <li class="py-2 d-flex justify-content-between">
+          <strong class="text-muted">Formato de Almacenamiento:</strong>
+          <span class="badge bg-light text-dark border">Dataframe Pandas / CSV / Parquet</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="content-card card h-100 p-4 border-start border-4 border-success">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-pie-chart text-success me-2"></i>Distribución de Variables por Tipología
+      </h5>
+      <div class="row g-2 small">
+        <div class="col-6">
+          <div class="p-2 border rounded bg-light">
+            <span class="badge bg-primary mb-1">Categóricas (6)</span>
+            <ul class="list-unstyled mb-0 text-muted" style="font-size: 0.8rem;">
+              <li>• <code>Combustible</code>, <code>Clase</code></li>
+              <li>• <code>Servicio</code>, <code>Marca</code></li>
+              <li>• <code>Departamento</code>, <code>Municipio</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-2 border rounded bg-light">
+            <span class="badge bg-success mb-1">Numéricas (8)</span>
+            <ul class="list-unstyled mb-0 text-muted" style="font-size: 0.8rem;">
+              <li>• <code>Potencia_R</code>, <code>Cilindraje_R</code></li>
+              <li>• <code>Capacidad_Pasajeros_R</code></li>
+              <li>• <code>Capacidad_Carga_R</code></li>
+              <li>• <code>Puntos_Carga</code>, <code>PIB_pc</code></li>
+              <li>• <code>Poblacion</code>, <code>CO2_Evitado</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-2 border rounded bg-light">
+            <span class="badge bg-warning text-dark mb-1">Temporales (2)</span>
+            <ul class="list-unstyled mb-0 text-muted" style="font-size: 0.8rem;">
+              <li>• <code>Fecha_Matricula</code></li>
+              <li>• <code>Ano_Registro</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-2 border rounded bg-light">
+            <span class="badge bg-secondary mb-1">Identificadores (2)</span>
+            <ul class="list-unstyled mb-0 text-muted" style="font-size: 0.8rem;">
+              <li>• <code>ID_Registro</code> (PK)</li>
+              <li>• <code>Codigo_DIVIPOLA</code> (FK)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. SUBGRUPOS DE ANÁLISIS GENERADOS -->
+<div class="mb-5">
+  <h3 class="h4 fw-bold text-dark mb-3">
+    <i class="bi bi-boxes text-success me-2"></i>Estructuración en Subgrupos Analíticos
+  </h3>
+  <p class="text-muted small mb-3">Para evitar sesgos por tipología técnica, el dataset consolidado se subdivide en 5 subconjuntos especializados para los procesos de segmentación y modelado:</p>
+  
+  <div class="row row-cols-1 row-cols-md-5 g-2 text-center small">
+    <div class="col">
+      <div class="p-3 border rounded-3 bg-white content-card">
+        <i class="bi bi-bicycle fs-3 text-secondary d-block mb-1"></i>
+        <strong class="text-dark d-block">Motocicletas</strong>
+        <span class="text-muted"><code>df_moto</code></span>
+      </div>
+    </div>
+    <div class="col">
+      <div class="p-3 border rounded-3 bg-white content-card">
+        <i class="bi bi-car-front fs-3 text-primary d-block mb-1"></i>
+        <strong class="text-dark d-block">Particular / Oficial</strong>
+        <span class="text-muted"><code>df_particular_ligero</code></span>
+      </div>
+    </div>
+    <div class="col">
+      <div class="p-3 border rounded-3 bg-white content-card">
+        <i class="bi bi-taxi-front fs-3 text-warning d-block mb-1"></i>
+        <strong class="text-dark d-block">Público Ligero</strong>
+        <span class="text-muted"><code>df_publico_ligero</code></span>
+      </div>
+    </div>
+    <div class="col">
+      <div class="p-3 border rounded-3 bg-white content-card">
+        <i class="bi bi-bus-front fs-3 text-success d-block mb-1"></i>
+        <strong class="text-dark d-block">Público Pesado</strong>
+        <span class="text-muted"><code>df_publico_pesado</code></span>
+      </div>
+    </div>
+    <div class="col">
+      <div class="p-3 border rounded-3 bg-white content-card">
+        <i class="bi bi-truck fs-3 text-danger d-block mb-1"></i>
+        <strong class="text-dark d-block">Carga y Logística</strong>
+        <span class="text-muted"><code>df_carga</code></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. VISTA PREVIA DE LOS DATOS (Primeros 5 registros) -->
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="h4 fw-bold text-dark mb-0">
+      <i class="bi bi-table text-success me-2"></i>Muestra del Dataset Consolidado (Head)
+    </h3>
+    <span class="badge bg-light text-dark border">Primeras 5 observaciones representativas</span>
+  </div>
+
+  <div class="table-responsive content-card border">
+    <table class="table table-hover table-striped align-middle mb-0" style="font-size: 0.82rem;">
+      <thead class="table-light">
+        <tr class="text-nowrap">
+          <th>ID</th>
+          <th>Año</th>
+          <th>Departamento</th>
+          <th>Combustible</th>
+          <th>Clase</th>
+          <th>Servicio</th>
+          <th>Marca</th>
+          <th>Potencia (kW)</th>
+          <th>Cilindraje (cc)</th>
+          <th>Pasajeros</th>
+          <th>Carga (kg)</th>
+          <th>CO₂ Evitado (Ton/año)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>00001</code></td>
+          <td>2024</td>
+          <td>BOGOTA D.C.</td>
+          <td><span class="badge bg-success">ELECTRICO</span></td>
+          <td>BUS</td>
+          <td>PUBLICO</td>
+          <td>BYD</td>
+          <td>300.0</td>
+          <td>0</td>
+          <td>80</td>
+          <td>5000.0</td>
+          <td><strong class="text-success">28.45</strong></td>
+        </tr>
+        <tr>
+          <td><code>00002</code></td>
+          <td>2023</td>
+          <td>BOGOTA D.C.</td>
+          <td><span class="badge bg-primary">GASO ELEC</span></td>
+          <td>CAMIONETA</td>
+          <td>PARTICULAR</td>
+          <td>TOYOTA</td>
+          <td>163.0</td>
+          <td>2487</td>
+          <td>5</td>
+          <td>650.0</td>
+          <td><strong class="text-primary">1.82</strong></td>
+        </tr>
+        <tr>
+          <td><code>00003</code></td>
+          <td>2024</td>
+          <td>ANTIOQUIA</td>
+          <td><span class="badge bg-success">ELECTRICO</span></td>
+          <td>AUTOMOVIL</td>
+          <td>PARTICULAR</td>
+          <td>RENAULT</td>
+          <td>100.0</td>
+          <td>0</td>
+          <td>5</td>
+          <td>400.0</td>
+          <td><strong class="text-success">2.41</strong></td>
+        </tr>
+        <tr>
+          <td><code>00004</code></td>
+          <td>2022</td>
+          <td>CUNDINAMARCA</td>
+          <td><span class="badge bg-primary">GASO ELEC</span></td>
+          <td>AUTOMOVIL</td>
+          <td>PARTICULAR</td>
+          <td>MAZDA</td>
+          <td>115.0</td>
+          <td>1998</td>
+          <td>5</td>
+          <td>450.0</td>
+          <td><strong class="text-primary">1.15</strong></td>
+        </tr>
+        <tr>
+          <td><code>00005</code></td>
+          <td>2023</td>
+          <td>BOGOTA D.C.</td>
+          <td><span class="badge bg-success">ELECTRICO</span></td>
+          <td>CAMION</td>
+          <td>PUBLICO</td>
+          <td>FOTON</td>
+          <td>115.0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>3140.0</td>
+          <td><strong class="text-success">14.60</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+  <a class="btn btn-outline-forest" href="{{ url_for('etapa1_seccion', slug='fuentes-datos') }}">
+    <i class="bi bi-arrow-left me-1"></i> 4. Fuentes de Datos
+  </a>
+  <a class="btn btn-energy" href="{{ url_for('etapa1_seccion', slug='diccionario-datos') }}">
+    6. Diccionario de Datos <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}
