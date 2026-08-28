@@ -3,58 +3,80 @@
 {% block seccion_contenido %}
 
   {# ------------------------------------------------------------------ #}
-  {# 1. Contexto general del tema                                        #}
+  {# 1. Contexto general del tema                                       #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-3">
-      <i class="bi bi-globe-americas text-success me-2"></i>Contexto general del tema
-    </h2>
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 mb-4 bg-white border-start border-4 border-success">
+    <div class="d-flex align-items-center mb-3">
+      <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-globe-americas fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2 py-1 mb-1">Fundamentación Teórica</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Contexto general del tema</h2>
+      </div>
+    </div>
 
-    <p>
+    <p class="text-secondary leading-relaxed">
       La transición energética es el proceso orientado a transformar la forma en la
       que se obtiene la energía, que históricamente ha sido dependiente de los
       combustibles como gasolina, gas y carbón. Esto con el fin de
-      <strong>&laquo;descarbonizar&raquo;</strong> la obtención de energía eficiente
+      <strong class="text-dark">&laquo;descarbonizar&raquo;</strong> la obtención de energía eficiente
       por medio de Fuentes No Convencionales de Energía Renovable (FNCER) y la
       democratización del acceso a los recursos
       <span class="text-muted">(Ministerio de Minas y Energía, 2024; Valencia Hernández, 2022)</span>.
     </p>
 
-    <p>
+    <p class="text-secondary mb-3">
       Este cambio tecnológico está directamente relacionado con los compromisos de
       los tratados internacionales, como lo son:
     </p>
 
-    <ul>
-      <li>
-        El <strong>Acuerdo de París</strong>, que busca contener los efectos
-        adversos del cambio climático mediante la reducción progresiva de las
-        emisiones de Gases de Efecto Invernadero (GEI)
-        <span class="text-muted">(Alfonso et al., 2025; Cuéllar-Álvarez et al., 2024; Valencia Hernández, 2022)</span>.
-      </li>
-      <li>
-        La <strong>Agenda 2030 de la ONU</strong>, firmada por 193 países en 2015,
-        en la cual se busca alcanzar los Objetivos de Desarrollo Sostenible (ODS),
-        dentro de los cuales se encuentra el <strong>Objetivo 7</strong>:
-        &laquo;Energía sostenible y no contaminante&raquo;, que busca garantizar el
-        acceso a una energía asequible, segura, sostenible y moderna para todos.
-      </li>
-    </ul>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 border h-100">
+          <h6 class="fw-bold text-dark mb-2">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Acuerdo de París
+          </h6>
+          <p class="small text-secondary mb-0">
+            Busca contener los efectos adversos del cambio climático mediante la reducción progresiva de las emisiones de Gases de Efecto Invernadero (GEI)
+            <span class="text-muted">(Alfonso et al., 2025; Cuéllar-Álvarez et al., 2024; Valencia Hernández, 2022)</span>.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 bg-light rounded-3 border h-100">
+          <h6 class="fw-bold text-dark mb-2">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Agenda 2030 (ODS 7)
+          </h6>
+          <p class="small text-secondary mb-0">
+            Firmada por 193 países en 2015. El <strong>Objetivo 7</strong> («Energía sostenible y no contaminante») busca garantizar el acceso a una energía asequible, segura, sostenible y moderna para todos.
+          </p>
+        </div>
+      </div>
+    </div>
   </article>
 
   {# ------------------------------------------------------------------ #}
-  {# 2. Análisis del fenómeno en tres niveles                            #}
+  {# 2. Análisis del fenómeno en tres niveles                           #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-4">
-      <i class="bi bi-diagram-3 text-success me-2"></i>Análisis del fenómeno en tres niveles
-    </h2>
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 mb-4 bg-white border-start border-4 border-primary">
+    <div class="d-flex align-items-center mb-4">
+      <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-diagram-3 fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2 py-1 mb-1">Escalas de Análisis</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Análisis del fenómeno en tres niveles</h2>
+      </div>
+    </div>
 
-    <div class="mb-4">
-      <span class="badge-eco mb-2">
-        <i class="bi bi-globe me-1"></i>Nivel global · La carrera internacional por la descarbonización del transporte
-      </span>
-      <p>
+    <!-- Nivel Global -->
+    <div class="p-3 p-md-4 rounded-3 border mb-3 bg-light bg-opacity-50">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge bg-primary">Global</span>
+        <h6 class="fw-bold text-dark mb-0">La carrera internacional por la descarbonización del transporte</h6>
+      </div>
+      <p class="text-secondary small mb-2">
         A escala internacional, el sector transporte es responsable de una
         proporción crítica de las emisiones de GEI y del consumo intensivo de
         derivados del petróleo <span class="text-muted">(Valencia Hernández, 2022)</span>.
@@ -64,22 +86,22 @@
         estándares Euro VI) y el despliegue extensivo de redes de recarga pública
         <span class="text-muted">(CAF, 2024; Valencia Hernández, 2022)</span>.
       </p>
-      <p class="mb-0">
+      <p class="text-secondary small mb-0">
         Sin embargo, existe un desequilibrio: mientras los países desarrollados
         buscan la sustitución hacia tecnologías eléctricas otorgando incentivos que
         persiguen erradicar la combustión fósil, las economías en vías de desarrollo
-        de ingresos bajos enfrentan barreras financieras, altos costos de compra y
-        redes eléctricas aún en proceso de acceso y diversificación, lo que amplía
-        la brecha en la reducción de toneladas de CO<sub>2</sub> provenientes del
-        transporte automotor <span class="text-muted">(CAF, 2024; Valencia Hernández, 2022)</span>.
+        enfrentan barreras financieras, altos costos de compra y redes eléctricas aún en proceso de diversificación
+        <span class="text-muted">(CAF, 2024; Valencia Hernández, 2022)</span>.
       </p>
     </div>
 
-    <div class="mb-4">
-      <span class="badge-eco mb-2">
-        <i class="bi bi-flag me-1"></i>Nivel nacional · Colombia
-      </span>
-      <p>
+    <!-- Nivel Nacional -->
+    <div class="p-3 p-md-4 rounded-3 border mb-3 bg-light bg-opacity-50">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge bg-success">Nacional</span>
+        <h6 class="fw-bold text-dark mb-0">Colombia y su matriz limpia</h6>
+      </div>
+      <p class="text-secondary small mb-2">
         En Colombia, el transporte terrestre es el sector con mayor demanda
         energética final y aporta cerca del <strong>11 % de las emisiones totales de
         GEI</strong> del país, equivalente a unos <strong>38 millones de toneladas de
@@ -87,237 +109,212 @@
         <span class="text-muted">(CAF, 2024; Ministerio de Minas y Energía, 2024; Valencia Hernández, 2022)</span>.
         Para responder a este reto, el país creó la <em>Hoja de Ruta de la Transición
         Energética Justa (TEJ)</em> y la <em>Estrategia Nacional de Movilidad
-        Eléctrica</em>, soportadas por instrumentos normativos como la
-        <strong>Ley 1964 de 2019</strong> y los documentos CONPES de calidad del aire
-        y crecimiento verde
+        Eléctrica</em>, soportadas por la <strong>Ley 1964 de 2019</strong> y documentos CONPES
         <span class="text-muted">(Alfaro Quintero, 2026; Minenergía, 2024; Valencia Hernández, 2022)</span>.
       </p>
-      <p class="mb-0">
-        El país cuenta con una ventaja competitiva clave: una matriz de generación
-        eléctrica con alta participación de fuentes limpias y renovables, lo que
-        garantiza que la recarga de vehículos eléctricos represente una reducción
-        real y sustancial de emisiones bajo enfoques de Análisis de Ciclo de Vida
-        <em>Well-to-Wheel</em> <span class="text-muted">(Alarcón &amp; Rodríguez, 2017; Alfaro Quintero, 2026)</span>.
-        Aun así, el parque vehicular colombiano mantiene una alta edad promedio y una
-        fuerte dependencia de la gasolina y el diésel, con una penetración
-        concentrada predominantemente en tecnologías híbridas de transición
-        <span class="text-muted">(Alfaro Quintero, 2026; Valencia Hernández, 2022)</span>.
+      <p class="text-secondary small mb-0">
+        El país cuenta con una ventaja competitiva clave: una matriz eléctrica con alta participación renovable, lo que garantiza que la recarga eléctrica logre una reducción real bajo el enfoque <em>Well-to-Wheel</em>
+        <span class="text-muted">(Alarcón &amp; Rodríguez, 2017; Alfaro Quintero, 2026)</span>.
       </p>
     </div>
 
-    <div>
-      <span class="badge-eco mb-2">
-        <i class="bi bi-geo-alt me-1"></i>Nivel regional · Bogotá D.C.
-      </span>
-      <p>
-        Bogotá D.C. constituye el principal laboratorio urbano de movilidad
-        sostenible del país y de la región latinoamericana
+    <!-- Nivel Regional -->
+    <div class="p-3 p-md-4 rounded-3 border bg-light bg-opacity-50">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge bg-dark">Regional</span>
+        <h6 class="fw-bold text-dark mb-0">Bogotá D.C. como epicentro</h6>
+      </div>
+      <p class="text-secondary small mb-3">
+        Bogotá D.C. constituye el principal laboratorio urbano de movilidad sostenible del país
         <span class="text-muted">(Alarcón &amp; Rodríguez, 2017; CAF, 2024)</span>:
       </p>
-      <ul class="mb-0">
-        <li>
-          <strong>Liderazgo en transporte público:</strong> la ciudad se consolidó
-          como referente internacional con la incorporación de más de
-          <strong>1.485 buses 100 % eléctricos</strong> en el SITP, mitigando hasta
-          un <strong>86 %</strong> las emisiones de CO<sub>2</sub> y un
-          <strong>88 %</strong> las de material particulado (PM2.5) frente a la
-          tecnología diésel tradicional
+      <ul class="text-secondary small mb-0 ps-3">
+        <li class="mb-2">
+          <strong class="text-dark">Liderazgo en transporte público:</strong> Más de <strong>1.485 buses 100 % eléctricos</strong> en el SITP, mitigando hasta un <strong>86 %</strong> las emisiones de CO<sub>2</sub> y un <strong>88 %</strong> de PM<sub>2.5</sub> frente al diésel
           <span class="text-muted">(Alarcón &amp; Rodríguez, 2017; CAF, 2024)</span>.
         </li>
-        <li>
-          <strong>Dinámica en vehículos particulares:</strong> la capital concentra
-          el mayor volumen de matrículas de vehículos híbridos y eléctricos livianos,
-          impulsada por beneficios de movilidad local como la exención de pico y placa
+        <li class="mb-2">
+          <strong class="text-dark">Dinámica en particulares:</strong> Concentra el mayor volumen de matrículas híbridas y eléctricas impulsadas por la exención de pico y placa
           <span class="text-muted">(Alfaro Quintero, 2026; Valencia Hernández, 2022)</span>.
         </li>
         <li>
-          <strong>Brechas territoriales y modales:</strong> los vehículos de carga
-          pesada, la distribución logística y las motocicletas continúan operando casi
-          en su totalidad con tecnologías fósiles y alta antigüedad. Además, la
-          infraestructura de recarga pública y la adopción ciudadana presentan
-          marcadas asimetrías entre zonas de la ciudad
-          <span class="text-muted">(Alarcón &amp; Rodríguez, 2017; Alfaro Quintero, 2026; Minenergía, 2024; Valencia Hernández, 2022)</span>.
+          <strong class="text-dark">Brechas persistentes:</strong> El transporte de carga y las motocicletas continúan operando casi totalmente con combustibles fósiles y alta antigüedad
+          <span class="text-muted">(Alarcón &amp; Rodríguez, 2017; Valencia Hernández, 2022)</span>.
         </li>
       </ul>
     </div>
   </article>
 
   {# ------------------------------------------------------------------ #}
-  {# 3. Problema específico de la investigación                          #}
+  {# 3. Problema específico de la investigación                        #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-3">
-      <i class="bi bi-search text-success me-2"></i>Problema específico de la investigación
-    </h2>
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 mb-4 bg-white border-start border-4 border-warning">
+    <div class="d-flex align-items-center mb-3">
+      <div class="bg-warning bg-opacity-15 text-warning rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-search fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-warning bg-opacity-25 text-dark fw-semibold px-2 py-1 mb-1">Diagnóstico Central</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Problema específico de la investigación</h2>
+      </div>
+    </div>
 
-    <p>
-      El sector transporte consume cerca del <strong>41 % de la energía</strong> en
-      Colombia y genera alrededor del <strong>11 % de las emisiones de GEI</strong>
-      del país. En Bogotá, los automóviles particulares a gasolina generan la mayor
-      parte del dióxido de carbono en las vías, a pesar de movilizar a menos de un
-      tercio de la población.
+    <p class="text-secondary leading-relaxed">
+      El sector transporte consume cerca del <strong>41 % de la energía</strong> en Colombia y genera alrededor del <strong>11 % de las emisiones de GEI</strong>. En Bogotá, los automóviles particulares a gasolina generan la mayor parte del dióxido de carbono en las vías, a pesar de movilizar a menos de un tercio de la población.
     </p>
 
-    <p>
-      La transición a tecnologías limpias tiene un impacto importante: cambiar un
-      carro de combustión por uno eléctrico puede reducir hasta <strong>seis
-      veces</strong> sus emisiones contaminantes a lo largo de su vida útil, y
-      sustituir un bus diésel por uno eléctrico disminuye sus emisiones en un
-      <strong>86 %</strong> y el material particulado en un <strong>88 %</strong>.
-      Sin embargo, la transición en Bogotá enfrenta tres dificultades principales:
-    </p>
-
-    <div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
       <div class="col">
-        <div class="content-card h-100 p-3">
-          <h6 class="fw-bold">Preferencia por soluciones intermedias</h6>
-          <p class="small mb-0 text-muted">
-            La mayoría de compradores opta por híbridos en lugar de 100 % eléctricos,
-            motivados por beneficios inmediatos como evitar el pico y placa. Los
-            híbridos consumen menos, pero siguen dependiendo de la gasolina y no
-            eliminan por completo las emisiones.
+        <div class="card h-100 p-3 border rounded-3 bg-light">
+          <h6 class="fw-bold text-dark mb-2"><i class="bi bi-shuffle text-warning me-1"></i>Preferencia intermedia</h6>
+          <p class="small text-secondary mb-0">
+            La mayoría opta por híbridos sobre 100 % eléctricos por la exención de pico y placa. Aunque consumen menos, continúan dependiendo de la gasolina.
           </p>
         </div>
       </div>
       <div class="col">
-        <div class="content-card h-100 p-3">
-          <h6 class="fw-bold">Brecha entre tipos de transporte</h6>
-          <p class="small mb-0 text-muted">
-            Bogotá ha avanzado en electrificar el transporte público masivo (más de
-            1.485 buses del SITP), pero camiones de carga, vehículos de reparto y
-            motocicletas siguen funcionando casi en su totalidad con diésel y
-            gasolina antiguos, siendo los que más contaminan el aire.
+        <div class="card h-100 p-3 border rounded-3 bg-light">
+          <h6 class="fw-bold text-dark mb-2"><i class="bi bi-truck text-danger me-1"></i>Brecha modal</h6>
+          <p class="small text-secondary mb-0">
+            Frente al avance del SITP eléctrico, los camiones de carga y motos siguen funcionando con diésel/gasolina antiguos, aportando la mayor carga contaminante.
           </p>
         </div>
       </div>
       <div class="col">
-        <div class="content-card h-100 p-3">
-          <h6 class="fw-bold">Falta de estaciones de carga y costos</h6>
-          <p class="small mb-0 text-muted">
-            El alto precio de compra de los vehículos eléctricos y la falta de
-            electrolineras públicas en muchas zonas de la ciudad frenan una adopción
-            más rápida y equitativa.
+        <div class="card h-100 p-3 border rounded-3 bg-light">
+          <h6 class="fw-bold text-dark mb-2"><i class="bi bi-ev-station text-primary me-1"></i>Infraestructura y costos</h6>
+          <p class="small text-secondary mb-0">
+            El alto costo inicial y la distribución asimétrica de electrolineras públicas en la capital limitan una masificación homogénea.
           </p>
         </div>
       </div>
     </div>
 
-    <div class="callout-energy">
-      <strong>Problema central:</strong> no se conocen con claridad los patrones de
-      compra, uso y distribución de los vehículos híbridos y eléctricos en Bogotá, ni
-      se ha medido con precisión matemática cómo su adopción gradual ayuda a reducir
-      la huella de carbono frente a las metas de sostenibilidad de la ciudad y del
-      país.
-    </div>
-  </article>
-
-  {# ------------------------------------------------------------------ #}
-  {# 4. Planteamiento del problema                                       #}
-  {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-3">
-      <i class="bi bi-exclamation-diamond text-warning me-2"></i>Planteamiento del problema
-    </h2>
-
-    <div class="mb-4">
-      <span class="badge-eco mb-2">
-        Problema general
-      </span>
-      <p class="mb-0">
-        La transición hacia vehículos híbridos y eléctricos en Bogotá busca reducir
-        la huella de carbono, pero no se conoce con exactitud cómo se distribuye
-        esta adopción ni cuál es su impacto real.
-      </p>
-    </div>
-
-    <div>
-      <span class="badge-forest mb-2">
-        Problema de minería de datos
-      </span>
-      <p class="mb-0">
-        Descubrir los patrones temporales (2014&ndash;2024), espaciales y técnicos
-        (cilindraje, potencia, clase y combustible) que caracterizan la evolución
-        de las matrículas de vehículos limpios frente a los tradicionales en Bogotá
-        y Colombia, y cuantificar mediante factores de emisión cómo estas
-        trayectorias temporales han modificado la huella de carbono
-        (CO<sub>2</sub>-eq).
+    <div class="p-3 bg-warning bg-opacity-10 border border-warning rounded-3">
+      <p class="small text-dark mb-0">
+        <strong class="text-dark"><i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Problema central:</strong> 
+        No se conocen con precisión los patrones de compra, uso y distribución de híbridos y eléctricos en Bogotá, ni se ha cuantificado cómo su adopción gradual reduce la huella de carbono real frente a las metas de sostenibilidad.
       </p>
     </div>
   </article>
 
   {# ------------------------------------------------------------------ #}
-  {# 5. Conocimiento que se espera obtener a partir de los datos         #}
+  {# 4. Planteamiento del problema                                      #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-3">
-      <i class="bi bi-lightbulb text-warning me-2"></i>Conocimiento que se espera obtener a partir de los datos
-    </h2>
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 mb-4 bg-white border-start border-4 border-danger">
+    <div class="d-flex align-items-center mb-3">
+      <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-exclamation-diamond fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold px-2 py-1 mb-1">Formulación</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Planteamiento del problema</h2>
+      </div>
+    </div>
 
-    <p>
-      A través del análisis y procesamiento de los datos oficiales (RUNT, DANE y
-      factores de emisión), el proyecto busca generar cuatro tipos de conocimiento
-      clave:
-    </p>
-
-    <ol class="mb-0">
-      <li class="mb-2">
-        <strong>Evolución y ritmo de adopción en el tiempo:</strong> identificar en
-        qué momentos exactos (entre 2014 y 2024) se aceleró la compra de vehículos
-        limpios y evaluar si normas como la Ley 1964 de 2019 o el beneficio de no
-        tener pico y placa provocaron cambios notorios en la tendencia anual de
-        matrículas.
-      </li>
-      <li class="mb-2">
-        <strong>Preferencia real del comprador (híbridos vs. eléctricos):</strong>
-        conocer si la ciudadanía y las empresas se inclinan por tecnologías
-        intermedias que aún queman combustible (híbridos) o por opciones 100 % libres
-        de emisiones (eléctricos puros), y qué tipos de carrocería lideran las ventas.
-      </li>
-      <li class="mb-2">
-        <strong>Segmentación técnica de los vehículos:</strong> agrupar los
-        automotores según combinaciones de cilindraje, potencia (kW), capacidad de
-        carga y pasajeros mediante técnicas de aprendizaje automático, para descubrir
-        los perfiles técnicos que dominan el parque vehicular de la capital.
-      </li>
-      <li>
-        <strong>Medición del ahorro real de emisiones de CO<sub>2</sub>:</strong>
-        calcular, a partir de factores estándar de ciclo de vida
-        (<em>Well-to-Wheel</em>), cuántas toneladas de CO<sub>2</sub> se han dejado
-        de emitir anualmente al reemplazar vehículos fósiles por híbridos y
-        eléctricos en Bogotá.
-      </li>
-    </ol>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-secondary mb-2">Problema General</span>
+          <p class="small text-secondary mb-0">
+            La transición hacia vehículos híbridos y eléctricos en Bogotá busca reducir la huella de carbono, pero no se conoce con exactitud cómo se distribuye esta adopción ni cuál es su impacto real en la ciudad.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary mb-2">Problema de Minería de Datos</span>
+          <p class="small text-secondary mb-0">
+            Descubrir patrones temporales (2014&ndash;2024), espaciales y técnicos (cilindraje, potencia, clase y combustible) que caracterizan las matrículas limpias y cuantificar mediante factores de emisión el ahorro real de huella de carbono (CO<sub>2</sub>-eq).
+          </p>
+        </div>
+      </div>
+    </div>
   </article>
 
   {# ------------------------------------------------------------------ #}
-  {# Referencias                                                         #}
+  {# 5. Conocimiento que se espera obtener a partir de los datos        #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-3">
-      <i class="bi bi-journal-bookmark text-success me-2"></i>Referencias
-    </h2>
-    <ul class="small text-muted mb-0" style="line-height: 1.8;">
-      <li>
-        Alarcón, Y. C., &amp; Rodríguez, N. Y. (2017). <em>Análisis de Ciclo de Vida
-        para diferentes fuentes energéticas usadas en los vehículos de transporte de
-        pasajeros de la ciudad de Bogotá</em> [Tesis de maestría, Universidad
-        Nacional de Colombia].
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 mb-4 bg-white border-start border-4 border-info">
+    <div class="d-flex align-items-center mb-3">
+      <div class="bg-info bg-opacity-10 text-info rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-lightbulb fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-info bg-opacity-10 text-info fw-semibold px-2 py-1 mb-1">Aportes del Proyecto</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Conocimiento que se espera obtener</h2>
+      </div>
+    </div>
+
+    <p class="text-secondary small mb-3">
+      A través del análisis y procesamiento de los datos oficiales (RUNT, DANE y factores de emisión), el proyecto generará cuatro núcleos de conocimiento:
+    </p>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <h6 class="fw-bold text-dark small mb-1">
+            <span class="badge bg-primary me-1">1</span> Ritmo de adopción temporal
+          </h6>
+          <p class="small text-secondary mb-0">
+            Identificar picos de adopción (2014–2024) y evaluar el impacto de la Ley 1964 de 2019 y la exención de pico y placa.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <h6 class="fw-bold text-dark small mb-1">
+            <span class="badge bg-primary me-1">2</span> Preferencia real del comprador
+          </h6>
+          <p class="small text-secondary mb-0">
+            Determinar la relación entre compras de híbridos (HEV) vs. 100 % eléctricos (BEV) y tipologías predominantes.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <h6 class="fw-bold text-dark small mb-1">
+            <span class="badge bg-primary me-1">3</span> Segmentación técnica (Machine Learning)
+          </h6>
+          <p class="small text-secondary mb-0">
+            Agrupar el parque automotor por potencia, cilindraje, carga y pasajeros usando algoritmos de clustering.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <h6 class="fw-bold text-dark small mb-1">
+            <span class="badge bg-primary me-1">4</span> Ahorro real de emisiones
+          </h6>
+          <p class="small text-secondary mb-0">
+            Cuantificar toneladas de CO<sub>2</sub> mitigadas aplicando factores de ciclo de vida (<em>Well-to-Wheel</em>).
+          </p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {# ------------------------------------------------------------------ #}
+  {# Referencias                                                        #}
+  {# ------------------------------------------------------------------ #}
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 bg-white border-top border-3 border-dark">
+    <div class="d-flex align-items-center mb-3">
+      <i class="bi bi-journal-bookmark-fill text-dark fs-4 me-2"></i>
+      <h2 class="h5 fw-bold text-dark mb-0">Referencias Bibliográficas (APA 7.ª ed.)</h2>
+    </div>
+    
+    <ul class="list-unstyled small text-secondary mb-0 ps-3" style="text-indent: -1.5rem; padding-left: 1.5rem; line-height: 1.8;">
+      <li class="mb-2">
+        Alarcón, Y. C., &amp; Rodríguez, N. Y. (2017). <em>Análisis de Ciclo de Vida para diferentes fuentes energéticas usadas en los vehículos de transporte de pasajeros de la ciudad de Bogotá</em> [Tesis de maestría, Universidad Nacional de Colombia].
       </li>
-      <li>
-        Alfaro Quintero, D. F. (2026). <em>Evolución y análisis de la adopción de
-        vehículos eléctricos e híbridos en Colombia: un enfoque de machine
-        learning</em> [Tesis de maestría, Universidad EAN].
+      <li class="mb-2">
+        Alfaro Quintero, D. F. (2026). <em>Evolución y análisis de la adopción de vehículos eléctricos e híbridos en Colombia: un enfoque de machine learning</em> [Tesis de maestría, Universidad EAN].
       </li>
-      <li>
-        Banco de Desarrollo de América Latina y el Caribe [CAF]. (2024).
-        <em>Transporte y cambio climático: moviendo la frontera verde en América
-        Latina y el Caribe</em>. CAF.
+      <li class="mb-2">
+        Banco de Desarrollo de América Latina y el Caribe [CAF]. (2024). <em>Transporte y cambio climático: moviendo la frontera verde en América Latina y el Caribe</em>. CAF.
       </li>
-      <li>
-        Valencia Hernández, V. (2022). <em>Difusión de vehículos de fuentes de
-        propulsión alternativas y la elección de los usuarios en sistemas de
-        transporte en Colombia</em> [Tesis de maestría, Universidad Nacional de
-        Colombia].
+      <li class="mb-0">
+        Valencia Hernández, V. (2022). <em>Difusión de vehículos de fuentes de propulsión alternativas y la elección de los usuarios en sistemas de transporte en Colombia</em> [Tesis de maestría, Universidad Nacional de Colombia].
       </li>
     </ul>
   </article>
