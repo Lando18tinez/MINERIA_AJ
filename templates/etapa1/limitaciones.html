@@ -1,1 +1,189 @@
-{% extends "etapa1/seccion.html" %}
+{% extends "base.html" %}
+
+{% block title %}8. Limitaciones y Consideraciones · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Migas de Pan (Breadcrumbs) -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 1: Comprensión</li>
+    <li class="breadcrumb-item active" aria-current="page">8. Limitaciones y Consideraciones</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de la Sección -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+  <div>
+    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning mb-2 d-inline-block px-3 py-1 fw-semibold">
+      <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Alcance y Restricciones Metodológicas
+    </span>
+    <h1 class="h2 fw-bold text-dark mb-1">8. Limitaciones y Consideraciones</h1>
+    <p class="text-muted mb-0">Delimitación de fronteras analíticas, supuestos del modelado prospectivo, sesgos de fuentes primarias y consideraciones ético-operativas para Bogotá D.C.</p>
+  </div>
+  <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2 fs-6">
+    <i class="bi bi-diagram-3 me-1"></i>Fronteras del Sistema
+  </span>
+</div>
+
+<!-- 1. RESUMEN EJECUTIVO DE FRONTERAS Y ALCANCE -->
+<div class="card p-4 mb-5 border-start border-4 border-warning bg-white shadow-sm">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-pin-map text-warning me-2"></i>Marco de Alcance y Fronteras del Proyecto en Bogotá D.C.
+  </h5>
+  <p class="text-muted mb-0">
+    La presente investigación delimita su análisis analítico y prospectivo a la transición energética vehicular en el entorno urbano de <strong>Bogotá D.C.</strong> y sus dinámicas intraurbanas por localidades. Los modelos de minería de datos y estimación de emisiones integran la dinámica de viajes y la sustitución tecnológica en transporte particular, carga y transporte público masivo (SITP/TransMilenio), reconociendo restricciones estructurales asociadas a los microdatos disponibles y los supuestos de política pública distrital al horizonte 2050.
+  </p>
+</div>
+
+<!-- 2. MATRIZ DE LIMITACIONES ESPECÍFICAS -->
+<div class="mb-5">
+  <h3 class="h4 fw-bold text-dark mb-3">
+    <i class="bi bi-card-checklist text-primary me-2"></i>Clasificación de Limitaciones Identificadas
+  </h3>
+  <div class="row g-4">
+    
+    <!-- Limitación 1: Fuentes y Datos -->
+    <div class="col-lg-6">
+      <div class="card h-100 p-4 border-top border-4 border-danger bg-white shadow-sm">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-database-slash text-danger me-2"></i>1. Calidad y Cobertura de Microdatos
+        </h5>
+        <ul class="text-muted small ps-3 mb-0">
+          <li class="mb-2">
+            <strong>Dispersión Administrativa:</strong> Los registros del RUNT 2.0 y secretarías locales presentan asimetrías de completitud en variables de ingeniería (potencia, cilindraje y capacidad de carga), requiriendo procesos de imputación técnica y homología de catálogo.
+          </li>
+          <li class="mb-2">
+            <strong>Subregistro de Modos Emergentes:</strong> No se cuenta con datos desagregados de micro-movilidad eléctrica (patinetas, bicicletas asistidas) ni de plataformas digitales de intermediación de viajes y domicilios en las matrices origen-destino distritales.
+          </li>
+          <li>
+            <strong>Factores de Emisión Empíricos:</strong> Parte de los factores de emisión unitarios provienen de bases de datos internacionales (ecoinvent, GREET, ICCT), adaptados al factor de emisión de la matriz de generación eléctrica local.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Limitación 2: Ciclo de Vida y Enfoque Ambiental -->
+    <div class="col-lg-6">
+      <div class="card h-100 p-4 border-top border-4 border-primary bg-white shadow-sm">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-recycle text-primary me-2"></i>2. Fronteras del Análisis de Ciclo de Vida
+        </h5>
+        <ul class="text-muted small ps-3 mb-0">
+          <li class="mb-2">
+            <strong>Enfoque Del Pozo a la Rueda (Well-to-Wheel):</strong> El cálculo del impacto ambiental prioriza las emisiones directas del tubo de escape y la producción de energéticos consumidos en la ciudad (electricidad, gasolina, diésel, GNV).
+          </li>
+          <li class="mb-2">
+            <strong>Exclusión de Fases de Fabricación:</strong> Se excluyen del balance de huella de carbono los procesos de minería, ensamblaje de carrocerías, manufactura externa y reciclaje final de baterías de litio.
+          </li>
+          <li>
+            <strong>Categorías de Impacto Seleccionadas:</strong> El estudio se enfoca en cambio climático (CO<sub>2</sub>eq) y material particulado local (PM<sub>2.5</sub>), omitiendo indicadores sobre degradación de suelo o estrés hídrico regional.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Limitación 3: Supuestos Macroeconómicos -->
+    <div class="col-lg-6">
+      <div class="card h-100 p-4 border-top border-4 border-warning bg-white shadow-sm">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-graph-down-arrow text-warning me-2"></i>3. Incertidumbre Macroeconómica Distrital
+        </h5>
+        <ul class="text-muted small ps-3 mb-0">
+          <li class="mb-2">
+            <strong>Sensibilidad a Precios de Combustibles:</strong> La tasa de penetración de vehículos eléctricos (BEV/PHEV) en la capital es sensible a la volatilidad de precios y a la eliminación progresiva de subsidios locales a los combustibles fósiles.
+          </li>
+          <li class="mb-2">
+            <strong>Proyecciones de Motorización en Bogotá:</strong> Se asumen curvas de motorización vinculadas al ingreso medio de los hogares bogotanos, lo cual está expuesto a variaciones por choques económicos o inflación.
+          </li>
+          <li>
+            <strong>Costos de Adquisición de Baterías:</strong> La reducción proyectada de costos por kWh sigue tendencias de aprendizaje tecnológico global sujetas a la estabilidad de cadenas de suministro.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Limitación 4: Inercia del Parque y Comportamiento -->
+    <div class="col-lg-6">
+      <div class="card h-100 p-4 border-top border-4 border-info bg-white shadow-sm">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-hourglass-split text-info me-2"></i>4. Inercia del Parque y Elección Modal Urbana
+        </h5>
+        <ul class="text-muted small ps-3 mb-0">
+          <li class="mb-2">
+            <strong>Lenta Renovación en Flota de Carga:</strong> La prolongada vida útil de los camiones de carga y transporte logístico en Bogotá retrasa la obtención de beneficios ambientales inmediatos en material particulado.
+          </li>
+          <li class="mb-2">
+            <strong>Incentivo al Vehículo Híbrido:</strong> La exención de pico y placa distrital impulsa mayoritariamente la compra de híbridos no enchufables (HEV), que aún mantienen consumo y emisiones fósiles.
+          </li>
+          <li>
+            <strong>Dinámica de Congestión:</strong> La sustitución tecnológica por sí sola no reduce la congestión vial si no se acompaña de una migración modal hacia el transporte público eléctrico masivo o la bicicleta.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 3. CONSIDERACIONES ÉTICAS, TÉCNICAS Y RECOMENDACIONES -->
+<div class="card p-4 mb-5 border shadow-sm bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-shield-lock text-success me-2"></i>Consideraciones Éticas y Uso de la Información
+  </h5>
+  <p class="text-muted small mb-3">
+    Los análisis desarrollados para la ciudad de Bogotá se sustentan en principios de transparencia, reproducibilidad y protección de datos:
+  </p>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="p-3 border rounded bg-light">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-incognito me-1 text-primary"></i>Anonimización</h6>
+        <p class="small text-muted mb-0">Los microdatos del RUNT fueron procesados eliminando números de placa específicos, cédulas y datos de identificación personal de propietarios conforme a la Ley 1581 de 2012.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 border rounded bg-light">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-code-slash me-1 text-primary"></i>Trazabilidad</h6>
+        <p class="small text-muted mb-0">Todos los pipelines de imputación, estandarización tipográfica y cálculo de factores de emisión están documentados para garantizar su reproducibilidad técnica.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 border rounded bg-light">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-bullseye me-1 text-primary"></i>Neutralidad Tecnológica</h6>
+        <p class="small text-muted mb-0">La evaluación compara objetivamente tecnologías eléctricas (BEV), híbridas (HEV/PHEV), gas natural (GNV) y combustibles convencionales bajo criterios técnico-ambientales unificados.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. REFERENCIAS BIBLIOGRÁFICAS (APA 7.ª EDICIÓN) -->
+<div class="card p-4 border-top border-3 border-dark bg-white shadow-sm">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Referencias Bibliográficas (Normas APA 7.ª edición)
+  </h5>
+  <ul class="list-unstyled small mb-0 ps-3" style="text-indent: -1.5rem; padding-left: 1.5rem;">
+    <li class="mb-2">
+      Alarcón, Y. C., &amp; Rodríguez, N. Y. (2017). <em>Análisis de Ciclo de Vida para diferentes fuentes energéticas usadas en los vehículos de transporte de pasajeros de la ciudad de Bogotá</em> (Tesis de maestría, Universidad Nacional de Colombia).
+    </li>
+    <li class="mb-2">
+      Alfaro Quintero, D. F. (2026). <em>Evolución y análisis de la adopción de vehículos eléctricos e híbridos en Colombia: Un enfoque de machine learning</em> (Tesis de maestría, Universidad EAN).
+    </li>
+    <li class="mb-2">
+      Banco de Desarrollo de América Latina y el Caribe [CAF]. (2024). <em>Transporte y cambio climático: Moviendo la frontera verde en América Latina y el Caribe</em>. CAF.
+    </li>
+    <li class="mb-0">
+      Secretaría Distrital de Movilidad. (2023). <em>Plan de Movilidad Sostenible y Descarbonización de Bogotá D.C.</em> Alcaldía Mayor de Bogotá.
+    </li>
+  </ul>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa1_seccion', slug='calidad-inicial') }}">
+    <i class="bi bi-arrow-left me-1"></i> 7. Calidad Inicial de los Datos
+  </a>
+  <a class="btn btn-outline-primary" href="{{ url_for('participantes') }}">
+    Equipo y Participantes <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}

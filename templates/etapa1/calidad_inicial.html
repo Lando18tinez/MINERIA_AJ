@@ -1,1 +1,192 @@
-{% extends "etapa1/seccion.html" %}
+{% extends "base.html" %}
+
+{% block title %}7. Calidad Inicial de los Datos · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Migas de Pan (Breadcrumbs) -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 1: Comprensión</li>
+    <li class="breadcrumb-item active" aria-current="page">7. Calidad Inicial de los Datos</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de la Sección -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+  <div>
+    <span class="badge bg-success bg-opacity-10 text-success border border-success mb-2 d-inline-block px-3 py-1 fw-semibold">
+      <i class="bi bi-shield-check me-1"></i>Evaluación y Depuración de Datos
+    </span>
+    <h1 class="h2 fw-bold text-dark mb-1">7. Calidad Inicial de los Datos</h1>
+    <p class="text-muted mb-0">Diagnóstico multidimensional de los registros brutos, inconsistencias identificadas y estrategias de estandarización e imputación técnica.</p>
+  </div>
+  <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 fs-6">
+    <i class="bi bi-cpu me-1"></i>Pipeline de Limpieza
+  </span>
+</div>
+
+<!-- 1. RESUMEN DEL DIAGNÓSTICO DE CALIDAD -->
+<div class="card p-4 mb-5 border-start border-4 border-primary bg-white shadow-sm">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-clipboard2-data text-primary me-2"></i>Diagnóstico General del Ecosistema de Datos
+  </h5>
+  <p class="text-muted mb-3">
+    La integración de registros administrativos oficiales (RUNT 2.0), series sociodemográficas (DANE) y factores de emisión (Well-to-Wheel) presentó desafíos característicos de fuentes públicas masivas. La evaluación inicial se centró en identificar valores faltantes, anomalías en especificaciones técnicas de ingeniería vehicular y discrepancias en la codificación político-administrativa.
+  </p>
+  <div class="row g-3 text-center">
+    <div class="col-md-3">
+      <div class="p-3 border rounded bg-light">
+        <div class="fs-4 fw-bold text-dark">&gt; 56.545</div>
+        <div class="text-muted small">Registros evaluados (RUNT)</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 border rounded bg-light">
+        <div class="fs-4 fw-bold text-warning">4</div>
+        <div class="text-muted small">Variables técnicas críticas</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 border rounded bg-light">
+        <div class="fs-4 fw-bold text-primary">100%</div>
+        <div class="text-muted small">DIVIPOLA homologado</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 border rounded bg-light">
+        <div class="fs-4 fw-bold text-success">0</div>
+        <div class="text-muted small">Duplicados en ID_Registro</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. DIMENSIONES DE CALIDAD DE DATOS EVALUADAS -->
+<div class="mb-5">
+  <h3 class="h4 fw-bold text-dark mb-3">
+    <i class="bi bi-check2-square text-success me-2"></i>Evaluación por Dimensiones de Calidad
+  </h3>
+  <div class="table-responsive card border shadow-sm">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 18%;">Dimensión</th>
+          <th style="width: 32%;">Estado Inicial / Hallazgo</th>
+          <th style="width: 35%;">Impacto y Tratamiento Aplicado</th>
+          <th style="width: 15%; text-align: center;">Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong class="text-primary">1. Completitud</strong></td>
+          <td>
+            Presencia de campos nulos en variables de ingeniería (<code>Cilindraje</code> y <code>Potencia</code>) y capacidades de carga/pasajeros en registros antiguos.
+          </td>
+          <td>
+            Construcción de catálogo técnico de fabricantes para imputar valores de referencia por combinación de <code>Marca</code> + <code>Linea</code> + <code>Combustible</code>.
+          </td>
+          <td class="text-center"><span class="badge bg-success">Imputado</span></td>
+        </tr>
+        <tr>
+          <td><strong class="text-primary">2. Consistencia y Lógica</strong></td>
+          <td>
+            Registros de vehículos 100% eléctricos (BEV) con valores de cilindraje mayores a cero, o híbridos (HEV) sin potencia declarada.
+          </td>
+          <td>
+            Estandarización de reglas de negocio: fijación estricta de <code>Cilindraje = 0 cc</code> para propulsión 100% eléctrica y corrección de outliers en potencia eléctrica.
+          </td>
+          <td class="text-center"><span class="badge bg-success">Estandarizado</span></td>
+        </tr>
+        <tr>
+          <td><strong class="text-primary">3. Validez y Tipificación</strong></td>
+          <td>
+            Inconsistencias ortográficas y variaciones en nombres de departamentos y municipios (ej. "BOGOTA D.C.", "Bogotá, D.C.", "BOGOTA").
+          </td>
+          <td>
+            Normalización tipográfica a mayúsculas sostenidas, eliminación de caracteres especiales y cruce directo contra la codificación oficial DIVIPOLA del DANE.
+          </td>
+          <td class="text-center"><span class="badge bg-success">Validado</span></td>
+        </tr>
+        <tr>
+          <td><strong class="text-primary">4. Unicidad</strong></td>
+          <td>
+            Duplicidad potencial originada por actualizaciones periódicas de los reportes en el portal de Datos Abiertos.
+          </td>
+          <td>
+            Eliminación de redundancias garantizando registros unívocos por identificador de matrícula vehicular.
+          </td>
+          <td class="text-center"><span class="badge bg-success">Sin duplicados</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 3. DETALLE DE VARIABLES RECONSTRUIDAS / IMPUTADAS (_R) -->
+<div class="mb-5">
+  <h3 class="h4 fw-bold text-dark mb-3">
+    <i class="bi bi-tools text-primary me-2"></i>Estrategia de Imputación y Variables Reconstruidas
+  </h3>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card h-100 p-3 border-start border-4 border-info bg-white shadow-sm">
+        <h6 class="fw-bold text-dark mb-2">Tratamiento de <code>Potencia_R</code> y <code>Cilindraje_R</code></h6>
+        <p class="small text-muted mb-2">
+          Debido a la ausencia de especificaciones detalladas en algunas fichas de homologación temprana, se generaron las columnas derivadas con sufijo <code>_R</code>:
+        </p>
+        <ul class="small text-muted ps-3 mb-0">
+          <li class="mb-1"><strong>Vehículos Eléctricos (BEV):</strong> Se garantizó cilindraje 0 cc y se homologó la potencia en kilovatios (kW).</li>
+          <li class="mb-1"><strong>Vehículos Híbridos (HEV/PHEV):</strong> Se conservó el cilindraje del motor térmico y se validó la potencia combinada o del motor primario.</li>
+          <li><strong>Imputación por Homología:</strong> Se utilizó la moda y mediana técnica según catálogo comercial oficial de la marca.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100 p-3 border-start border-4 border-warning bg-white shadow-sm">
+        <h6 class="fw-bold text-dark mb-2">Tratamiento de <code>Capacidad_Carga_R</code> y <code>Capacidad_Pasajeros_R</code></h6>
+        <p class="small text-muted mb-2">
+          Para evitar distorsiones en los algoritmos de segmentación y minería de datos:
+        </p>
+        <ul class="small text-muted ps-3 mb-0">
+          <li class="mb-1"><strong>Automóviles y Camionetas:</strong> Asignación por defecto de 5 pasajeros en ausencia de dato, según segmento vehicular estándar.</li>
+          <li class="mb-1"><strong>Flota Masiva (SITP / Buses):</strong> Validación contra las fichas de homologación de buses padrones, articulados y biarticulados (de 40 a 160 pasajeros).</li>
+          <li><strong>Carga y Logística:</strong> Reemplazo de valores nulos mediante el límite de capacidad de carga útil nominal por tipología de chasis.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. REFERENCIAS BIBLIOGRÁFICAS (APA 7.ª EDICIÓN) -->
+<div class="card p-4 border-top border-3 border-dark bg-white shadow-sm">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Referencias Bibliográficas (Normas APA 7.ª edición)
+  </h5>
+  <ul class="list-unstyled small mb-0 ps-3" style="text-indent: -1.5rem; padding-left: 1.5rem;">
+    <li class="mb-2">
+      Alfaro Quintero, D. F. (2026). <em>Evolución y análisis de la adopción de vehículos eléctricos e híbridos en Colombia: Un enfoque de machine learning</em> (Tesis de maestría, Universidad EAN).
+    </li>
+    <li class="mb-2">
+      Departamento Administrativo Nacional de Estadística [DANE]. (2022). <em>División Político-Administrativa de Colombia (DIVIPOLA)</em>. DANE.
+    </li>
+    <li class="mb-2">
+      Ministerio de Transporte. (2024). <em>Registro Único Nacional de Tránsito (RUNT 2.0) - Datos Abiertos Colombia</em>. MinTransporte.
+    </li>
+    <li class="mb-0">
+      Valencia Hernández, V. (2022). <em>Difusión de vehículos de fuentes de propulsión alternativas y la elección de los usuarios en sistemas de transporte en Colombia</em> (Tesis de maestría, Universidad Nacional de Colombia).
+    </li>
+  </ul>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa1_seccion', slug='diccionario-datos') }}">
+    <i class="bi bi-arrow-left me-1"></i> 6. Diccionario de Datos
+  </a>
+  <a class="btn btn-primary text-white" href="{{ url_for('etapa1_seccion', slug='limitaciones') }}">
+    8. Limitaciones y Consideraciones <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}

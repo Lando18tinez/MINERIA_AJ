@@ -3,105 +3,111 @@
 {% block seccion_contenido %}
 
   {# ------------------------------------------------------------------ #}
-  {# Pregunta principal                                                  #}
+  {# Pregunta principal                                                 #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 mb-4 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-3">
-      <i class="bi bi-patch-question text-warning me-2"></i>Pregunta principal de la investigación
-    </h2>
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 mb-4 bg-white border-start border-4 border-warning">
+    <div class="d-flex align-items-center mb-3">
+      <div class="bg-warning bg-opacity-15 text-warning rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-patch-question-fill fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-warning bg-opacity-25 text-dark fw-semibold px-2 py-1 mb-1">Pregunta Orientadora</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Pregunta principal de la investigación</h2>
+      </div>
+    </div>
 
-    <div class="callout-energy">
-      <p class="mb-0 fs-5 fw-semibold">
-        &iquest;C&oacute;mo han cambiado las matr&iacute;culas de carros h&iacute;bridos y
-        el&eacute;ctricos en Bogot&aacute; y Colombia a&ntilde;o tras a&ntilde;o
-        (2014&ndash;2024), qu&eacute; tipo de veh&iacute;culos prefiere la gente y
-        cu&aacute;nto CO<sub>2</sub> se ha dejado de emitir gracias a este cambio?
+    <div class="p-3 p-md-4 bg-warning bg-opacity-10 border border-warning rounded-3">
+      <p class="mb-0 fs-5 fw-semibold text-dark leading-relaxed">
+        ¿Cómo han cambiado las matrículas de carros híbridos y eléctricos en Bogotá y Colombia año tras año (2014–2024), qué tipo de vehículos prefiere la gente y cuánto CO<sub>2</sub> se ha dejado de emitir gracias a este cambio?
       </p>
     </div>
   </article>
 
   {# ------------------------------------------------------------------ #}
-  {# Preguntas secundarias                                               #}
+  {# Preguntas secundarias                                              #}
   {# ------------------------------------------------------------------ #}
-  <article class="content-card p-4 p-md-5 bg-white border shadow-sm">
-    <h2 class="h4 fw-bold text-dark mb-2">
-      <i class="bi bi-list-check text-success me-2"></i>Preguntas secundarias
-    </h2>
-    <p class="text-muted">
-      Cada pregunta se aborda desde una dimensi&oacute;n de an&aacute;lisis y se
-      apoya en un conjunto concreto de variables del dataset.
+  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 bg-white border-start border-4 border-success">
+    <div class="d-flex align-items-center mb-2">
+      <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+        <i class="bi bi-list-check fs-4"></i>
+      </div>
+      <div>
+        <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2 py-1 mb-1">Dimensiones Analíticas</span>
+        <h2 class="h4 fw-bold text-dark mb-0">Preguntas secundarias</h2>
+      </div>
+    </div>
+    <p class="text-secondary small mb-4">
+      Cada pregunta se aborda desde una dimensión de análisis específica y se responde directamente a partir de variables cuantificables del dataset consolidado.
     </p>
 
-    {# 1. Dimensión temporal #}
-    <div class="mb-4">
-      <span class="badge-eco mb-2">
-        <i class="bi bi-calendar3 me-1"></i>1. Dimensi&oacute;n temporal &middot; &iquest;Cu&aacute;ndo y a qu&eacute; ritmo?
-      </span>
-      <p class="mb-2">
-        &iquest;A partir de qu&eacute; a&ntilde;o se dispar&oacute; la compra de
-        h&iacute;bridos y el&eacute;ctricos en Bogot&aacute;, y qu&eacute; tanto
-        crecieron los h&iacute;bridos frente a los 100&nbsp;% el&eacute;ctricos
-        a&ntilde;o tras a&ntilde;o?
-      </p>
-      <p class="small text-muted mb-0">
-        <strong>Datos:</strong>
-        <code>Anio_Registro</code>, <code>Fecha_Matricula</code>,
-        <code>Combustible</code> (El&eacute;ctrico, Gaso-El&eacute;ctrico, Di&eacute;sel-El&eacute;ctrico).
-      </p>
-    </div>
+    <div class="row g-4">
+      {# 1. Dimensión temporal #}
+      <div class="col-md-6">
+        <div class="card h-100 p-3 border rounded-3 bg-light bg-opacity-50">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-primary"><i class="bi bi-calendar3 me-1"></i>1. Dimensión temporal</span>
+          </div>
+          <h6 class="fw-bold text-dark mb-2">¿Cuándo y a qué ritmo?</h6>
+          <p class="small text-secondary mb-3">
+            ¿A partir de qué año se disparó la compra de híbridos y eléctricos en Bogotá, y qué tanto crecieron los híbridos frente a los 100 % eléctricos año tras año?
+          </p>
+          <div class="p-2 bg-white rounded border small text-muted mt-auto">
+            <strong class="text-dark">Datos:</strong>
+            <code>Anio_Registro</code>, <code>Fecha_Matricula</code>, <code>Combustible</code> (Eléctrico, Gaso-Eléctrico, Diésel-Eléctrico).
+          </div>
+        </div>
+      </div>
 
-    {# 2. Dimensión de preferencias y segmentos #}
-    <div class="mb-4">
-      <span class="badge-eco mb-2">
-        <i class="bi bi-cart-check me-1"></i>2. Dimensi&oacute;n de preferencias y segmentos &middot; &iquest;Qu&eacute; compra la gente?
-      </span>
-      <p class="mb-2">
-        &iquest;Qu&eacute; tipo de carro lidera la compra (camionetas familiares,
-        autom&oacute;viles peque&ntilde;os, taxis, motos o buses del SITP) y
-        cu&aacute;les son sus marcas y potencias m&aacute;s comunes?
-      </p>
-      <p class="small text-muted mb-0">
-        <strong>Datos:</strong>
-        <code>Clase</code> (Camioneta, Autom&oacute;vil, Bus, Moto),
-        <code>Servicio</code> (Particular, P&uacute;blico),
-        <code>Marca</code>, <code>Potencia_kW</code>, <code>Cilindraje_cc</code>.
-      </p>
-    </div>
+      {# 2. Dimensión de preferencias y segmentos #}
+      <div class="col-md-6">
+        <div class="card h-100 p-3 border rounded-3 bg-light bg-opacity-50">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-success"><i class="bi bi-cart-check me-1"></i>2. Preferencias y segmentos</span>
+          </div>
+          <h6 class="fw-bold text-dark mb-2">¿Qué compra la gente?</h6>
+          <p class="small text-secondary mb-3">
+            ¿Qué tipo de carro lidera la compra (camionetas familiares, automóviles pequeños, taxis, motos o buses del SITP) y cuáles son sus marcas y potencias más comunes?
+          </p>
+          <div class="p-2 bg-white rounded border small text-muted mt-auto">
+            <strong class="text-dark">Datos:</strong>
+            <code>Clase</code>, <code>Servicio</code>, <code>Marca</code>, <code>Potencia_R</code> (kW), <code>Cilindraje_R</code> (cc).
+          </div>
+        </div>
+      </div>
 
-    {# 3. Dimensión territorial #}
-    <div class="mb-4">
-      <span class="badge-eco mb-2">
-        <i class="bi bi-geo-alt me-1"></i>3. Dimensi&oacute;n territorial &middot; &iquest;D&oacute;nde est&aacute;n circulando?
-      </span>
-      <p class="mb-2">
-        &iquest;Qu&eacute; porcentaje de los veh&iacute;culos limpios del pa&iacute;s
-        est&aacute;n concentrados en Bogot&aacute; frente a otros departamentos (como
-        Antioquia o Cundinamarca) y c&oacute;mo se compara por n&uacute;mero de
-        habitantes (per c&aacute;pita)?
-      </p>
-      <p class="small text-muted mb-0">
-        <strong>Datos:</strong>
-        <code>Departamento</code>, <code>Municipio</code>,
-        <code>Poblacion_Total</code>, <code>Puntos_Carga_Depto</code>.
-      </p>
-    </div>
+      {# 3. Dimensión territorial #}
+      <div class="col-md-6">
+        <div class="card h-100 p-3 border rounded-3 bg-light bg-opacity-50">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-dark"><i class="bi bi-geo-alt me-1"></i>3. Dimensión territorial</span>
+          </div>
+          <h6 class="fw-bold text-dark mb-2">¿Dónde están circulando?</h6>
+          <p class="small text-secondary mb-3">
+            ¿Qué porcentaje de los vehículos limpios del país están concentrados en Bogotá frente a otros departamentos (como Antioquia o Cundinamarca) y cómo se compara por número de habitantes (per cápita)?
+          </p>
+          <div class="p-2 bg-white rounded border small text-muted mt-auto">
+            <strong class="text-dark">Datos:</strong>
+            <code>Departamento</code>, <code>Municipio</code>, <code>Poblacion_Total</code>, <code>Numero_Puntos_Carga</code>.
+          </div>
+        </div>
+      </div>
 
-    {# 4. Dimensión de impacto ambiental #}
-    <div>
-      <span class="badge-eco mb-2">
-        <i class="bi bi-cloud-haze2 me-1"></i>4. Dimensi&oacute;n de impacto ambiental &middot; &iquest;Cu&aacute;nto CO<sub>2</sub> se disminuye?
-      </span>
-      <p class="mb-2">
-        &iquest;Cu&aacute;ntas toneladas de CO<sub>2</sub> al a&ntilde;o se han
-        evitado emitir en Bogot&aacute; al cambiar veh&iacute;culos tradicionales de
-        gasolina y di&eacute;sel por el&eacute;ctricos e h&iacute;bridos?
-      </p>
-      <p class="small text-muted mb-0">
-        <strong>Datos:</strong>
-        <code>Huella_CO2_Estimada_Ton</code> &mdash; calculada multiplicando los
-        kil&oacute;metros anuales promedio por el factor de emisi&oacute;n en ciclo de
-        vida <em>Well-to-Wheel</em> seg&uacute;n el combustible.
-      </p>
+      {# 4. Dimensión de impacto ambiental #}
+      <div class="col-md-6">
+        <div class="card h-100 p-3 border rounded-3 bg-light bg-opacity-50">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-danger"><i class="bi bi-cloud-haze2 me-1"></i>4. Impacto ambiental</span>
+          </div>
+          <h6 class="fw-bold text-dark mb-2">¿Cuánto CO<sub>2</sub> se disminuye?</h6>
+          <p class="small text-secondary mb-3">
+            ¿Cuántas toneladas de CO<sub>2</sub> al año se han evitado emitir en Bogotá al cambiar vehículos tradicionales de gasolina y diésel por eléctricos e híbridos?
+          </p>
+          <div class="p-2 bg-white rounded border small text-muted mt-auto">
+            <strong class="text-dark">Datos:</strong>
+            <code>Huella_CO2_Evitada_Ton</code> — estimada combinando kilometraje medio, línea base fósil y factores de ciclo de vida <em>Well-to-Wheel</em>.
+          </div>
+        </div>
+      </div>
     </div>
   </article>
 
