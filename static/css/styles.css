@@ -63,6 +63,32 @@ body {
   text-transform: uppercase;
 }
 
+/* El badge de marca actúa como disparador del menú "Etapa 1: Comprensión" */
+.brand-badge--menu {
+  border: none;
+  cursor: pointer;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brand-badge--menu:hover,
+.brand-badge--menu:focus-visible,
+.brand-badge--menu.show {
+  background-color: var(--color-accent-hover);
+}
+
+.brand-badge--menu.active {
+  box-shadow: 0 0 0 2px rgba(242, 186, 29, 0.4);
+}
+
+.brand-badge--menu.dropdown-toggle::after {
+  margin-left: 0.05rem;
+  vertical-align: 0.1em;
+}
+
 .custom-navbar .nav-link {
   color: rgba(255, 255, 255, 0.85) !important;
   font-weight: 500;
