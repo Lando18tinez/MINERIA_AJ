@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ seccion.titulo }} · Etapa 2 · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 2: Calidad de Datos</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ seccion.titulo }}</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de Sección -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+  <div>
+    <span class="badge-eco mb-2 d-inline-block">
+      <i class="bi bi-check2-circle text-warning me-1"></i>Gestión de Calidad (DAMA-DMBOK)
+    </span>
+    <h1 class="h2 fw-bold text-dark mb-1">{{ seccion.titulo }}</h1>
+    <p class="text-muted mb-0">Auditoría multidimensional, remediación de datos maestros e integración de fuentes.</p>
+  </div>
+  <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 fs-6">
+    <i class="bi bi-cpu me-1"></i>Etapa 2: Activa
+  </span>
+</div>
+
+<!-- Bloque donde se inyecta el contenido específico -->
+{% block seccion_contenido %}
+<div class="content-card p-5 text-center bg-white border">
+  <i class="bi bi-hourglass-split display-4 text-warning mb-3"></i>
+  <h4 class="fw-bold text-dark">Contenido en construcción</h4>
+  <p class="text-muted mb-0">Esta sección está siendo procesada e integrada en la arquitectura de calidad.</p>
+</div>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+    <div>
+      <h2 class="fw-bold text-dark mb-0">Auditoría y Calidad de Datos</h2>
+      <p class="text-muted mb-0">Diagnóstico multidimensional y plan de remediación técnica (Etapa 2)</p>
+    </div>
+    <span class="badge bg-primary fs-6">Modelo MDM: Nivel 2 (Reactivo)</span>
+  </div>
+
+  <!-- Métricas Rápidas -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-start border-4 border-success">
+        <div class="text-muted small">Unicidad Global</div>
+        <div class="fs-4 fw-bold text-dark">100.0%</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-start border-4 border-info">
+        <div class="text-muted small">Completitud Potencia (_R)</div>
+        <div class="fs-4 fw-bold text-info">100.0%</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-start border-4 border-warning">
+        <div class="text-muted small">BEV Rectificados</div>
+        <div class="fs-4 fw-bold text-warning">100.0%</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow-sm border-start border-4 border-primary">
+        <div class="text-muted small">Homologación DANE</div>
+        <div class="fs-4 fw-bold text-primary">100.0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matriz por Niveles de Granularidad (Oliveira et al.) -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light fw-bold">
+      Inventario de No Conformidades por Granularidad (Oliveira et al., 2005)
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+        <thead class="table-light">
+          <tr>
+            <th>Nivel Granularidad</th>
+            <th>Campo / Entidad</th>
+            <th>Dimensión</th>
+            <th>Problema Detectado</th>
+            <th>Impacto</th>
+            <th>Acción Aplicada (_R)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-secondary">Nivel 1: Atributo</span></td>
+            <td><code>Cilindraje</code></td>
+            <td>Exactitud</td>
+            <td>BEV con cilindraje térmico mayor a cero</td>
+            <td><span class="badge bg-danger">Alto</span></td>
+            <td>Forzado determinista a 0 cc en <code>Cilindraje_R</code></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-secondary">Nivel 1: Atributo</span></td>
+            <td><code>Potencia</code></td>
+            <td>Completitud</td>
+            <td>Valores vacíos (NaN) en fichas de registro</td>
+            <td><span class="badge bg-danger">Alto</span></td>
+            <td>Imputación asistida por catálogo de fabricante</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-info text-dark">Nivel 2: Relación</span></td>
+            <td><code>tbl_registro_vehicular</code></td>
+            <td>Unicidad</td>
+            <td>Filas repetidas por cortes de datos abiertos</td>
+            <td><span class="badge bg-warning text-dark">Medio</span></td>
+            <td>Deduplicación por combinación de llave técnica</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-primary">Nivel 3: Varias Relaciones</span></td>
+            <td><code>Codigo_Municipio_DANE</code></td>
+            <td>Consistencia</td>
+            <td>Desajuste entre inspecciones RUNT y códigos DANE</td>
+            <td><span class="badge bg-danger">Alto</span></td>
+            <td>Tabla de equivalencias (Lookup Table) DIVIPOLA</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
