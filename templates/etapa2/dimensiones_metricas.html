@@ -1,0 +1,151 @@
+{% extends "etapa2/seccion.html" %}
+
+{% block seccion_contenido %}
+<!-- Resumen de Evaluación por Dimensiones (DAMA-DMBOK) -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Unicidad</span>
+      <h3 class="fw-bold text-dark my-1">100.0%</h3>
+      <span class="text-muted small">Sin duplicados en ID_Registro</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Completitud Potencia (Origen)</span>
+      <h3 class="fw-bold text-danger my-1">91.47%</h3>
+      <span class="text-muted small">8.53% de registros faltantes</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Exactitud Lógica BEV (Origen)</span>
+      <h3 class="fw-bold text-warning my-1">97.81%</h3>
+      <span class="text-muted small">1.240 vehículos con cilindraje erróneo</span>
+    </div>
+  </div>
+</div>
+
+<!-- Matriz Cuantitativa de Dimensiones, Métricas y Fórmulas -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="border-bottom pb-3 mb-3">
+    <h4 class="fw-bold text-dark mb-1">Medición Formal de Dimensiones de Calidad</h4>
+    <p class="text-muted small mb-0">Formulación matemática, umbrales de negocio y resultados verificables sobre los microdatos.</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 14%;">Dimensión</th>
+          <th style="width: 26%;">Definición y Métrica</th>
+          <th style="width: 25%;">Fórmula Operativa</th>
+          <th style="width: 15%;">Línea Base (Crudo)</th>
+          <th style="width: 20%;">Criterio Aceptación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
+          <td>Proporción de celdas no vacías en variables críticas de motorización (<code>Potencia</code>).</td>
+          <td><code>(1 - (Nulos / N_Total)) * 100</code></td>
+          <td><strong class="text-danger">91.47%</strong> (4.821 nulos)</td>
+          <td>&ge; 98.0% (100% tras imputación)</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
+          <td>Proporción de vehículos 100% eléctricos (BEV) conformes a la regla física: <code>Cilindraje = 0 cc</code>.</td>
+          <td><code>(BEV_Cil_Cero / Total_BEV) * 100</code></td>
+          <td><strong class="text-warning">97.81%</strong> (1.240 fallos)</td>
+          <td>100% estricto</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
+          <td>Correspondencia exacta entre el código municipal y la tabla DIVIPOLA oficial del DANE.</td>
+          <td><code>(FK_Validas / N_Total) * 100</code></td>
+          <td><strong class="text-danger">92.30%</strong> (discrepancias texto)</td>
+          <td>100% homologado</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
+          <td>Ausencia de tuplas redundantes correspondientes al mismo hecho de matrícula en el RUNT.</td>
+          <td><code>(1 - (Duplicados / N_Total)) * 100</code></td>
+          <td><strong class="text-success">100.0%</strong> (0 redundancias)</td>
+          <td>100% unívoco</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Validez</span></td>
+          <td>Porcentaje de registros con potencia dentro del rango comercial factible <code>[1.2 – 450.0 kW]</code>.</td>
+          <td><code>(Registros_Rango / N_Total) * 100</code></td>
+          <td><strong class="text-danger">89.60%</strong> (outliers y nulos)</td>
+          <td>&ge; 99.0%</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">Actualidad</span></td>
+          <td>Vigencia de la información respecto al corte de investigación establecido (diciembre 2024).</td>
+          <td><code>Fecha_Corte - Max(Fecha_Registro)</code></td>
+          <td><strong class="text-success">0 días</strong> (cierre 2024)</td>
+          <td>Actualizado al cierre</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Justificación Técnica por Dimensión -->
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-2">
+        <i class="bi bi-shield-exclamation text-warning me-2"></i>Impacto del Diagnóstico en el Modelado
+      </h5>
+      <p class="text-secondary small mb-3">
+        Consecuencias analíticas detectadas durante la auditoría inicial de las dimensiones:
+      </p>
+      <ul class="list-unstyled small mb-0">
+        <li class="py-2 border-bottom">
+          <strong class="text-dark">Sesgo por pérdida de registros:</strong> El 8.53% de nulos en <code>Potencia</code> obligaría a descartar 4.821 vehículos en algoritmos de clustering si no se aplica una imputación controlada.
+        </li>
+        <li class="py-2 border-bottom">
+          <strong class="text-dark">Distorsión de consumo energético:</strong> Registrar un automóvil eléctrico con 1.600 cc térmicos genera cálculos incompatibles en matrices de emisiones basadas en ciclo de vida (Well-to-Wheel).
+        </li>
+        <li class="py-2">
+          <strong class="text-dark">Agrupación espacial errónea:</strong> Diferencias de acentos y caracteres en el campo municipio fragmentan los totales de Bogotá D.C. en múltiples categorías separadas.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-2">
+        <i class="bi bi-diagram-2 text-primary me-2"></i>Controles Técnicos Propuestos
+      </h5>
+      <p class="text-secondary small mb-3">
+        Mecanismos de control aplicables en la capa de procesamiento (Python/Pandas):
+      </p>
+      <div class="d-flex flex-column gap-2 small">
+        <div class="p-2 border rounded bg-light">
+          <strong class="text-dark">Aserciones Condicionales:</strong> Reglas booleanas deterministas para verificar que la condición <code>Combustible == 'ELECTRICO'</code> obligue a <code>Cilindraje == 0</code>.
+        </div>
+        <div class="p-2 border rounded bg-light">
+          <strong class="text-dark">Tablas de Búsqueda (Lookups):</strong> Catálogo técnico estructurado por <code>Marca + Linea</code> para sustituir la imputación general por el valor de catálogo correspondiente.
+        </div>
+        <div class="p-2 border rounded bg-light">
+          <strong class="text-dark">Normalización Tipográfica:</strong> Función de preprocesamiento de texto con <code>str.upper()</code>, <code>str.strip()</code> y eliminación de tildes antes de cruzar con DIVIPOLA.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='perfilamiento') }}">
+    <i class="bi bi-arrow-left me-1"></i> 2. Perfilamiento
+  </a>
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}">
+    4. Inventario de Problemas <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}

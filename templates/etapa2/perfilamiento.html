@@ -1,0 +1,287 @@
+{% extends "etapa2/seccion.html" %}
+
+{% block seccion_contenido %}
+<!-- Resumen General del Perfilamiento -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Volumen Analizado</span>
+      <h3 class="fw-bold text-dark my-1">56.545</h3>
+      <span class="text-muted small">Registros de automotores</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Estructura Atributos</span>
+      <h3 class="fw-bold text-primary my-1">18</h3>
+      <span class="text-muted small">Variables evaluadas</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Duplicados Exactos</span>
+      <h3 class="fw-bold text-warning my-1">0</h3>
+      <span class="text-muted small">En ID_Registro unívoco</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Ventana Temporal</span>
+      <h3 class="fw-bold text-info my-1">2014 – 2024</h3>
+      <span class="text-muted small">11 periodos anuales</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla 1: Perfilamiento Estructural y Valores Nulos -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="border-bottom pb-3 mb-3">
+    <h4 class="fw-bold text-dark mb-1">Estructura de Variables, Tipos y Estado de Completitud</h4>
+    <p class="text-muted small mb-0">Inventario técnico de los atributos antes y después de la rectificación e imputación por catálogo.</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light">
+        <tr>
+          <th>Variable</th>
+          <th>Tipo Pandas / SQL</th>
+          <th>Valores Únicos</th>
+          <th>Nulos en Origen (N)</th>
+          <th>% Nulos Origen</th>
+          <th>Nulos Post-Tratamiento (_R)</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ID_Registro</code></td>
+          <td>int64 / BIGINT</td>
+          <td>56.545</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Fecha_Matricula</code></td>
+          <td>datetime64[ns] / DATE</td>
+          <td>3.218</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Año_Registro</code></td>
+          <td>int64 / SMALLINT</td>
+          <td>11</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Combustible</code></td>
+          <td>object / VARCHAR(20)</td>
+          <td>5</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Clase</code></td>
+          <td>object / VARCHAR(20)</td>
+          <td>6</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Servicio</code></td>
+          <td>object / VARCHAR(15)</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Marca</code></td>
+          <td>object / VARCHAR(50)</td>
+          <td>84</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Linea</code></td>
+          <td>object / VARCHAR(60)</td>
+          <td>412</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Íntegro</span></td>
+        </tr>
+        <tr>
+          <td><code>Potencia</code> / <code>Potencia_R</code></td>
+          <td>float64 / FLOAT</td>
+          <td>196</td>
+          <td>4.821</td>
+          <td>8.53%</td>
+          <td>0</td>
+          <td><span class="badge bg-primary">Imputado (_R)</span></td>
+        </tr>
+        <tr>
+          <td><code>Cilindraje</code> / <code>Cilindraje_R</code></td>
+          <td>float64 / FLOAT</td>
+          <td>78</td>
+          <td>1.240</td>
+          <td>2.19%</td>
+          <td>0</td>
+          <td><span class="badge bg-primary">Rectificado (_R)</span></td>
+        </tr>
+        <tr>
+          <td><code>Capacidad_Pasajeros_R</code></td>
+          <td>int64 / SMALLINT</td>
+          <td>12</td>
+          <td>892</td>
+          <td>1.58%</td>
+          <td>0</td>
+          <td><span class="badge bg-primary">Imputado (_R)</span></td>
+        </tr>
+        <tr>
+          <td><code>Capacidad_Carga_R</code></td>
+          <td>float64 / FLOAT</td>
+          <td>145</td>
+          <td>2.105</td>
+          <td>3.72%</td>
+          <td>0</td>
+          <td><span class="badge bg-primary">Imputado (_R)</span></td>
+        </tr>
+        <tr>
+          <td><code>Codigo_Municipio_DANE</code></td>
+          <td>object / VARCHAR(5)</td>
+          <td>168</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Homologado</span></td>
+        </tr>
+        <tr>
+          <td><code>Codigo_Depto_DANE</code></td>
+          <td>object / VARCHAR(2)</td>
+          <td>33</td>
+          <td>0</td>
+          <td>0.00%</td>
+          <td>0</td>
+          <td><span class="badge bg-success">Homologado</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Estadísticos Descriptivos y Detección de Atípicos -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-calculator text-primary me-2"></i>Estadísticos Descriptivos de Variables Numéricas (_R)
+      </h5>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle mb-0" style="font-size: 0.85rem;">
+          <thead class="table-light">
+            <tr>
+              <th>Métrica</th>
+              <th>Potencia_R (kW)</th>
+              <th>Cilindraje_R (cc)</th>
+              <th>Pasajeros_R</th>
+              <th>Carga_R (kg)</th>
+              <th>CO₂ Evitado (Ton/año)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mínimo</strong></td>
+              <td>1.20</td>
+              <td>0.00</td>
+              <td>1</td>
+              <td>0.00</td>
+              <td>0.12</td>
+            </tr>
+            <tr>
+              <td><strong>Media</strong></td>
+              <td>124.50</td>
+              <td>1.385.20</td>
+              <td>5.40</td>
+              <td>780.40</td>
+              <td>3.65</td>
+            </tr>
+            <tr>
+              <td><strong>Mediana</strong></td>
+              <td>110.00</td>
+              <td>1.798.00</td>
+              <td>5.00</td>
+              <td>450.00</td>
+              <td>1.85</td>
+            </tr>
+            <tr>
+              <td><strong>Máximo</strong></td>
+              <td>350.00</td>
+              <td>4.969.00</td>
+              <td>160</td>
+              <td>18.000.00</td>
+              <td>32.80</td>
+            </tr>
+            <tr>
+              <td><strong>Desv. Estándar</strong></td>
+              <td>68.30</td>
+              <td>845.10</td>
+              <td>8.20</td>
+              <td>1.450.30</td>
+              <td>4.90</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <small class="text-muted mt-2 d-block">Nota: Los valores de Cilindraje_R = 0 corresponden a vehículos puramente eléctricos (BEV).</small>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-warning">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-exclamation-triangle text-warning me-2"></i>Detección y Tratamiento de Atípicos (Outliers)
+      </h5>
+      <ul class="list-unstyled small mb-0">
+        <li class="mb-3">
+          <strong class="text-dark">1. Potencias Fraccionarias (< 1 kW):</strong>
+          <p class="text-muted mb-0">Se detectaron registros con valores como 0.2 kW en automóviles comerciales por error tipográfico al capturar kW en vez de MW o HP. Se reasignó la mediana técnica por marca y modelo.</p>
+        </li>
+        <li class="mb-3">
+          <strong class="text-dark">2. Cilindrajes > 6.000 cc:</strong>
+          <p class="text-muted mb-0">Casos atípicos en camionetas ligeras con valores de 8.000 cc debidos a la concatenación involuntaria de códigos de serie con cilindraje. Fueron truncados y rectificados.</p>
+        </li>
+        <li class="mb-0">
+          <strong class="text-dark">3. Capacidad de Pasajeros (> 100):</strong>
+          <p class="text-muted mb-0">Valores validados como físicamente legítimos al corresponder a los buses articulados y biarticulados del sistema masivo TransMilenio (SITP) de Bogotá D.C.</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='proposito-requisitos') }}">
+    <i class="bi bi-arrow-left me-1"></i> 1. Propósito y Requisitos
+  </a>
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa2_seccion', slug='dimensiones-metricas') }}">
+    3. Dimensiones y Métricas <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}    
