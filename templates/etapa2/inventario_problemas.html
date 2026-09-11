@@ -1,0 +1,159 @@
+{% extends "etapa2/seccion.html" %}
+
+{% block seccion_contenido %}
+<!-- Resumen Cuantitativo del Inventario -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Problemas Críticos</span>
+      <h3 class="fw-bold text-danger my-1">4</h3>
+      <span class="text-muted small">Nivel Atributo y Relacional</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Registros con Vacíos</span>
+      <h3 class="fw-bold text-warning my-1">4.821</h3>
+      <span class="text-muted small">Celdas nulas en Potencia</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Incoherencias Físicas</span>
+      <h3 class="fw-bold text-primary my-1">1.240</h3>
+      <span class="text-muted small">BEV con cilindraje &gt; 0</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Desfase Territorial</span>
+      <h3 class="fw-bold text-info my-1">4.354</h3>
+      <span class="text-muted small">Cadenas de texto no normalizadas</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla Principal: Inventario de Problemas (Oliveira et al.) -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="border-bottom pb-3 mb-3">
+    <h4 class="fw-bold text-dark mb-1">Matriz de No Conformidades y Auditoría Técnica</h4>
+    <p class="text-muted small mb-0">Clasificación por granularidad, dimensión de calidad, nivel de impacto y evidencia en el repositorio.</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+      <thead class="table-light">
+        <tr>
+          <th>Granularidad (Oliveira et al.)</th>
+          <th>Campo Afectado</th>
+          <th>Descripción de la No Conformidad</th>
+          <th>Registros (%)</th>
+          <th>Dimensión</th>
+          <th>Impacto</th>
+          <th>Evidencia Empírica</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
+          <td><code>Potencia</code></td>
+          <td>Valores ausentes (<code>NaN</code>) o capturados en cero absoluto en automotores comerciales.</td>
+          <td>4.821 (8.53%)</td>
+          <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
+          <td><span class="badge bg-danger">Alto</span></td>
+          <td><code>df['Potencia'].isnull().sum() == 4821</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
+          <td><code>Cilindraje</code></td>
+          <td>Vehículos 100% eléctricos (BEV) registrados con cilindraje mayor a 0 cc (ej. 1.500 cc).</td>
+          <td>1.240 (2.19%)</td>
+          <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
+          <td><span class="badge bg-danger">Alto</span></td>
+          <td><code>(Combustible == 'ELECTRICO') &amp; (Cilindraje &gt; 0)</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
+          <td><code>Municipio</code> / <code>Depto</code></td>
+          <td>Variabilidad ortográfica, tildes, caracteres especiales y espacios en blanco redundantes.</td>
+          <td>4.354 (7.70%)</td>
+          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
+          <td><span class="badge bg-warning text-dark">Medio</span></td>
+          <td>Presencia de "BOGOTA D.C.", "BOGOTA", "BOGOTÁ D. C." en la misma columna</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-info text-dark">2. Relación</span></td>
+          <td><code>ID_Registro</code></td>
+          <td>Existencia potencial de redundancias por acumulación de cortes trimestrales de datos abiertos.</td>
+          <td>0 (0.00%)</td>
+          <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
+          <td><span class="badge bg-success">Bajo</span></td>
+          <td><code>df.duplicated(subset=['ID_Registro']).sum() == 0</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-primary">3. Varias Relaciones</span></td>
+          <td><code>Codigo_Municipio_DANE</code></td>
+          <td>Organismos de tránsito con códigos internos no homologados a la codificación oficial DIVIPOLA.</td>
+          <td>1.890 (3.34%)</td>
+          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia Referencial</span></td>
+          <td><span class="badge bg-danger">Alto</span></td>
+          <td>Fallo de emparejamiento (<code>left_join is null</code>) contra tabla DANE</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Análisis de Causa Raíz -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-warning">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-search text-warning me-2"></i>Análisis de Causa Raíz de los Problemas
+      </h5>
+      <ul class="list-unstyled small mb-0">
+        <li class="mb-3 pb-2 border-bottom">
+          <strong class="text-dark">1. Errores de Captura Humana en Ventanilla RUNT:</strong>
+          <p class="text-muted mb-0">Los digitadores de los organismos de tránsito replican formularios tradicionales de combustión fósil, asignando por inercia cilindrajes genéricos a vehículos eléctricos o dejando el campo potencia en blanco por falta de ficha física.</p>
+        </li>
+        <li class="mb-3 pb-2 border-bottom">
+          <strong class="text-dark">2. Ausencia de Validaciones Sintácticas en Origen:</strong>
+          <p class="text-muted mb-0">El sistema transaccional del RUNT históricamente no implementó aserciones lógicas condicionales que bloqueen la digitación de cilindraje cuando el tipo de propulsión seleccionado sea eléctrico puro (BEV).</p>
+        </li>
+        <li class="mb-0">
+          <strong class="text-dark">3. Disparidad Semántica entre Entidades Estatales:</strong>
+          <p class="text-muted mb-0">El Ministerio de Transporte utiliza convenciones abreviadas para municipios que no coinciden sintácticamente con el estándar DIVIPOLA del DANE, impidiendo cruces directos sin normalización previa.</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-danger">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-shield-slash text-danger me-2"></i>Consecuencias en la Minería de Datos
+      </h5>
+      <div class="d-flex flex-column gap-3 small">
+        <div class="p-3 border rounded bg-light">
+          <strong class="text-dark d-block mb-1">Ruptura en Algoritmos de Segmentación (K-Prototypes / Clustering):</strong>
+          <span class="text-muted">Si no se imputan los 4.821 nulos de potencia o se mantienen cilindrajes térmicos en BEV, las funciones de distancia euclidiana calcularán centroides sesgados, ubicando vehículos eléctricos en clusters de combustión tradicional.</span>
+        </div>
+        <div class="p-3 border rounded bg-light">
+          <strong class="text-dark d-block mb-1">Sobredistorsión de Factores de Emisión (Well-to-Wheel):</strong>
+          <span class="text-muted">El modelo ambiental asignaría consumo de combustible fósil a un automotor 100% eléctrico que no emite gases por tubo de escape, falseando el cálculo final de toneladas de CO₂ evitadas para Bogotá D.C.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de Navegación -->
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='dimensiones-metricas') }}">
+    <i class="bi bi-arrow-left me-1"></i> 3. Dimensiones y Métricas
+  </a>
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}">
+    5. Plan de Tratamiento <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}

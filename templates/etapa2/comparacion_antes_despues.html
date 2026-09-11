@@ -1,0 +1,212 @@
+{% extends "etapa2/seccion.html" %}
+
+{% block seccion_contenido %}
+<!-- Indicadores Globales de la Remediación -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Completitud Global</span>
+      <div class="d-flex align-items-baseline gap-2 my-1">
+        <span class="text-danger text-decoration-line-through fs-6">91.47%</span>
+        <span class="fs-4 fw-bold text-success">&rarr; 100.0%</span>
+      </div>
+      <span class="text-muted small">Cero celdas vacías en <code>_R</code></span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Exactitud Lógica BEV</span>
+      <div class="d-flex align-items-baseline gap-2 my-1">
+        <span class="text-warning text-decoration-line-through fs-6">97.81%</span>
+        <span class="fs-4 fw-bold text-primary">&rarr; 100.0%</span>
+      </div>
+      <span class="text-muted small">1.240 cilindrajes rectificados</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Consistencia DIVIPOLA</span>
+      <div class="d-flex align-items-baseline gap-2 my-1">
+        <span class="text-danger text-decoration-line-through fs-6">92.30%</span>
+        <span class="fs-4 fw-bold text-info">&rarr; 100.0%</span>
+      </div>
+      <span class="text-muted small">Cruce foráneo DANE íntegro</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-secondary bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Registros Únicos</span>
+      <h3 class="fw-bold text-dark my-1">56.545</h3>
+      <span class="text-muted small">Unicidad mantenida al 100%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla Comparativa Integral Antes vs. Después -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="border-bottom pb-3 mb-3">
+    <h4 class="fw-bold text-dark mb-1">Auditoría Cuantitativa: Estado Inicial vs. Estado Post-Tratamiento</h4>
+    <p class="text-muted small mb-0">Balance de remediación técnica evaluado sobre los 56.545 automotores limpios matriculados.</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 15%;">Atributo / Hecho</th>
+          <th style="width: 25%;">Línea Base (Dataset Crudo)</th>
+          <th style="width: 25%;">Dataset Saneado (<code>_R</code>)</th>
+          <th style="width: 20%;">Variación / Remedio</th>
+          <th style="width: 15%;">Impacto Analítico</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Potencia</code></td>
+          <td><span class="badge bg-danger">4.821 Nulos (8.53%)</span><br><span class="small text-muted">Mín: 0.0 kW (erróneo)</span></td>
+          <td><span class="badge bg-success">0 Nulos (0.00%)</span><br><span class="small text-muted">Mín: 1.20 kW (técnico)</span></td>
+          <td><strong class="text-success">+4.821 registros</strong> imputados por catálogo</td>
+          <td>Habilita clustering K-Prototypes sin descartar tuplas</td>
+        </tr>
+        <tr>
+          <td><code>Cilindraje</code></td>
+          <td><span class="badge bg-warning text-dark">1.240 Inconsistencias</span><br><span class="small text-muted">BEV con cilindraje &gt; 0 cc</span></td>
+          <td><span class="badge bg-success">0 Inconsistencias</span><br><span class="small text-muted">BEV strictly = 0 cc</span></td>
+          <td><strong class="text-success">100% corregido</strong> determinísticamente</td>
+          <td>Elimina distorsión en cálculos de consumo de combustible</td>
+        </tr>
+        <tr>
+          <td><code>Municipio</code> / <code>Depto</code></td>
+          <td><span class="badge bg-danger">Variabilidad tipográfica</span><br><span class="small text-muted">Múltiples variantes de texto</span></td>
+          <td><span class="badge bg-success">DIVIPOLA Homologado</span><br><span class="small text-muted">Código DANE de 5 dígitos</span></td>
+          <td><strong class="text-success">100% estandarizado</strong> a nivel nacional</td>
+          <td>Agrupación unívoca y precisa para Bogotá D.C.</td>
+        </tr>
+        <tr>
+          <td><code>Capacidades</code></td>
+          <td><span class="badge bg-warning text-dark">2.997 Celdas Vacías</span><br><span class="small text-muted">En carga y pasajeros</span></td>
+          <td><span class="badge bg-success">0 Celdas Vacías</span><br><span class="small text-muted">100% cobertura técnica</span></td>
+          <td><strong class="text-success">Moda asignada</strong> según tipología y chasis</td>
+          <td>Permite segmentar flotas masivas (SITP) vs. particulares</td>
+        </tr>
+        <tr>
+          <td><code>Huella Ambiental</code></td>
+          <td><span class="badge bg-secondary">Sin variable continua</span><br><span class="small text-muted">Solo tipo de combustible</span></td>
+          <td><span class="badge bg-success">Huella_CO2_Evitada_Ton</span><br><span class="small text-muted">Promedio: 3.65 Ton/año</span></td>
+          <td><strong class="text-success">Factor WTW integrado</strong> × km recorridos SIMUR</td>
+          <td>Cuantifica el impacto real de descarbonización</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Muestra Comparativa de Tuplas (Head Antes vs. Después) -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-danger">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0">
+          <i class="bi bi-x-circle text-danger me-2"></i>Ejemplo de Datos Originales (Crudos)
+        </h5>
+        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Con Anomalías</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm small mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Combustible</th>
+              <th>Clase</th>
+              <th>Potencia</th>
+              <th>Cilindraje</th>
+              <th>Municipio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="table-danger">
+              <td>ELECTRICO</td>
+              <td>AUTOMOVIL</td>
+              <td><code>NaN</code></td>
+              <td><strong>1.600</strong></td>
+              <td>BOGOTÁ D. C.</td>
+            </tr>
+            <tr class="table-danger">
+              <td>ELECTRICO</td>
+              <td>BUS</td>
+              <td><code>0.0</code></td>
+              <td><strong>2.500</strong></td>
+              <td>Bogota</td>
+            </tr>
+            <tr>
+              <td>GASO ELEC</td>
+              <td>CAMIONETA</td>
+              <td><code>NaN</code></td>
+              <td>2.487</td>
+              <td>BOGOTA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <small class="text-muted mt-2 d-block">Muestra de inconsistencias reales detectadas en el volcado primario del RUNT.</small>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-success">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark mb-0">
+          <i class="bi bi-check-circle text-success me-2"></i>Muestra Homologada (Tratada)
+        </h5>
+        <span class="badge bg-success bg-opacity-10 text-success border border-success">Saneado (_R)</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm small mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Combustible</th>
+              <th>Clase</th>
+              <th>Potencia_R</th>
+              <th>Cilindraje_R</th>
+              <th>Cod_DANE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="table-success">
+              <td>ELECTRICO</td>
+              <td>AUTOMOVIL</td>
+              <td><strong>100.0 kW</strong></td>
+              <td><strong>0 cc</strong></td>
+              <td><code>11001</code></td>
+            </tr>
+            <tr class="table-success">
+              <td>ELECTRICO</td>
+              <td>BUS</td>
+              <td><strong>300.0 kW</strong></td>
+              <td><strong>0 cc</strong></td>
+              <td><code>11001</code></td>
+            </tr>
+            <tr class="table-success">
+              <td>GASO ELEC</td>
+              <td>CAMIONETA</td>
+              <td><strong>163.0 kW</strong></td>
+              <td>2.487 cc</td>
+              <td><code>11001</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <small class="text-muted mt-2 d-block">Resultados consistentes y listos para los modelos de segmentación analítica.</small>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de Navegación Final -->
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}">
+    <i class="bi bi-arrow-left me-1"></i> 5. Plan de Tratamiento
+  </a>
+  <a class="btn btn-success fw-bold text-white" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Finalizar Recorrido de Calidad
+  </a>
+</div>
+{% endblock %}

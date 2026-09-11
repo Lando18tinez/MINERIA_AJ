@@ -148,9 +148,13 @@ def etapa2_seccion(slug):
     }
 
     template_a_renderizar = plantillas.get(slug, "etapa2/seccion.html")
-    return render_template(
-        template_a_renderizar, seccion=seccion, active=f"etapa2:{slug}"
-    )
+    ctx = {"seccion": seccion, "active": f"etapa2:{slug}"}
+    # Si la plantilla específica aún no existe, se muestra la genérica
+    # ("contenido en construcción") en lugar de lanzar un error 500.
+    try:
+        return render_template(template_a_renderizar, **ctx)
+    except TemplateNotFound:
+        return render_template("etapa2/seccion.html", **ctx)
 
 
 if __name__ == "__main__":
