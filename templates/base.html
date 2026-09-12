@@ -23,19 +23,62 @@
   <!-- Navbar Principal -->
   <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('home') }}">
+      <a class="navbar-brand me-3" href="{{ url_for('home') }}">
         <i class="bi bi-lightning-charge-fill text-warning"></i>
         <span>Minería de Datos</span>
-        <span class="brand-badge">Etapa 1</span>
       </a>
 
+      <!-- Menú Etapa 1: Píldora amarilla integrada -->
+      <div class="dropdown me-2">
+        <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active and active.startswith('etapa1:') }}"
+                type="button" id="menuEtapa1" data-bs-toggle="dropdown" aria-expanded="false"
+                title="Etapa 1: Comprensión">
+          Etapa 1
+        </button>
+        <ul class="dropdown-menu dropdown-menu-custom animate slideIn" aria-labelledby="menuEtapa1">
+          <li><h6 class="dropdown-header"><i class="bi bi-journal-text me-1"></i>Etapa 1: Comprensión</h6></li>
+          {% for s in etapa1_secciones %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ 'active' if active == 'etapa1:' ~ s.slug }}"
+                 href="{{ url_for('etapa1_seccion', slug=s.slug) }}">
+                <span class="badge bg-light text-dark border me-2">{{ s.num }}</span>
+                <span>{{ s.titulo }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Menú Etapa 2: Misma píldora integrada -->
+      <div class="dropdown me-auto">
+        <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active and active.startswith('etapa2:') }}"
+                type="button" id="menuEtapa2" data-bs-toggle="dropdown" aria-expanded="false"
+                title="Etapa 2: Calidad de Datos">
+          Etapa 2
+        </button>
+        <ul class="dropdown-menu dropdown-menu-custom animate slideIn" aria-labelledby="menuEtapa2">
+          <li><h6 class="dropdown-header"><i class="bi bi-shield-check me-1"></i>Etapa 2: Calidad de Datos</h6></li>
+          {% for s in etapa2_secciones %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ 'active' if active == 'etapa2:' ~ s.slug }}"
+                 href="{{ url_for('etapa2_seccion', slug=s.slug) }}">
+                <span class="badge bg-light text-dark border me-2">{{ s.num }}</span>
+                <span>{{ s.titulo }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Botón colapsable para móviles -->
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
               data-bs-target="#navMain" aria-controls="navMain"
               aria-expanded="false" aria-label="Alternar navegación">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navMain">
+      <!-- Enlaces laterales: Inicio y Participantes -->
+      <div class="collapse navbar-collapse flex-grow-0" id="navMain">
         <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item">
             <a class="nav-link {{ 'active' if active == 'inicio' }}"
@@ -49,27 +92,6 @@
                href="{{ url_for('participantes') }}">
               <i class="bi bi-people me-1"></i>Participantes
             </a>
-          </li>
-
-          <!-- Submenú Desplegable: Etapa 1 -->
-          <li class="nav-item dropdown ms-lg-2">
-            <a class="nav-link dropdown-toggle {{ 'active' if active and active.startswith('etapa1:') }}"
-               href="#" id="dropEtapa1" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-folder2-open me-1"></i>Etapa 1: Comprensión
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom animate slideIn" aria-labelledby="dropEtapa1">
-              <li><h6 class="dropdown-header"><i class="bi bi-journal-text me-1"></i>Secciones del Entregable</h6></li>
-              {% for s in etapa1_secciones %}
-                <li>
-                  <a class="dropdown-item d-flex align-items-center {{ 'active' if active == 'etapa1:' ~ s.slug }}"
-                     href="{{ url_for('etapa1_seccion', slug=s.slug) }}">
-                    <span class="badge bg-light text-dark border me-2">{{ s.num }}</span>
-                    <span>{{ s.titulo }}</span>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
           </li>
         </ul>
       </div>
@@ -88,7 +110,10 @@
         <strong class="text-dark">{{ proyecto }}</strong> · <span>Minería de Datos 2026-2</span>
       </div>
       <div class="text-muted">
-        <i class="bi bi-shield-check text-success me-1"></i>Normas APA 7.ª ed. · Render Deployment
+        <i class="bi bi-shield-check text-success me-1"></i>
+        <a href="{{ url_for('etapa1_seccion', slug='problema-contexto') }}#referencias"
+           class="text-muted text-decoration-underline" title="Ver referencias bibliográficas">Normas APA 7.ª ed.</a>
+        · Render Deployment
       </div>
     </div>
   </footer>

@@ -143,6 +143,126 @@
         </li>
       </ul>
     </div>
+
+    {# --- Comparación explícita entre niveles --- #}
+    <div class="mt-4">
+      <h6 class="fw-bold text-dark mb-3">
+        <i class="bi bi-bar-chart-steps text-primary me-2"></i>Comparación explícita entre niveles
+      </h6>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle small mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 22%;">Criterio de comparación</th>
+              <th scope="col"><span class="badge bg-primary">Global</span></th>
+              <th scope="col"><span class="badge bg-success">Nacional · Colombia</span></th>
+              <th scope="col"><span class="badge bg-dark">Regional · Bogotá D.C.</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="fw-semibold">Peso del transporte en las emisiones</th>
+              <td>Proporción crítica de los GEI mundiales y del consumo de derivados del petróleo.</td>
+              <td>≈ 11 % de los GEI nacionales (≈ 38 Mt CO<sub>2</sub>-eq/año); mayor demanda energética final.</td>
+              <td>Los automóviles particulares a gasolina generan la mayor parte del CO<sub>2</sub> en las vías.</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fw-semibold">Instrumento de política dominante</th>
+              <td>Incentivos económicos directos, normas de emisión (Euro VI), redes públicas de recarga.</td>
+              <td>Ley 1964 de 2019, Hoja de Ruta TEJ, Estrategia Nacional de Movilidad Eléctrica, documentos CONPES.</td>
+              <td>Exención de pico y placa y electrificación del transporte público masivo (SITP).</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fw-semibold">Tecnología que lidera la adopción</th>
+              <td>Vehículos 100 % eléctricos (BEV) en las economías desarrolladas.</td>
+              <td>Híbridos de transición (HEV), sobre un parque con alta edad promedio.</td>
+              <td>Híbridos y eléctricos livianos particulares + buses 100 % eléctricos del SITP.</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fw-semibold">Infraestructura de recarga</th>
+              <td>Despliegue extensivo en países desarrollados; desigual en el resto.</td>
+              <td>En expansión y concentrada en las principales ciudades.</td>
+              <td>Cobertura asimétrica entre localidades de la ciudad.</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fw-semibold">Palanca / ventaja principal</th>
+              <td>Capacidad financiera y regulatoria de los países líderes.</td>
+              <td>Matriz eléctrica de alta participación renovable → reducción real bajo enfoque <em>Well-to-Wheel</em>.</td>
+              <td>Ciudad-laboratorio: concentra el mayor volumen de matrículas limpias del país.</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fw-semibold">Barrera crítica</th>
+              <td>Brecha Norte–Sur: financiamiento y redes eléctricas en países de ingresos bajos.</td>
+              <td>Parque antiguo y fuerte dependencia de gasolina y diésel.</td>
+              <td>Brecha modal (carga y motos fósiles), costo de compra y asimetría territorial.</td>
+            </tr>
+            <tr>
+              <th scope="row" class="fw-semibold">Rol en esta investigación</th>
+              <td>Marco de referencia y línea base comparativa (sin microdatos).</td>
+              <td>Unidad de contexto y comparación entre departamentos.</td>
+              <td>Unidad de análisis focal, trabajada con microdatos vehiculares.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {# --- Documentación de las fuentes por nivel --- #}
+    <div class="mt-4">
+      <h6 class="fw-bold text-dark mb-3">
+        <i class="bi bi-journals text-primary me-2"></i>Fuentes utilizadas en cada nivel y su justificación
+      </h6>
+      <div class="row g-3">
+        <div class="col-lg-4">
+          <div class="p-3 border rounded-3 bg-light h-100 border-start border-4 border-primary">
+            <span class="badge bg-primary mb-2">Global</span>
+            <ul class="list-unstyled small text-secondary mb-2">
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>IEA — Global EV Outlook / EV Data Explorer:</strong> penetración de ventas de BEV e intensidad de carbono de las matrices eléctricas mundiales.</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>CAF (2024):</strong> diagnóstico de la descarbonización del transporte en América Latina y la brecha entre economías.</li>
+              <li><i class="bi bi-dot"></i><strong>Valencia Hernández (2022):</strong> marco teórico de difusión de tecnologías de propulsión alternativa.</li>
+            </ul>
+            <p class="small text-muted fst-italic mb-0">
+              A esta escala no se dispone de microdatos comparables; se emplean indicadores agregados y literatura para acotar el fenómeno y fijar un punto de referencia frente al cual leer el caso colombiano.
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="p-3 border rounded-3 bg-light h-100 border-start border-4 border-success">
+            <span class="badge bg-success mb-2">Nacional · Colombia</span>
+            <ul class="list-unstyled small text-secondary mb-2">
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>RUNT 2.0 — Vehículos eléctricos e híbridos matriculados</strong> (datos.gov.co, <code>ntxy-q9ix</code>): serie de matrículas por departamento y tecnología.</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>RUNT 2.0 — Crecimiento del parque automotor</strong> (<code>u3vn-bdcy</code>): denominador para la cuota de penetración (%).</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>DANE:</strong> proyecciones de población departamental para normalizar per cápita.</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>Ministerio de Minas y Energía / UPME (2024):</strong> política pública y factores de la matriz eléctrica.</li>
+              <li><i class="bi bi-dot"></i><strong>Alfaro Quintero (2026):</strong> antecedente de <em>machine learning</em> sobre la adopción en Colombia.</li>
+            </ul>
+            <p class="small text-muted fst-italic mb-0">
+              Los registros administrativos del RUNT ofrecen cobertura censal nacional, lo que permite comparar de forma homogénea la adopción entre territorios.
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="p-3 border rounded-3 bg-light h-100 border-start border-4 border-dark">
+            <span class="badge bg-dark mb-2">Regional · Bogotá D.C.</span>
+            <ul class="list-unstyled small text-secondary mb-2">
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>RUNT filtrado por Bogotá:</strong> microdato vehicular focal (potencia, cilindraje, clase, combustible).</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>Datos Abiertos de Bogotá — transporte:</strong> flota del SITP, patios e infraestructura de recarga.</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>Secretaría Distrital de Movilidad / SIMUR:</strong> kilometraje y partición modal por localidad.</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>RMCAB — SDA / IDEAM:</strong> contaminantes locales (PM<sub>2.5</sub>) para validar el impacto ambiental.</li>
+              <li class="mb-1"><i class="bi bi-dot"></i><strong>Encuesta propia del equipo:</strong> dimensión conductual (intención de compra y barreras).</li>
+              <li><i class="bi bi-dot"></i><strong>Alarcón &amp; Rodríguez (2017):</strong> Análisis de Ciclo de Vida para el transporte de pasajeros de Bogotá.</li>
+            </ul>
+            <p class="small text-muted fst-italic mb-0">
+              La escala urbana exige granularidad intraurbana (localidad y estación de monitoreo) que solo aportan las fuentes distritales y la recolección primaria.
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="small text-muted mt-3 mb-0">
+        <i class="bi bi-link-45deg me-1"></i>El detalle de cada dataset (formato, granularidad y enlace de acceso) se documenta en la
+        <a href="{{ url_for('etapa1_seccion', slug='fuentes-datos') }}">Sección 4 · Fuentes de datos</a>.
+      </p>
+    </div>
   </article>
 
   {# ------------------------------------------------------------------ #}
@@ -297,7 +417,7 @@
   {# ------------------------------------------------------------------ #}
   {# Referencias                                                        #}
   {# ------------------------------------------------------------------ #}
-  <article class="card border-0 shadow-sm rounded-3 p-4 p-md-5 bg-white border-top border-3 border-dark">
+  <article id="referencias" class="card border-0 shadow-sm rounded-3 p-4 p-md-5 bg-white border-top border-3 border-dark">
     <div class="d-flex align-items-center mb-3">
       <i class="bi bi-journal-bookmark-fill text-dark fs-4 me-2"></i>
       <h2 class="h5 fw-bold text-dark mb-0">Referencias Bibliográficas (APA 7.ª ed.)</h2>
@@ -312,6 +432,15 @@
       </li>
       <li class="mb-2">
         Banco de Desarrollo de América Latina y el Caribe [CAF]. (2024). <em>Transporte y cambio climático: moviendo la frontera verde en América Latina y el Caribe</em>. CAF.
+      </li>
+      <li class="mb-2">
+        Departamento Administrativo Nacional de Estadística [DANE]. (2022). <em>Proyecciones de población departamental 2018&ndash;2050</em>. DANE.
+      </li>
+      <li class="mb-2">
+        International Energy Agency [IEA]. (2024). <em>Global EV Outlook 2024</em>. IEA.
+      </li>
+      <li class="mb-2">
+        Ministerio de Minas y Energía. (2024). <em>Hoja de Ruta de la Transición Energética Justa de Colombia</em>. Minenergía.
       </li>
       <li class="mb-0">
         Valencia Hernández, V. (2022). <em>Difusión de vehículos de fuentes de propulsión alternativas y la elección de los usuarios en sistemas de transporte en Colombia</em> [Tesis de maestría, Universidad Nacional de Colombia].

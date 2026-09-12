@@ -1,0 +1,203 @@
+{% extends "etapa2/seccion.html" %}
+
+{% block seccion_contenido %}
+<!-- Resumen Ejecutivo y Alcance -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 h-100 p-4 bg-white" style="border-left: 5px solid #ffc107 !important;">
+      <div class="d-flex align-items-center mb-2">
+        <span class="badge bg-warning text-dark me-2">Enfoque: Bogotá D.C. y Contexto Nacional</span>
+        <span class="text-muted small">Transición Energética en el Transporte</span>
+      </div>
+      <h3 class="fw-bold text-dark mb-2">Propósito del Análisis y Relevancia Operativa</h3>
+      <p class="text-secondary mb-3">
+        El conjunto consolidado de datos (56.545 microdatos del RUNT enriquecidos con estándares territoriales DIVIPOLA, proyecciones DANE y factores ambientales Well-to-Wheel) tiene como propósito modelar la adopción vehicular limpia (<strong>BEV, HEV, PHEV</strong>) en Bogotá D.C. frente a la dinámica nacional entre 2014 y 2024, evaluando su impacto en la reducción de toneladas de CO₂-eq emitidas.
+      </p>
+      <p class="text-secondary mb-0">
+        Para que los modelos de segmentación no supervisada (K-prototypes / clustering jerárquico) y las estimaciones de huella evitada sean válidos, los datos deben someterse a controles estrictos de calidad que garanticen consistencia física entre tecnología y motor, unicidad de registros e integridad referencial territorial.
+      </p>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100 p-4 text-white" style="background-color: #143525;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-uppercase small tracking-wider text-warning fw-bold">Madurez MDM</span>
+        <i class="bi bi-diagram-3 fs-4 text-warning"></i>
+      </div>
+      <h5 class="fw-bold mb-1">Nivel 2: Reactivo</h5>
+      <p class="small text-white-50 mb-3">Modelo de David Loshin (2009)</p>
+      <p class="small text-light mb-0">
+        El repositorio opera sin un <em>Golden Record</em> unificado en el origen. La remediación técnica se realiza mediante una capa analítica correctiva en Python (generando los atributos rectificados <code>_R</code>) para subsanar vacíos e incongruencias del registro administrativo antes del modelado.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Requisitos de Calidad por Dimensión (DAMA-DMBOK) -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="border-bottom pb-3 mb-3">
+    <h4 class="fw-bold text-dark mb-1">Requisitos de Calidad de Datos (Data Quality Requirements)</h4>
+    <p class="text-muted small mb-0">Criterios de aceptación técnica formulados según las necesidades de los modelos analíticos y usuarios de política pública.</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 18%;">Dimensión</th>
+          <th style="width: 34%;">Requisito Operativo y Técnico</th>
+          <th style="width: 28%;">Impacto en el Negocio / Modelo</th>
+          <th style="width: 20%;">Criterio de Aceptación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
+          <td>Presencia total de registros en atributos clave: <code>Potencia</code>, <code>Cilindraje</code>, <code>Clase</code> y <code>Combustible</code>.</td>
+          <td>Evita el descarte de tuplas en el entrenamiento de algoritmos de segmentación vehicular.</td>
+          <td><code>100%</code> en atributos rectificados (<code>_R</code>).</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
+          <td>Coherencia física y mecánica: ausencia de cilindraje térmico en vehículos 100% eléctricos (BEV).</td>
+          <td>Previene distorsiones en las curvas de consumo energético y cálculo de factores de emisión.</td>
+          <td><code>Cilindraje_R = 0 cc</code> en todos los BEV.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
+          <td>Emparejamiento unívoco entre nombres de departamento/municipio y el catálogo DIVIPOLA del DANE.</td>
+          <td>Garantiza la agregación espacial correcta sin duplicación de métricas para Bogotá D.C.</td>
+          <td><code>100%</code> de códigos territoriales validados.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
+          <td>Ausencia de tuplas duplicadas representativas de un mismo hecho de matrícula vehicular.</td>
+          <td>Previene la sobrestimación del inventario acumulado y de la reducción de huella de carbono.</td>
+          <td><code>0</code> duplicados en <code>ID_Registro</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Validez</span></td>
+          <td>Conformidad de valores numéricos dentro de los rangos de ingeniería automotriz y dominios válidos.</td>
+          <td>Evita anomalías que rompan escalas euclidianas en clustering (ej. potencias negativas o > 1.000 kW).</td>
+          <td>Potencia: <code>[1.2 – 450.0 kW]</code>.<br>Años: <code>[2014 – 2024]</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">Actualidad</span></td>
+          <td>Disponibilidad de registros hasta el cierre de la ventana de estudio establecida (2024).</td>
+          <td>Permite contrastar metas del Plan Nacional de Desarrollo frente a la flota real en circulación.</td>
+          <td>Fecha de corte: <code>31/12/2024</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Estructura Metodológica: Oliveira et al. y Modelo de Otto -->
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-primary">
+      <h5 class="fw-bold text-dark mb-2">
+        <i class="bi bi-layers text-primary me-2"></i>Auditoría por Granularidad (Oliveira et al.)
+      </h5>
+      <p class="text-secondary small mb-3">
+        La auditoría del repositorio se articula en cuatro niveles para desacoplar las causas raíz y los tratamientos técnicos:
+      </p>
+      <ul class="list-unstyled small mb-0">
+        <li class="py-2 border-bottom">
+          <strong class="text-dark">1. Atributo / Tupla:</strong> Control de celdas nulas en potencia, cilindraje erróneo en BEV y normalización de textos ortográficos.
+        </li>
+        <li class="py-2 border-bottom">
+          <strong class="text-dark">2. Relación (Tabla):</strong> Detección de duplicados generados por descargas acumuladas en datos abiertos.
+        </li>
+        <li class="py-2 border-bottom">
+          <strong class="text-dark">3. Varias Relaciones:</strong> Integridad foránea entre hechos de tránsito y el estándar DIVIPOLA de municipios.
+        </li>
+        <li class="py-2">
+          <strong class="text-dark">4. Múltiples Fuentes:</strong> Homogeneización de unidades entre factores de ciclo de vida (g CO₂-eq/km) y encuestas de viaje.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-success">
+      <h5 class="fw-bold text-dark mb-2">
+        <i class="bi bi-people-fill text-success me-2"></i>Interacción Organizacional (Modelo de Otto)
+      </h5>
+      <p class="text-secondary small mb-3">
+        Distribución metodológica de responsabilidades para el aseguramiento analítico del proyecto:
+      </p>
+      <div class="d-flex flex-column gap-2 small">
+        <div class="p-2 border rounded bg-light">
+          <strong class="text-dark">Gobierno de Datos (DG):</strong> Define políticas de exclusión, glosario técnico vehicular (BEV vs. HEV) y criterios de calidad.
+        </div>
+        <div class="p-2 border rounded bg-light">
+          <strong class="text-dark">Gestión de Calidad (DQM):</strong> Monitorea las métricas cuantitativas, formula reglas de aserción y reporta no conformidades.
+        </div>
+        <div class="p-2 border rounded bg-light">
+          <strong class="text-dark">Gestión de Datos (DM):</strong> Desarrolla scripts de imputación técnica, homologa sufijos <code>_R</code> y mantiene la base procesada.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Perfiles de Usuario y sus Necesidades de Calidad -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-person-lines-fill text-primary me-2"></i>Perfiles de Usuario y sus Necesidades de Calidad
+  </h5>
+  <p class="text-secondary small mb-3">
+    Los requisitos de calidad de la tabla anterior responden, en última instancia, a lo que cada tipo de usuario necesita para confiar en los resultados:
+  </p>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="p-3 border rounded bg-light h-100">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-building me-1 text-primary"></i>Tomadores de decisión distrital</h6>
+        <p class="small text-muted mb-0">Secretaría de Movilidad y de Ambiente: necesitan <strong>completitud</strong> y <strong>actualidad</strong> para sustentar metas de electrificación y políticas de pico y placa con cifras vigentes.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 border rounded bg-light h-100">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-mortarboard me-1 text-primary"></i>Investigadores académicos</h6>
+        <p class="small text-muted mb-0">Necesitan <strong>exactitud lógica</strong> y <strong>consistencia territorial</strong> para que los modelos de segmentación y estimación de emisiones sean reproducibles y comparables entre estudios.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 border rounded bg-light h-100">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-people me-1 text-primary"></i>Ciudadanía y prensa</h6>
+        <p class="small text-muted mb-0">Consultan la plataforma para entender el avance de la transición vehicular en Bogotá: necesitan <strong>validez</strong> (cifras dentro de rangos creíbles) y <strong>unicidad</strong> (sin doble conteo de vehículos).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Referencias Académicas (APA 7.ª edición) -->
+<div class="card p-4 border-top border-3 border-dark bg-white shadow-sm">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Referencias Normativas y Teóricas (APA 7.ª ed.)
+  </h5>
+  <ul class="list-unstyled small mb-0 ps-3" style="text-indent: -1.5rem; padding-left: 1.5rem;">
+    <li class="mb-2">
+      Caballero Muñoz-Reja, I., Gómez Carretero, A. I., Gualo Cejudo, F., Merino García, J., Rivas García, B., &amp; Piattini Velthuis, M. (2018). <em>Calidad de datos</em>. RA-MA.
+    </li>
+    <li class="mb-2">
+      DAMA International. (2017). <em>Data Management Body of Knowledge (DAMA-DMBOK2)</em> (2.ª ed.). Technics Publications.
+    </li>
+    <li class="mb-2">
+      Loshin, D. (2009). <em>Master Data Management</em>. Morgan Kaufmann.
+    </li>
+    <li class="mb-0">
+      Oliveira, P., Rodrigues, F., &amp; Henriques, P. R. (2005). <em>A Taxonomy for Data Quality Problems</em>. Proceedings of the International Conference on Information Quality (ICIQ-05).
+    </li>
+  </ul>
+</div>
+
+<!-- Botón de Siguiente Sección -->
+<div class="d-flex justify-content-end align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa2_seccion', slug='perfilamiento') }}">
+    2. Perfilamiento del Dataset <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}
