@@ -1,212 +1,238 @@
 {% extends "etapa2/seccion.html" %}
 
 {% block seccion_contenido %}
-<!-- Indicadores Globales de la Remediación -->
+<!-- Resumen del Plan de Tratamiento -->
 <div class="row g-3 mb-4">
   <div class="col-md-3">
     <div class="card p-3 shadow-sm border-start border-4 border-success bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Completitud Global</span>
-      <div class="d-flex align-items-baseline gap-2 my-1">
-        <span class="text-danger text-decoration-line-through fs-6">91.47%</span>
-        <span class="fs-4 fw-bold text-success">&rarr; 100.0%</span>
-      </div>
-      <span class="text-muted small">Cero celdas vacías en <code>_R</code></span>
+      <span class="text-muted small text-uppercase fw-bold">Reglas de Tratamiento</span>
+      <h3 class="fw-bold text-dark my-1">7</h3>
+      <span class="text-muted small">Procesos aplicados sobre <code>_R</code></span>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Exactitud Lógica BEV</span>
-      <div class="d-flex align-items-baseline gap-2 my-1">
-        <span class="text-warning text-decoration-line-through fs-6">97.81%</span>
-        <span class="fs-4 fw-bold text-primary">&rarr; 100.0%</span>
-      </div>
-      <span class="text-muted small">1.240 cilindrajes rectificados</span>
+      <span class="text-muted small text-uppercase fw-bold">Variables Intervenidas</span>
+      <h3 class="fw-bold text-primary my-1">6</h3>
+      <span class="text-muted small">Potencia, Cilindraje, Capacidades, Territorio</span>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
+      <span class="text-muted small text-uppercase fw-bold">Fuentes Integradas</span>
+      <h3 class="fw-bold text-warning my-1">4</h3>
+      <span class="text-muted small">RUNT, DANE, SIMUR, Ecoinvent/UPME</span>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card p-3 shadow-sm border-start border-4 border-info bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Consistencia DIVIPOLA</span>
-      <div class="d-flex align-items-baseline gap-2 my-1">
-        <span class="text-danger text-decoration-line-through fs-6">92.30%</span>
-        <span class="fs-4 fw-bold text-info">&rarr; 100.0%</span>
-      </div>
-      <span class="text-muted small">Cruce foráneo DANE íntegro</span>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-secondary bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Registros Únicos</span>
-      <h3 class="fw-bold text-dark my-1">56.545</h3>
-      <span class="text-muted small">Unicidad mantenida al 100%</span>
+      <span class="text-muted small text-uppercase fw-bold">Duplicados</span>
+      <h3 class="fw-bold text-info my-1">0</h3>
+      <span class="text-muted small">Control preventivo sobre <code>ID_Registro</code></span>
     </div>
   </div>
 </div>
 
-<!-- Tabla Comparativa Integral Antes vs. Después -->
+<!-- Gráfica: Impacto del Tratamiento -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-bar-chart-line text-success me-2"></i>Impacto del Tratamiento: Antes vs. Después
+  </h5>
+  <div style="max-height: 280px;">
+    <canvas id="chartTratamiento"></canvas>
+  </div>
+</div>
+
+<!-- Matriz del Plan de Tratamiento -->
 <div class="card shadow-sm border-0 mb-4 p-4 bg-white">
   <div class="border-bottom pb-3 mb-3">
-    <h4 class="fw-bold text-dark mb-1">Auditoría Cuantitativa: Estado Inicial vs. Estado Post-Tratamiento</h4>
-    <p class="text-muted small mb-0">Balance de remediación técnica evaluado sobre los 56.545 automotores limpios matriculados.</p>
+    <h4 class="fw-bold text-dark mb-1">Plan de Tratamiento: Acciones de Corrección y Control</h4>
+    <p class="text-muted small mb-0">Cada acción responde a un problema del inventario (Sección 4) y se ejecuta sobre la capa analítica en Python/Pandas, generando los atributos rectificados con sufijo <code>_R</code>.</p>
   </div>
 
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
       <thead class="table-light">
         <tr>
-          <th style="width: 15%;">Atributo / Hecho</th>
-          <th style="width: 25%;">Línea Base (Dataset Crudo)</th>
-          <th style="width: 25%;">Dataset Saneado (<code>_R</code>)</th>
-          <th style="width: 20%;">Variación / Remedio</th>
-          <th style="width: 15%;">Impacto Analítico</th>
+          <th style="width: 16%;">Proceso Aplicado</th>
+          <th style="width: 14%;">Variable / Campo</th>
+          <th style="width: 30%;">Técnica de Tratamiento</th>
+          <th style="width: 12%;">Registros</th>
+          <th style="width: 28%;">Resultado</th>
         </tr>
       </thead>
       <tbody>
         <tr>
+          <td><span class="badge bg-secondary">Eliminación de duplicados</span></td>
+          <td><code>ID_Registro</code></td>
+          <td>Verificación de unicidad mediante <code>df.duplicated()</code> sobre la llave técnica de matrícula; sin necesidad de descarte de filas.</td>
+          <td>0 (0.00%)</td>
+          <td><span class="badge bg-success">100% únicos</span> — no se requirió eliminación</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-danger">Tratamiento de nulos</span></td>
           <td><code>Potencia</code></td>
-          <td><span class="badge bg-danger">4.821 Nulos (8.53%)</span><br><span class="small text-muted">Mín: 0.0 kW (erróneo)</span></td>
-          <td><span class="badge bg-success">0 Nulos (0.00%)</span><br><span class="small text-muted">Mín: 1.20 kW (técnico)</span></td>
-          <td><strong class="text-success">+4.821 registros</strong> imputados por catálogo</td>
-          <td>Habilita clustering K-Prototypes sin descartar tuplas</td>
+          <td>Imputación asistida por catálogo técnico de fabricante, agrupando por <code>Marca</code> + <code>Linea</code>.</td>
+          <td>4.821 (8.53%)</td>
+          <td><span class="badge bg-success">0 nulos</span> en <code>Potencia_R</code></td>
         </tr>
         <tr>
-          <td><code>Cilindraje</code></td>
-          <td><span class="badge bg-warning text-dark">1.240 Inconsistencias</span><br><span class="small text-muted">BEV con cilindraje &gt; 0 cc</span></td>
-          <td><span class="badge bg-success">0 Inconsistencias</span><br><span class="small text-muted">BEV strictly = 0 cc</span></td>
-          <td><strong class="text-success">100% corregido</strong> determinísticamente</td>
-          <td>Elimina distorsión en cálculos de consumo de combustible</td>
+          <td><span class="badge bg-danger">Tratamiento de nulos</span></td>
+          <td><code>Capacidad_Pasajeros</code> / <code>Capacidad_Carga</code></td>
+          <td>Imputación por moda estadística, segmentada según <code>Clase</code> de vehículo y tipo de chasis.</td>
+          <td>892 + 2.105 (5.30%)</td>
+          <td><span class="badge bg-success">0 celdas vacías</span> en ambos <code>_R</code></td>
         </tr>
         <tr>
-          <td><code>Municipio</code> / <code>Depto</code></td>
-          <td><span class="badge bg-danger">Variabilidad tipográfica</span><br><span class="small text-muted">Múltiples variantes de texto</span></td>
-          <td><span class="badge bg-success">DIVIPOLA Homologado</span><br><span class="small text-muted">Código DANE de 5 dígitos</span></td>
-          <td><strong class="text-success">100% estandarizado</strong> a nivel nacional</td>
-          <td>Agrupación unívoca y precisa para Bogotá D.C.</td>
+          <td><span class="badge bg-primary">Corrección de tipos de dato</span></td>
+          <td><code>Fecha_Matricula</code>, <code>Codigo_Municipio_DANE</code></td>
+          <td>Conversión a <code>datetime64[ns]</code> y a cadena de 5 dígitos con relleno de ceros (<code>zfill</code>) para preservar códigos DIVIPOLA.</td>
+          <td>56.545 (100%)</td>
+          <td>Tipos consistentes para <em>joins</em> e indexado temporal</td>
         </tr>
         <tr>
-          <td><code>Capacidades</code></td>
-          <td><span class="badge bg-warning text-dark">2.997 Celdas Vacías</span><br><span class="small text-muted">En carga y pasajeros</span></td>
-          <td><span class="badge bg-success">0 Celdas Vacías</span><br><span class="small text-muted">100% cobertura técnica</span></td>
-          <td><strong class="text-success">Moda asignada</strong> según tipología y chasis</td>
-          <td>Permite segmentar flotas masivas (SITP) vs. particulares</td>
+          <td><span class="badge bg-info text-dark">Estandarización de texto</span></td>
+          <td><code>Municipio</code>, <code>Departamento</code></td>
+          <td>Normalización con <code>str.upper()</code>, <code>str.strip()</code> y remoción de tildes/caracteres especiales antes del cruce.</td>
+          <td>4.354 (7.70%)</td>
+          <td>Cadenas unificadas, listas para homologar</td>
         </tr>
         <tr>
-          <td><code>Huella Ambiental</code></td>
-          <td><span class="badge bg-secondary">Sin variable continua</span><br><span class="small text-muted">Solo tipo de combustible</span></td>
-          <td><span class="badge bg-success">Huella_CO2_Evitada_Ton</span><br><span class="small text-muted">Promedio: 3.65 Ton/año</span></td>
-          <td><strong class="text-success">Factor WTW integrado</strong> × km recorridos SIMUR</td>
-          <td>Cuantifica el impacto real de descarbonización</td>
+          <td><span class="badge bg-success">Homologación de categorías</span></td>
+          <td><code>Municipio</code> / <code>Depto</code> &rarr; <code>Codigo_Municipio_DANE</code></td>
+          <td>Tabla de equivalencias (<em>lookup</em>) contra el catálogo oficial DIVIPOLA del DANE, vía <code>left_join</code>.</td>
+          <td>1.890 (3.34%)</td>
+          <td><span class="badge bg-success">100% homologado</span> a código nacional de 5 dígitos</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-warning text-dark">Validación de rangos</span></td>
+          <td><code>Potencia_R</code>, <code>Anio_Registro</code></td>
+          <td>Aserciones condicionales: <code>Potencia ∈ [1.2, 450.0] kW</code> y <code>Anio_Registro ∈ [2014, 2024]</code>; y regla física <code>Combustible = 'ELECTRICO' ⇒ Cilindraje = 0</code>.</td>
+          <td>1.240 (2.19%)</td>
+          <td><span class="badge bg-success">100% conforme</span> tras la corrección determinista</td>
+        </tr>
+        <tr>
+          <td><span class="badge bg-dark">Tratamiento de atípicos</span></td>
+          <td><code>Potencia</code>, <code>Cilindraje</code>, <code>Capacidad_Pasajeros</code></td>
+          <td>Potencias &lt; 1 kW reasignadas a la mediana técnica por marca/modelo; cilindrajes &gt; 6.000 cc truncados (error de concatenación); capacidades &gt; 100 pasajeros <strong>validadas como legítimas</strong> (buses articulados SITP) y conservadas sin alteración.</td>
+          <td>&asymp; 210 casos<sup>*</sup></td>
+          <td>Distribución consistente sin distorsionar los centroides de clustering</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <small class="text-muted d-block mt-2">
+    <sup>*</sup> Cifra estimada a partir del inventario de la Sección 4; pendiente de confirmar con el conteo exacto del script de limpieza una vez ejecutado sobre el dataset completo.
+  </small>
+</div>
+
+<!-- Orden de Ejecución del Pipeline -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-diagram-3 text-primary me-2"></i>Orden de Ejecución del Pipeline de Limpieza
+  </h5>
+  <p class="text-secondary small mb-3">
+    El orden importa: algunas correcciones dependen de que la anterior ya se haya aplicado (por ejemplo, no se puede homologar contra DIVIPOLA si el texto aún no está normalizado).
+  </p>
+  <ol class="small text-secondary mb-0">
+    <li class="mb-1"><strong class="text-dark">1. Eliminación de duplicados</strong> — verificación de unicidad sobre <code>ID_Registro</code>.</li>
+    <li class="mb-1"><strong class="text-dark">2. Tratamiento de nulos</strong> — imputación de <code>Potencia</code>, <code>Capacidad_Pasajeros</code> y <code>Capacidad_Carga</code>.</li>
+    <li class="mb-1"><strong class="text-dark">3. Corrección de tipos de dato</strong> — conversión de fechas y códigos territoriales.</li>
+    <li class="mb-1"><strong class="text-dark">4. Estandarización de texto</strong> — normalización de <code>Municipio</code>/<code>Departamento</code> (mayúsculas, sin tildes).</li>
+    <li class="mb-1"><strong class="text-dark">5. Homologación de categorías</strong> — cruce contra DIVIPOLA (requiere el texto ya normalizado en el paso 4).</li>
+    <li class="mb-1"><strong class="text-dark">6. Validación de rangos</strong> — aserciones de dominio sobre las variables ya imputadas y tipadas.</li>
+    <li><strong class="text-dark">7. Tratamiento de atípicos</strong> — último paso, para no corregir dos veces un valor que ya fue imputado o validado.</li>
+  </ol>
+</div>
+
+<!-- Integración y Homologación de Fuentes -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="border-bottom pb-3 mb-3">
+    <h4 class="fw-bold text-dark mb-1">Integración y Homologación entre Fuentes</h4>
+    <p class="text-muted small mb-0">El dataset analítico es el resultado de integrar cuatro fuentes con estructuras, unidades y llaves distintas (ver Sección 4 · Fuentes de Datos).</p>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle mb-0" style="font-size: 0.85rem;">
+      <thead class="table-light">
+        <tr>
+          <th>Fuente</th>
+          <th>Llave / Campo de Cruce</th>
+          <th>Diferencia de Origen</th>
+          <th>Homologación Aplicada</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>RUNT 2.0</strong> (vehículos e híbridos)</td>
+          <td><code>Municipio</code>, <code>Departamento</code></td>
+          <td>Texto libre, sin código estándar ("BOGOTA", "BOGOTÁ D. C.", "Bogota")</td>
+          <td>Cruce contra DIVIPOLA (DANE) &rarr; <code>Codigo_Municipio_DANE</code> de 5 dígitos</td>
+        </tr>
+        <tr>
+          <td><strong>DANE</strong> (proyecciones de población)</td>
+          <td><code>Codigo_Depto_DANE</code></td>
+          <td>Nivel departamental; el RUNT reporta a nivel de municipio</td>
+          <td>Agregación municipio &rarr; departamento para el cálculo per cápita</td>
+        </tr>
+        <tr>
+          <td><strong>SIMUR</strong> (encuestas de movilidad)</td>
+          <td><code>Km_Recorridos_Anual</code></td>
+          <td>Unidad de viajes/localidad, no de vehículo individual</td>
+          <td>Promedio de kilometraje anual asignado por <code>Clase</code> de vehículo</td>
+        </tr>
+        <tr>
+          <td><strong>Ecoinvent / UPME</strong> (factores <em>Well-to-Wheel</em>)</td>
+          <td><code>Combustible</code></td>
+          <td>Factores expresados en g CO<sub>2</sub>/km y kWh/km, no en toneladas/año</td>
+          <td>Conversión a <code>Huella_CO2_Evitada_Ton</code> = km anuales &times; factor &divide; 1.000.000</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Muestra Comparativa de Tuplas (Head Antes vs. Después) -->
-<div class="row g-4 mb-4">
-  <div class="col-lg-6">
-    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-danger">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold text-dark mb-0">
-          <i class="bi bi-x-circle text-danger me-2"></i>Ejemplo de Datos Originales (Crudos)
-        </h5>
-        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Con Anomalías</span>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-bordered table-sm small mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Combustible</th>
-              <th>Clase</th>
-              <th>Potencia</th>
-              <th>Cilindraje</th>
-              <th>Municipio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="table-danger">
-              <td>ELECTRICO</td>
-              <td>AUTOMOVIL</td>
-              <td><code>NaN</code></td>
-              <td><strong>1.600</strong></td>
-              <td>BOGOTÁ D. C.</td>
-            </tr>
-            <tr class="table-danger">
-              <td>ELECTRICO</td>
-              <td>BUS</td>
-              <td><code>0.0</code></td>
-              <td><strong>2.500</strong></td>
-              <td>Bogota</td>
-            </tr>
-            <tr>
-              <td>GASO ELEC</td>
-              <td>CAMIONETA</td>
-              <td><code>NaN</code></td>
-              <td>2.487</td>
-              <td>BOGOTA</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <small class="text-muted mt-2 d-block">Muestra de inconsistencias reales detectadas en el volcado primario del RUNT.</small>
-    </div>
-  </div>
-
-  <div class="col-lg-6">
-    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-success">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold text-dark mb-0">
-          <i class="bi bi-check-circle text-success me-2"></i>Muestra Homologada (Tratada)
-        </h5>
-        <span class="badge bg-success bg-opacity-10 text-success border border-success">Saneado (_R)</span>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-bordered table-sm small mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Combustible</th>
-              <th>Clase</th>
-              <th>Potencia_R</th>
-              <th>Cilindraje_R</th>
-              <th>Cod_DANE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="table-success">
-              <td>ELECTRICO</td>
-              <td>AUTOMOVIL</td>
-              <td><strong>100.0 kW</strong></td>
-              <td><strong>0 cc</strong></td>
-              <td><code>11001</code></td>
-            </tr>
-            <tr class="table-success">
-              <td>ELECTRICO</td>
-              <td>BUS</td>
-              <td><strong>300.0 kW</strong></td>
-              <td><strong>0 cc</strong></td>
-              <td><code>11001</code></td>
-            </tr>
-            <tr class="table-success">
-              <td>GASO ELEC</td>
-              <td>CAMIONETA</td>
-              <td><strong>163.0 kW</strong></td>
-              <td>2.487 cc</td>
-              <td><code>11001</code></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <small class="text-muted mt-2 d-block">Resultados consistentes y listos para los modelos de segmentación analítica.</small>
-    </div>
-  </div>
-</div>
-
-<!-- Botones de Navegación Final -->
+<!-- Botones de Navegación -->
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-  <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}">
-    <i class="bi bi-arrow-left me-1"></i> 5. Plan de Tratamiento
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}">
+    <i class="bi bi-arrow-left me-1"></i> 4. Inventario de Problemas
   </a>
-  <a class="btn btn-success fw-bold text-white" href="{{ url_for('home') }}">
-    <i class="bi bi-house-door me-1"></i> Finalizar Recorrido de Calidad
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa2_seccion', slug='comparacion-antes-despues') }}">
+    6. Comparación Antes y Después <i class="bi bi-arrow-right ms-1"></i>
   </a>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartTratamiento'), {
+    type: 'bar',
+    data: {
+      labels: ['Completitud', 'Exactitud Lógica BEV', 'Consistencia DIVIPOLA'],
+      datasets: [
+        {
+          label: 'Antes (dataset crudo)',
+          data: [91.47, 97.81, 92.30],
+          backgroundColor: '#dc3545',
+          borderRadius: 5
+        },
+        {
+          label: 'Después (_R)',
+          data: [100.0, 100.0, 100.0],
+          backgroundColor: '#2d5a43',
+          borderRadius: 5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+      }
+    }
+  });
+</script>
 {% endblock %}

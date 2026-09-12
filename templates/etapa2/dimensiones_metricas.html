@@ -40,8 +40,9 @@
           <th style="width: 14%;">Dimensión</th>
           <th style="width: 26%;">Definición y Métrica</th>
           <th style="width: 25%;">Fórmula Operativa</th>
-          <th style="width: 15%;">Línea Base (Crudo)</th>
-          <th style="width: 20%;">Criterio Aceptación</th>
+          <th style="width: 12%;">Línea Base (Crudo)</th>
+          <th style="width: 15%;">Criterio Aceptación</th>
+          <th style="width: 13%;">Problema Asociado</th>
         </tr>
       </thead>
       <tbody>
@@ -51,6 +52,7 @@
           <td><code>(1 - (Nulos / N_Total)) * 100</code></td>
           <td><strong class="text-danger">91.47%</strong> (4.821 nulos)</td>
           <td>&ge; 98.0% (100% tras imputación)</td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
@@ -58,6 +60,7 @@
           <td><code>(BEV_Cil_Cero / Total_BEV) * 100</code></td>
           <td><strong class="text-warning">97.81%</strong> (1.240 fallos)</td>
           <td>100% estricto</td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
@@ -65,13 +68,15 @@
           <td><code>(FK_Validas / N_Total) * 100</code></td>
           <td><strong class="text-danger">92.30%</strong> (discrepancias texto)</td>
           <td>100% homologado</td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
           <td>Ausencia de tuplas redundantes correspondientes al mismo hecho de matrícula en el RUNT.</td>
           <td><code>(1 - (Duplicados / N_Total)) * 100</code></td>
           <td><strong class="text-success">100.0%</strong> (0 redundancias)</td>
-          <td>100% unívoco</td>
+          <td>100% único</td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Validez</span></td>
@@ -79,6 +84,7 @@
           <td><code>(Registros_Rango / N_Total) * 100</code></td>
           <td><strong class="text-danger">89.60%</strong> (outliers y nulos)</td>
           <td>&ge; 99.0%</td>
+          <td><span class="small text-muted">Ver Sección 2 · Perfilamiento</span></td>
         </tr>
         <tr>
           <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">Actualidad</span></td>
@@ -86,9 +92,20 @@
           <td><code>Fecha_Corte - Max(Fecha_Registro)</code></td>
           <td><strong class="text-success">0 días</strong> (cierre 2024)</td>
           <td>Actualizado al cierre</td>
+          <td><span class="small text-muted">Sin problemas registrados</span></td>
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Gráfica: Línea Base vs. Meta por Dimensión -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-bar-chart-line text-primary me-2"></i>Línea Base (Dataset Crudo) vs. Meta de Calidad por Dimensión
+  </h5>
+  <div style="max-height: 320px;">
+    <canvas id="chartDimensiones"></canvas>
   </div>
 </div>
 
@@ -148,4 +165,38 @@
     4. Inventario de Problemas <i class="bi bi-arrow-right ms-1"></i>
   </a>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartDimensiones'), {
+    type: 'bar',
+    data: {
+      labels: ['Completitud', 'Exactitud Lógica', 'Consistencia', 'Unicidad', 'Validez', 'Actualidad'],
+      datasets: [
+        {
+          label: 'Línea base (crudo)',
+          data: [91.47, 97.81, 92.30, 100.0, 89.60, 100.0],
+          backgroundColor: '#d9a314',
+          borderRadius: 5
+        },
+        {
+          label: 'Meta de aceptación',
+          data: [98.0, 100.0, 100.0, 100.0, 99.0, 100.0],
+          backgroundColor: '#2d5a43',
+          borderRadius: 5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+      }
+    }
+  });
+</script>
 {% endblock %}

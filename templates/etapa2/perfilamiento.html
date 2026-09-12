@@ -21,7 +21,7 @@
     <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
       <span class="text-muted small text-uppercase fw-bold">Duplicados Exactos</span>
       <h3 class="fw-bold text-warning my-1">0</h3>
-      <span class="text-muted small">En ID_Registro unívoco</span>
+      <span class="text-muted small">En ID_Registro único</span>
     </div>
   </div>
   <div class="col-md-3">
@@ -185,6 +185,16 @@
   </div>
 </div>
 
+<!-- Gráfica: % de Nulos por Variable (Origen) -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="bi bi-bar-chart-line text-danger me-2"></i>Porcentaje de Valores Nulos por Variable (Antes del Tratamiento)
+  </h5>
+  <div style="max-height: 280px;">
+    <canvas id="chartNulos"></canvas>
+  </div>
+</div>
+
 <!-- Estadísticos Descriptivos y Detección de Atípicos -->
 <div class="row g-4 mb-4">
   <div class="col-lg-7">
@@ -216,7 +226,7 @@
             <tr>
               <td><strong>Media</strong></td>
               <td>124.50</td>
-              <td>1.385.20</td>
+              <td>1,385.20</td>
               <td>5.40</td>
               <td>780.40</td>
               <td>3.65</td>
@@ -224,7 +234,7 @@
             <tr>
               <td><strong>Mediana</strong></td>
               <td>110.00</td>
-              <td>1.798.00</td>
+              <td>1,798.00</td>
               <td>5.00</td>
               <td>450.00</td>
               <td>1.85</td>
@@ -232,9 +242,9 @@
             <tr>
               <td><strong>Máximo</strong></td>
               <td>350.00</td>
-              <td>4.969.00</td>
+              <td>4,969.00</td>
               <td>160</td>
-              <td>18.000.00</td>
+              <td>18,000.00</td>
               <td>32.80</td>
             </tr>
             <tr>
@@ -242,7 +252,7 @@
               <td>68.30</td>
               <td>845.10</td>
               <td>8.20</td>
-              <td>1.450.30</td>
+              <td>1,450.30</td>
               <td>4.90</td>
             </tr>
           </tbody>
@@ -284,4 +294,32 @@
     3. Dimensiones y Métricas <i class="bi bi-arrow-right ms-1"></i>
   </a>
 </div>
-{% endblock %}    
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartNulos'), {
+    type: 'bar',
+    data: {
+      labels: ['Potencia', 'Capacidad_Carga', 'Cilindraje', 'Capacidad_Pasajeros'],
+      datasets: [{
+        label: '% de nulos en origen',
+        data: [8.53, 3.72, 2.19, 1.58],
+        backgroundColor: '#f2ba1d',
+        borderRadius: 6,
+        maxBarThickness: 46
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, ticks: { callback: v => v + '%' }, title: { display: true, text: '% de registros nulos' } }
+      }
+    }
+  });
+</script>
+{% endblock %}

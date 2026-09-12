@@ -51,6 +51,7 @@
           <th>Dimensión</th>
           <th>Impacto</th>
           <th>Evidencia Empírica</th>
+          <th>Estado</th>
         </tr>
       </thead>
       <tbody>
@@ -62,6 +63,7 @@
           <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
           <td><span class="badge bg-danger">Alto</span></td>
           <td><code>df['Potencia'].isnull().sum() == 4821</code></td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
@@ -71,6 +73,7 @@
           <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
           <td><span class="badge bg-danger">Alto</span></td>
           <td><code>(Combustible == 'ELECTRICO') &amp; (Cilindraje &gt; 0)</code></td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
@@ -80,6 +83,7 @@
           <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
           <td><span class="badge bg-warning text-dark">Medio</span></td>
           <td>Presencia de "BOGOTA D.C.", "BOGOTA", "BOGOTÁ D. C." en la misma columna</td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
         </tr>
         <tr>
           <td><span class="badge bg-info text-dark">2. Relación</span></td>
@@ -89,6 +93,7 @@
           <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
           <td><span class="badge bg-success">Bajo</span></td>
           <td><code>df.duplicated(subset=['ID_Registro']).sum() == 0</code></td>
+          <td><span class="badge bg-secondary">Sin novedad</span></td>
         </tr>
         <tr>
           <td><span class="badge bg-primary">3. Varias Relaciones</span></td>
@@ -98,9 +103,38 @@
           <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia Referencial</span></td>
           <td><span class="badge bg-danger">Alto</span></td>
           <td>Fallo de emparejamiento (<code>left_join is null</code>) contra tabla DANE</td>
+          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
         </tr>
       </tbody>
     </table>
+  </div>
+  <small class="text-muted d-block mt-2">
+    El estado "Corregido" enlaza al proceso aplicado en la
+    <a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}">Sección 5 · Plan de Tratamiento</a>.
+  </small>
+</div>
+
+<!-- Gráfica: Distribución de Problemas por Nivel de Impacto -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-pie-chart text-danger me-2"></i>Problemas por Nivel de Impacto
+      </h5>
+      <div style="max-height: 260px;">
+        <canvas id="chartImpacto"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="bi bi-bar-chart text-primary me-2"></i>Registros Afectados por Campo
+      </h5>
+      <div style="max-height: 260px;">
+        <canvas id="chartRegistros"></canvas>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -156,4 +190,47 @@
     5. Plan de Tratamiento <i class="bi bi-arrow-right ms-1"></i>
   </a>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartImpacto'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Alto', 'Medio', 'Bajo'],
+      datasets: [{
+        data: [3, 1, 1],
+        backgroundColor: ['#dc3545', '#f2ba1d', '#2d5a43'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  new Chart(document.getElementById('chartRegistros'), {
+    type: 'bar',
+    data: {
+      labels: ['Potencia', 'Municipio/Depto', 'Cod_Municipio_DANE', 'Cilindraje'],
+      datasets: [{
+        label: 'Registros afectados',
+        data: [4821, 4354, 1890, 1240],
+        backgroundColor: '#2d5a43',
+        borderRadius: 6,
+        maxBarThickness: 46
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
 {% endblock %}
