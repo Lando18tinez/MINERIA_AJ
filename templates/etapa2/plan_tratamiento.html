@@ -54,11 +54,12 @@
     <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
       <thead class="table-light">
         <tr>
-          <th style="width: 16%;">Proceso Aplicado</th>
-          <th style="width: 14%;">Variable / Campo</th>
-          <th style="width: 30%;">Técnica de Tratamiento</th>
-          <th style="width: 12%;">Registros</th>
-          <th style="width: 28%;">Resultado</th>
+          <th style="width: 13%;">Proceso Aplicado</th>
+          <th style="width: 10%;">Variable / Campo</th>
+          <th style="width: 22%;">Técnica de Tratamiento</th>
+          <th style="width: 9%;">Registros</th>
+          <th style="width: 22%;">Justificación de la Decisión</th>
+          <th style="width: 24%;">Resultado</th>
         </tr>
       </thead>
       <tbody>
@@ -67,6 +68,7 @@
           <td><code>ID_Registro</code></td>
           <td>Verificación de unicidad mediante <code>df.duplicated()</code> sobre la llave técnica de matrícula; sin necesidad de descarte de filas.</td>
           <td>0 (0.00%)</td>
+          <td>Es el único campo garantizado como identificador administrativo único del RUNT; no se elimina ninguna fila porque el resultado ya es 0 % de duplicados &mdash; eliminar sería innecesario y arriesgaría perder microdatos válidos.</td>
           <td><span class="badge bg-success">100% únicos</span> — no se requirió eliminación</td>
         </tr>
         <tr>
@@ -74,6 +76,7 @@
           <td><code>Potencia</code></td>
           <td>Imputación asistida por catálogo técnico de fabricante, agrupando por <code>Marca</code> + <code>Linea</code>.</td>
           <td>4.821 (8.53%)</td>
+          <td>Se prefiere el catálogo por <code>Marca</code>+<code>Linea</code> sobre la media/mediana global porque preserva la coherencia técnica real de cada modelo, evitando introducir un valor genérico que distorsione el clustering por potencia.</td>
           <td><span class="badge bg-success">0 nulos</span> en <code>Potencia_R</code></td>
         </tr>
         <tr>
@@ -81,6 +84,7 @@
           <td><code>Capacidad_Pasajeros</code> / <code>Capacidad_Carga</code></td>
           <td>Imputación por moda estadística, segmentada según <code>Clase</code> de vehículo y tipo de chasis.</td>
           <td>892 + 2.105 (5.30%)</td>
+          <td>Se usa la moda (no la media) porque son variables de naturaleza discreta y agrupable por tipología &mdash; un bus SITP siempre transporta un número entero de pasajeros; la media generaría decimales sin sentido físico.</td>
           <td><span class="badge bg-success">0 celdas vacías</span> en ambos <code>_R</code></td>
         </tr>
         <tr>
@@ -88,6 +92,7 @@
           <td><code>Fecha_Matricula</code>, <code>Codigo_Municipio_DANE</code></td>
           <td>Conversión a <code>datetime64[ns]</code> y a cadena de 5 dígitos con relleno de ceros (<code>zfill</code>) para preservar códigos DIVIPOLA.</td>
           <td>56.545 (100%)</td>
+          <td>Sin <code>zfill</code>, un código como <code>"05001"</code> se leería como el entero <code>5001</code>, perdiendo el cero inicial y rompiendo el cruce con la tabla DIVIPOLA del DANE.</td>
           <td>Tipos consistentes para <em>joins</em> e indexado temporal</td>
         </tr>
         <tr>
@@ -95,6 +100,7 @@
           <td><code>Municipio</code>, <code>Departamento</code></td>
           <td>Normalización con <code>str.upper()</code>, <code>str.strip()</code> y remoción de tildes/caracteres especiales antes del cruce.</td>
           <td>4.354 (7.70%)</td>
+          <td>Este paso debe ir antes de la homologación (siguiente fila): el <em>lookup</em> DIVIPOLA exige coincidencia exacta de cadenas, y sin normalizar, "BOGOTA" y "BOGOTÁ D. C." se tratarían como territorios distintos.</td>
           <td>Cadenas unificadas, listas para homologar</td>
         </tr>
         <tr>
@@ -102,6 +108,7 @@
           <td><code>Municipio</code> / <code>Depto</code> &rarr; <code>Codigo_Municipio_DANE</code></td>
           <td>Tabla de equivalencias (<em>lookup</em>) contra el catálogo oficial DIVIPOLA del DANE, vía <code>left_join</code>.</td>
           <td>1.890 (3.34%)</td>
+          <td>Se usa el catálogo oficial DIVIPOLA &mdash;y no una lista propia&mdash; porque es la fuente de verdad reconocida por el Estado colombiano, lo que permite comparar directamente con las cifras poblacionales del DANE sin ambigüedad.</td>
           <td><span class="badge bg-success">100% homologado</span> a código nacional de 5 dígitos</td>
         </tr>
         <tr>
@@ -109,6 +116,7 @@
           <td><code>Potencia_R</code>, <code>Anio_Registro</code></td>
           <td>Aserciones condicionales: <code>Potencia ∈ [1.2, 450.0] kW</code> y <code>Anio_Registro ∈ [2014, 2024]</code>; y regla física <code>Combustible = 'ELECTRICO' ⇒ Cilindraje = 0</code>.</td>
           <td>1.240 (2.19%)</td>
+          <td>Los límites de potencia provienen de rangos reales de ingeniería automotriz, y el rango de años del alcance temporal fijado en Etapa 1 (Sección 1); un valor fuera de esos límites se interpreta como error de captura, no como variabilidad real del fenómeno.</td>
           <td><span class="badge bg-success">100% conforme</span> tras la corrección determinista</td>
         </tr>
         <tr>
@@ -116,6 +124,7 @@
           <td><code>Potencia</code>, <code>Cilindraje</code>, <code>Capacidad_Pasajeros</code></td>
           <td>Potencias &lt; 1 kW reasignadas a la mediana técnica por marca/modelo; cilindrajes &gt; 6.000 cc truncados (error de concatenación); capacidades &gt; 100 pasajeros <strong>validadas como legítimas</strong> (buses articulados SITP) y conservadas sin alteración.</td>
           <td>&asymp; 210 casos<sup>*</sup></td>
+          <td>Se reasigna en vez de eliminar la fila porque el registro conserva información válida en las demás columnas; las capacidades &gt; 100 se dejan intactas porque corresponden a un caso físicamente real (bus articulado), no a un error de captura.</td>
           <td>Distribución consistente sin distorsionar los centroides de clustering</td>
         </tr>
       </tbody>
