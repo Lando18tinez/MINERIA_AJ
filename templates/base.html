@@ -50,7 +50,7 @@
       </div>
 
       <!-- Menú Etapa 2: Misma píldora integrada -->
-      <div class="dropdown me-auto">
+      <div class="dropdown me-2">
         <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active and active.startswith('etapa2:') }}"
                 type="button" id="menuEtapa2" data-bs-toggle="dropdown" aria-expanded="false"
                 title="Etapa 2: Calidad de Datos">
@@ -62,6 +62,27 @@
             <li>
               <a class="dropdown-item d-flex align-items-center {{ 'active' if active == 'etapa2:' ~ s.slug }}"
                  href="{{ url_for('etapa2_seccion', slug=s.slug) }}">
+                <span class="badge bg-light text-dark border me-2">{{ s.num }}</span>
+                <span>{{ s.titulo }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Menú Etapa 3: Misma píldora integrada -->
+      <div class="dropdown me-auto">
+        <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active and active.startswith('etapa3:') }}"
+                type="button" id="menuEtapa3" data-bs-toggle="dropdown" aria-expanded="false"
+                title="Etapa 3: Preparación de los Datos">
+          Etapa 3
+        </button>
+        <ul class="dropdown-menu dropdown-menu-custom animate slideIn" aria-labelledby="menuEtapa3">
+          <li><h6 class="dropdown-header"><i class="bi bi-arrow-repeat me-1"></i>Etapa 3: Preparación de los Datos</h6></li>
+          {% for s in etapa3_secciones %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ 'active' if active == 'etapa3:' ~ s.slug }}"
+                 href="{{ url_for('etapa3_seccion', slug=s.slug) }}">
                 <span class="badge bg-light text-dark border me-2">{{ s.num }}</span>
                 <span>{{ s.titulo }}</span>
               </a>
