@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, url_for
 from jinja2 import TemplateNotFound
 
 app = Flask(__name__)
@@ -73,6 +73,20 @@ ETAPA2_SECCIONES = [
     },
 ]
 
+# Secciones de la Etapa 3 (Preparación de los datos: ETL)
+ETAPA3_SECCIONES = [
+    {
+        "slug": "etl",
+        "num": 1,
+        "titulo": "ETL: Extracción, Transformación y Carga",
+    },
+]
+
+# Evidencias de la Etapa 3: documento de soporte (PDF) y video explicativo.
+# Ajusta estos dos valores cuando tengas el archivo y el enlace definitivos.
+ETAPA3_PDF = "docs/etl_proceso.pdf"  # ruta dentro de static/
+ETAPA3_VIDEO_URL = "https://youtu.be/_kH2HUqA0tc"
+
 PARTICIPANTES = [
     {"nombre": "Angelica Rosa Olier Quiroga", "foto": "angelica.jpg"},
     {"nombre": "Johan Orlando Martinez Suarez", "foto": "johan.jpg"},
@@ -86,6 +100,7 @@ def inject_nav():
         "proyecto": PROYECTO,
         "etapa1_secciones": ETAPA1_SECCIONES,
         "etapa2_secciones": ETAPA2_SECCIONES,
+        "etapa3_secciones": ETAPA3_SECCIONES,
     }
 
 
@@ -155,6 +170,32 @@ def etapa2_seccion(slug):
         return render_template(template_a_renderizar, **ctx)
     except TemplateNotFound:
         return render_template("etapa2/seccion.html", **ctx)
+
+
+# --- Rutas Etapa 3 ----------------------------------------------------------
+
+
+@app.route("/etapa3/<slug>")
+def etapa3_seccion(slug):
+    seccion = next((s for s in ETAPA3_SECCIONES if s["slug"] == slug), None)
+    if seccion is None:
+        abort(404)
+
+    plantillas = {
+        "etl": "etapa3/etl.html",
+    }
+
+    template_a_renderizar = plantillas.get(slug, "etapa3/seccion.html")
+    ctx = {
+        "seccion": seccion,
+        "active": f"etapa3:{slug}",
+        "pdf_url": url_for("static", filename=ETAPA3_PDF),
+        "video_url": ETAPA3_VIDEO_URL,
+    }
+    try:
+        return render_template(template_a_renderizar, **ctx)
+    except TemplateNotFound:
+        return render_template("etapa3/seccion.html", **ctx)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,64 @@
+{% extends "etapa3/seccion.html" %}
+
+{% block seccion_contenido %}
+
+{# ------------------------------------------------------------------ #}
+{# Documento del proceso ETL (visor de PDF embebido)                   #}
+{# ------------------------------------------------------------------ #}
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 border-bottom pb-3 mb-3">
+    <div>
+      <h4 class="fw-bold text-dark mb-1">
+        <i class="bi bi-file-earmark-pdf text-danger me-2"></i>Documento del proceso ETL
+      </h4>
+      <p class="text-muted small mb-0">
+        Extracción, transformación y carga (ETL) del dataset consolidado, documentada en PDF.
+      </p>
+    </div>
+    <a href="{{ pdf_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm text-nowrap">
+      <i class="bi bi-box-arrow-up-right me-1"></i>Abrir en pestaña nueva
+    </a>
+  </div>
+
+  <div style="height: 75vh; min-height: 480px;">
+    <iframe src="{{ pdf_url }}#view=FitH" title="Documento del proceso ETL"
+            width="100%" height="100%"
+            style="border: 1px solid var(--border-subtle); border-radius: var(--radius-default);">
+    </iframe>
+  </div>
+
+  <small class="text-muted d-block mt-2">
+    <i class="bi bi-info-circle me-1"></i>Si el visor no carga (algunos navegadores móviles no soportan PDF embebido),
+    usa el botón "Abrir en pestaña nueva". El archivo se sirve desde <code>static/docs/etl_proceso.pdf</code>.
+  </small>
+</div>
+
+{# ------------------------------------------------------------------ #}
+{# Video explicativo (enlace externo)                                  #}
+{# ------------------------------------------------------------------ #}
+<div class="card shadow-sm border-0 p-4 bg-white border-start border-4 border-danger">
+  <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+    <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0"
+         style="width: 56px; height: 56px;">
+      <i class="bi bi-play-circle-fill fs-3"></i>
+    </div>
+    <div class="flex-grow-1">
+      <h5 class="fw-bold text-dark mb-1">Video explicativo del proceso ETL</h5>
+      <p class="text-muted small mb-0">
+        Recorrido en video de la extracción, transformación y carga aplicada al dataset.
+      </p>
+    </div>
+    <a href="{{ video_url }}" target="_blank" rel="noopener noreferrer"
+       class="btn btn-danger fw-bold text-white text-nowrap">
+      <i class="bi bi-youtube me-1"></i>Ver video
+    </a>
+  </div>
+</div>
+
+<!-- Botón de Navegación -->
+<div class="d-flex justify-content-end align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Volver al inicio
+  </a>
+</div>
+{% endblock %}
