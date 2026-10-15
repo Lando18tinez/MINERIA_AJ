@@ -1,0 +1,59 @@
+<!-- Procedencia de los datos: evidencia para que cada resultado sea verificable -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-primary">
+  <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
+    <div class="flex-grow-1">
+      <h5 class="fw-bold text-dark mb-2">
+        <i class="bi bi-database-check text-primary me-2"></i>Datos utilizados (fuente única)
+      </h5>
+      <dl class="row small mb-0">
+        <dt class="col-sm-3">Dataset</dt>
+        <dd class="col-sm-9">{{ res.meta.fuente }} · identificador <code>{{ res.meta.identificador }}</code></dd>
+
+        <dt class="col-sm-3">Portal</dt>
+        <dd class="col-sm-9">
+          {{ res.meta.portal }} ·
+          <a href="{{ res.meta.url_portal }}" target="_blank" rel="noopener noreferrer">ver dataset en el portal <i class="bi bi-box-arrow-up-right"></i></a>
+        </dd>
+
+        <dt class="col-sm-3">Descarga</dt>
+        <dd class="col-sm-9">
+          {{ res.meta.fecha_descarga }} · última actualización del portal: {{ res.meta.actualizacion_portal }}
+          ({{ res.meta.dias_desde_actualizacion }} días antes)
+        </dd>
+
+        <dt class="col-sm-3">Tamaño</dt>
+        <dd class="col-sm-9">
+          <strong>{{ res.meta.filas | miles }}</strong> filas (grupos) ·
+          <strong>{{ res.meta.vehiculos | miles }}</strong> vehículos (suma de <code>cantidad</code>) ·
+          {{ res.meta.columnas }} variables · periodo {{ res.meta.anio_min }}–{{ res.meta.anio_max }}
+        </dd>
+
+        <dt class="col-sm-3">Variables</dt>
+        <dd class="col-sm-9">
+          <code>combustible</code>, <code>modelo</code>, <code>a_o_registro</code>, <code>clase</code>,
+          <code>carroceria</code>, <code>municipio</code>, <code>departamento</code>, <code>cantidad</code>
+        </dd>
+
+        <dt class="col-sm-3">Integridad</dt>
+        <dd class="col-sm-9">
+          Archivo <code>{{ res.meta.archivo }}</code> ({{ (res.meta.bytes / 1024) | round | int | miles }} KB) ·
+          SHA-256 <code class="text-break" title="{{ res.meta.sha256 }}">{{ res.meta.sha256[:16] }}…{{ res.meta.sha256[-8:] }}</code>
+        </dd>
+      </dl>
+    </div>
+
+    <div class="d-flex flex-row flex-xl-column flex-wrap gap-2 flex-shrink-0">
+      <a class="btn btn-outline-secondary btn-sm text-nowrap" download
+         href="{{ url_for('descargar_datos', archivo='vehiculos_electricos_hibridos_runt.csv') }}">
+        <i class="bi bi-filetype-csv me-1"></i>Descargar los datos (CSV)
+      </a>
+    </div>
+  </div>
+
+  <div class="alert alert-warning small mt-3 mb-0">
+    <i class="bi bi-info-circle-fill me-1"></i>
+    <strong>Dataset agregado:</strong> cada fila es un grupo de vehículos con la misma combinación de
+    categorías y la columna <code>cantidad</code> indica cuántos son. Por eso todos los porcentajes se calculan
+    <strong>ponderando por <code>cantidad</code></strong> (vehículos) y no contando filas.
+  </div>
+</div>

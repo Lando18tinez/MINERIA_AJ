@@ -1,7 +1,52 @@
-from flask import Flask, abort, render_template, url_for
+import json
+from pathlib import Path
+
+from flask import Flask, abort, render_template, send_from_directory, url_for
 from jinja2 import TemplateNotFound
 
 app = Flask(__name__)
+
+RAIZ = Path(__file__).resolve().parent
+
+# --- Resultados verificables ---------------------------------------------------
+# Todas las cifras de perfilamiento, calidad y tratamiento (Etapa 2) salen de este
+# archivo, generado por calidad_etapa2.py a partir del CSV descargado de datos.gov.co
+# (ntxy-q9ix). Para regenerarlo:  python calidad_etapa2.py
+RESULTADOS = json.loads(
+    (RAIZ / "data" / "processed" / "resultados_eda.json").read_text(encoding="utf-8")
+)
+
+# Archivos que la app permite descargar/consultar (evidencia de dónde salen los resultados).
+DATOS_PUBLICOS = {
+    "vehiculos_electricos_hibridos_runt.csv": RAIZ / "data" / "raw",
+    "FUENTE.json": RAIZ / "data" / "raw",
+    "resultados_eda.json": RAIZ / "data" / "processed",
+}
+CODIGO_PUBLICO = {"calidad_etapa2.py": RAIZ}
+
+
+def _numero(valor, decimales=0):
+    """Formato es-CO: punto para miles y coma para decimales (1.234,5)."""
+    if valor is None:
+        return "—"
+    texto = f"{valor:,.{decimales}f}"
+    return texto.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+@app.template_filter("miles")
+def filtro_miles(valor):
+    return _numero(valor, 0)
+
+
+@app.template_filter("dec")
+def filtro_dec(valor, decimales=2):
+    return _numero(valor, decimales)
+
+
+@app.template_filter("pct")
+def filtro_pct(valor, decimales=2):
+    return "—" if valor is None else f"{_numero(valor, decimales)} %"
+
 
 # --- Datos del proyecto -----------------------------------------------------
 
@@ -101,6 +146,7 @@ def inject_nav():
         "etapa1_secciones": ETAPA1_SECCIONES,
         "etapa2_secciones": ETAPA2_SECCIONES,
         "etapa3_secciones": ETAPA3_SECCIONES,
+        "res": RESULTADOS,
     }
 
 
@@ -196,6 +242,27 @@ def etapa3_seccion(slug):
         return render_template(template_a_renderizar, **ctx)
     except TemplateNotFound:
         return render_template("etapa3/seccion.html", **ctx)
+
+
+# --- Evidencia: datos y código ----------------------------------------------
+
+
+@app.route("/datos/<archivo>")
+def descargar_datos(archivo):
+    """Sirve el CSV fuente, su ficha de procedencia y los resultados calculados."""
+    carpeta = DATOS_PUBLICOS.get(archivo)
+    if carpeta is None:
+        abort(404)
+    return send_from_directory(carpeta, archivo)
+
+
+@app.route("/codigo/<archivo>")
+def ver_codigo(archivo):
+    """Muestra el script que genera los resultados (texto plano, para auditarlo)."""
+    carpeta = CODIGO_PUBLICO.get(archivo)
+    if carpeta is None:
+        abort(404)
+    return send_from_directory(carpeta, archivo, mimetype="text/plain")
 
 
 if __name__ == "__main__":
