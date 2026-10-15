@@ -1,0 +1,2256 @@
+{
+ "poblacional": {
+  "filas": 10748,
+  "vehiculos": 332901,
+  "promedio_por_fila": 30.97,
+  "mediana_por_fila": 2.0,
+  "combustible": [
+   {
+    "categoria": "GASO ELEC",
+    "vehiculos": 239851,
+    "filas": 4827,
+    "pct": 72.05,
+    "acum": 72.05,
+    "etiqueta": "Híbrido gasolina-eléctrico (HEV/PHEV)"
+   },
+   {
+    "categoria": "ELECTRICO",
+    "vehiculos": 89900,
+    "filas": 5360,
+    "pct": 27.01,
+    "acum": 99.06,
+    "etiqueta": "Eléctrico (BEV)"
+   },
+   {
+    "categoria": "DIES ELEC",
+    "vehiculos": 3146,
+    "filas": 557,
+    "pct": 0.95,
+    "acum": 100.01,
+    "etiqueta": "Híbrido diésel-eléctrico"
+   },
+   {
+    "categoria": "HIDROGENO",
+    "vehiculos": 4,
+    "filas": 4,
+    "pct": 0.0,
+    "acum": 100.01,
+    "etiqueta": "Hidrógeno"
+   }
+  ],
+  "clase": [
+   {
+    "categoria": "CAMIONETA",
+    "vehiculos": 229794,
+    "filas": 3877,
+    "pct": 69.03,
+    "acum": 69.03
+   },
+   {
+    "categoria": "AUTOMOVIL",
+    "vehiculos": 65686,
+    "filas": 2717,
+    "pct": 19.73,
+    "acum": 88.76
+   },
+   {
+    "categoria": "CICLOMOTOR",
+    "vehiculos": 15622,
+    "filas": 1863,
+    "pct": 4.69,
+    "acum": 93.45
+   },
+   {
+    "categoria": "CAMPERO",
+    "vehiculos": 14247,
+    "filas": 840,
+    "pct": 4.28,
+    "acum": 97.73
+   },
+   {
+    "categoria": "BUS",
+    "vehiculos": 1906,
+    "filas": 42,
+    "pct": 0.57,
+    "acum": 98.3
+   },
+   {
+    "categoria": "CUADRICICLO",
+    "vehiculos": 1602,
+    "filas": 291,
+    "pct": 0.48,
+    "acum": 98.78
+   },
+   {
+    "categoria": "MOTOCICLETA",
+    "vehiculos": 1552,
+    "filas": 396,
+    "pct": 0.47,
+    "acum": 99.25
+   },
+   {
+    "categoria": "MOTOCARRO",
+    "vehiculos": 992,
+    "filas": 322,
+    "pct": 0.3,
+    "acum": 99.55
+   },
+   {
+    "categoria": "CAMION",
+    "vehiculos": 804,
+    "filas": 194,
+    "pct": 0.24,
+    "acum": 99.79
+   },
+   {
+    "categoria": "TRICIMOTO",
+    "vehiculos": 633,
+    "filas": 170,
+    "pct": 0.19,
+    "acum": 99.98
+   },
+   {
+    "categoria": "MOTOTRICICLO",
+    "vehiculos": 22,
+    "filas": 11,
+    "pct": 0.01,
+    "acum": 99.99
+   },
+   {
+    "categoria": "BUSETA",
+    "vehiculos": 18,
+    "filas": 9,
+    "pct": 0.01,
+    "acum": 100.0
+   },
+   {
+    "categoria": "MICROBUS",
+    "vehiculos": 13,
+    "filas": 6,
+    "pct": 0.0,
+    "acum": 100.0
+   },
+   {
+    "categoria": "CUATRIMOTO",
+    "vehiculos": 4,
+    "filas": 4,
+    "pct": 0.0,
+    "acum": 100.0
+   },
+   {
+    "categoria": "TRACTOCAMION",
+    "vehiculos": 4,
+    "filas": 4,
+    "pct": 0.0,
+    "acum": 100.0
+   },
+   {
+    "categoria": "VOLQUETA",
+    "vehiculos": 2,
+    "filas": 2,
+    "pct": 0.0,
+    "acum": 100.0
+   }
+  ],
+  "carroceria_top": [
+   {
+    "categoria": "WAGON",
+    "vehiculos": 226933,
+    "filas": 3386,
+    "pct": 68.17,
+    "acum": 68.17
+   },
+   {
+    "categoria": "HATCH BACK",
+    "vehiculos": 35480,
+    "filas": 1323,
+    "pct": 10.66,
+    "acum": 78.83
+   },
+   {
+    "categoria": "SEDAN",
+    "vehiculos": 28755,
+    "filas": 1118,
+    "pct": 8.64,
+    "acum": 87.47
+   },
+   {
+    "categoria": "SIN CARROCERIA",
+    "vehiculos": 19278,
+    "filas": 2663,
+    "pct": 5.79,
+    "acum": 93.26
+   },
+   {
+    "categoria": "SUV",
+    "vehiculos": 11109,
+    "filas": 19,
+    "pct": 3.34,
+    "acum": 96.6
+   },
+   {
+    "categoria": "DOBLE CABINA CON PLATON",
+    "vehiculos": 3231,
+    "filas": 598,
+    "pct": 0.97,
+    "acum": 97.57
+   },
+   {
+    "categoria": "CERRADA",
+    "vehiculos": 1884,
+    "filas": 52,
+    "pct": 0.57,
+    "acum": 98.14
+   },
+   {
+    "categoria": "COUPE",
+    "vehiculos": 1380,
+    "filas": 259,
+    "pct": 0.41,
+    "acum": 98.55
+   },
+   {
+    "categoria": "FURGON",
+    "vehiculos": 1190,
+    "filas": 288,
+    "pct": 0.36,
+    "acum": 98.91
+   },
+   {
+    "categoria": "PANEL",
+    "vehiculos": 1067,
+    "filas": 204,
+    "pct": 0.32,
+    "acum": 99.23
+   }
+  ],
+  "carroceria_otras": {
+   "categoria": "Otras carrocerías",
+   "vehiculos": 2594,
+   "filas": 0,
+   "pct": 0.78,
+   "acum": 100.0
+  },
+  "n_carrocerias": 51,
+  "modelo": [
+   {
+    "categoria": "≤ 2014",
+    "vehiculos": 261,
+    "pct": 0.08
+   },
+   {
+    "categoria": "2015",
+    "vehiculos": 382,
+    "pct": 0.11
+   },
+   {
+    "categoria": "2016",
+    "vehiculos": 551,
+    "pct": 0.17
+   },
+   {
+    "categoria": "2017",
+    "vehiculos": 626,
+    "pct": 0.19
+   },
+   {
+    "categoria": "2018",
+    "vehiculos": 1301,
+    "pct": 0.39
+   },
+   {
+    "categoria": "2019",
+    "vehiculos": 4257,
+    "pct": 1.28
+   },
+   {
+    "categoria": "2020",
+    "vehiculos": 10006,
+    "pct": 3.01
+   },
+   {
+    "categoria": "2021",
+    "vehiculos": 9552,
+    "pct": 2.87
+   },
+   {
+    "categoria": "2022",
+    "vehiculos": 27018,
+    "pct": 8.12
+   },
+   {
+    "categoria": "2023",
+    "vehiculos": 36325,
+    "pct": 10.91
+   },
+   {
+    "categoria": "2024",
+    "vehiculos": 40520,
+    "pct": 12.17
+   },
+   {
+    "categoria": "2025",
+    "vehiculos": 52581,
+    "pct": 15.79
+   },
+   {
+    "categoria": "2026",
+    "vehiculos": 115783,
+    "pct": 34.78
+   },
+   {
+    "categoria": "2027",
+    "vehiculos": 33738,
+    "pct": 10.13
+   }
+  ],
+  "predominante_clase": {
+   "categoria": "CAMIONETA",
+   "vehiculos": 229794,
+   "filas": 3877,
+   "pct": 69.03,
+   "acum": 69.03
+  },
+  "top2_clase_pct": 88.76,
+  "minoritarias_clase": [
+   {
+    "categoria": "MOTOTRICICLO",
+    "vehiculos": 22,
+    "filas": 11,
+    "pct": 0.01,
+    "acum": 99.99
+   },
+   {
+    "categoria": "BUSETA",
+    "vehiculos": 18,
+    "filas": 9,
+    "pct": 0.01,
+    "acum": 100.0
+   },
+   {
+    "categoria": "MICROBUS",
+    "vehiculos": 13,
+    "filas": 6,
+    "pct": 0.0,
+    "acum": 100.0
+   },
+   {
+    "categoria": "CUATRIMOTO",
+    "vehiculos": 4,
+    "filas": 4,
+    "pct": 0.0,
+    "acum": 100.0
+   },
+   {
+    "categoria": "TRACTOCAMION",
+    "vehiculos": 4,
+    "filas": 4,
+    "pct": 0.0,
+    "acum": 100.0
+   },
+   {
+    "categoria": "VOLQUETA",
+    "vehiculos": 2,
+    "filas": 2,
+    "pct": 0.0,
+    "acum": 100.0
+   }
+  ],
+  "minoritarias_combustible": [
+   {
+    "categoria": "DIES ELEC",
+    "vehiculos": 3146,
+    "filas": 557,
+    "pct": 0.95,
+    "acum": 100.01,
+    "etiqueta": "Híbrido diésel-eléctrico"
+   },
+   {
+    "categoria": "HIDROGENO",
+    "vehiculos": 4,
+    "filas": 4,
+    "pct": 0.0,
+    "acum": 100.01,
+    "etiqueta": "Hidrógeno"
+   }
+  ],
+  "sin_carroceria_pct": 5.79
+ },
+ "territorial": {
+  "n_departamentos": 32,
+  "n_municipios": 265,
+  "departamentos": [
+   {
+    "categoria": "Bogota D.C.",
+    "vehiculos": 142753,
+    "filas": 625,
+    "pct": 42.88,
+    "acum": 42.88,
+    "municipios": 1
+   },
+   {
+    "categoria": "Antioquia",
+    "vehiculos": 66029,
+    "filas": 1777,
+    "pct": 19.83,
+    "acum": 62.71,
+    "municipios": 34
+   },
+   {
+    "categoria": "Cundinamarca",
+    "vehiculos": 33525,
+    "filas": 2025,
+    "pct": 10.07,
+    "acum": 72.78,
+    "municipios": 27
+   },
+   {
+    "categoria": "Valle del Cauca",
+    "vehiculos": 28408,
+    "filas": 1120,
+    "pct": 8.53,
+    "acum": 81.31,
+    "municipios": 26
+   },
+   {
+    "categoria": "Norte de Santander",
+    "vehiculos": 11963,
+    "filas": 480,
+    "pct": 3.59,
+    "acum": 84.9,
+    "municipios": 6
+   },
+   {
+    "categoria": "Atlantico",
+    "vehiculos": 6918,
+    "filas": 346,
+    "pct": 2.08,
+    "acum": 86.98,
+    "municipios": 8
+   },
+   {
+    "categoria": "Santander",
+    "vehiculos": 6202,
+    "filas": 558,
+    "pct": 1.86,
+    "acum": 88.84,
+    "municipios": 16
+   },
+   {
+    "categoria": "Risaralda",
+    "vehiculos": 5590,
+    "filas": 277,
+    "pct": 1.68,
+    "acum": 90.52,
+    "municipios": 4
+   },
+   {
+    "categoria": "Caldas",
+    "vehiculos": 5225,
+    "filas": 256,
+    "pct": 1.57,
+    "acum": 92.09,
+    "municipios": 10
+   },
+   {
+    "categoria": "Bolivar",
+    "vehiculos": 4459,
+    "filas": 333,
+    "pct": 1.34,
+    "acum": 93.43,
+    "municipios": 9
+   },
+   {
+    "categoria": "Meta",
+    "vehiculos": 4039,
+    "filas": 342,
+    "pct": 1.21,
+    "acum": 94.64,
+    "municipios": 6
+   },
+   {
+    "categoria": "Tolima",
+    "vehiculos": 3044,
+    "filas": 292,
+    "pct": 0.91,
+    "acum": 95.55,
+    "municipios": 14
+   },
+   {
+    "categoria": "Boyaca",
+    "vehiculos": 2828,
+    "filas": 518,
+    "pct": 0.85,
+    "acum": 96.4,
+    "municipios": 17
+   },
+   {
+    "categoria": "Narino",
+    "vehiculos": 1500,
+    "filas": 221,
+    "pct": 0.45,
+    "acum": 96.85,
+    "municipios": 15
+   },
+   {
+    "categoria": "Cordoba",
+    "vehiculos": 1473,
+    "filas": 157,
+    "pct": 0.44,
+    "acum": 97.29,
+    "municipios": 7
+   },
+   {
+    "categoria": "Quindio",
+    "vehiculos": 1419,
+    "filas": 198,
+    "pct": 0.43,
+    "acum": 97.72,
+    "municipios": 5
+   },
+   {
+    "categoria": "Cesar",
+    "vehiculos": 1388,
+    "filas": 193,
+    "pct": 0.42,
+    "acum": 98.14,
+    "municipios": 8
+   },
+   {
+    "categoria": "Huila",
+    "vehiculos": 1194,
+    "filas": 246,
+    "pct": 0.36,
+    "acum": 98.5,
+    "municipios": 8
+   },
+   {
+    "categoria": "Sucre",
+    "vehiculos": 1118,
+    "filas": 96,
+    "pct": 0.34,
+    "acum": 98.84,
+    "municipios": 4
+   },
+   {
+    "categoria": "Cauca",
+    "vehiculos": 974,
+    "filas": 183,
+    "pct": 0.29,
+    "acum": 99.13,
+    "municipios": 8
+   },
+   {
+    "categoria": "Caqueta",
+    "vehiculos": 971,
+    "filas": 95,
+    "pct": 0.29,
+    "acum": 99.42,
+    "municipios": 3
+   },
+   {
+    "categoria": "Casanare",
+    "vehiculos": 840,
+    "filas": 101,
+    "pct": 0.25,
+    "acum": 99.67,
+    "municipios": 3
+   },
+   {
+    "categoria": "Magdalena",
+    "vehiculos": 711,
+    "filas": 136,
+    "pct": 0.21,
+    "acum": 99.88,
+    "municipios": 8
+   },
+   {
+    "categoria": "Putumayo",
+    "vehiculos": 110,
+    "filas": 34,
+    "pct": 0.03,
+    "acum": 99.91,
+    "municipios": 5
+   },
+   {
+    "categoria": "La Guajira",
+    "vehiculos": 55,
+    "filas": 25,
+    "pct": 0.02,
+    "acum": 99.93,
+    "municipios": 3
+   },
+   {
+    "categoria": "Arauca",
+    "vehiculos": 52,
+    "filas": 34,
+    "pct": 0.02,
+    "acum": 99.95,
+    "municipios": 3
+   },
+   {
+    "categoria": "Archipielago de San Andres, Providencia",
+    "vehiculos": 47,
+    "filas": 32,
+    "pct": 0.01,
+    "acum": 99.96,
+    "municipios": 1
+   },
+   {
+    "categoria": "Guainia",
+    "vehiculos": 24,
+    "filas": 14,
+    "pct": 0.01,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Guaviare",
+    "vehiculos": 15,
+    "filas": 9,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Amazonas",
+    "vehiculos": 12,
+    "filas": 10,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Choco",
+    "vehiculos": 12,
+    "filas": 12,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 2
+   },
+   {
+    "categoria": "Vichada",
+    "vehiculos": 3,
+    "filas": 3,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 1
+   }
+  ],
+  "municipios_top": [
+   {
+    "departamento": "Bogota D.C.",
+    "municipio": "BOGOTA",
+    "vehiculos": 142753,
+    "pct": 42.88,
+    "acum": 42.88
+   },
+   {
+    "departamento": "Antioquia",
+    "municipio": "MEDELLIN",
+    "vehiculos": 33483,
+    "pct": 10.06,
+    "acum": 52.94
+   },
+   {
+    "departamento": "Valle del Cauca",
+    "municipio": "CALI",
+    "vehiculos": 23324,
+    "pct": 7.01,
+    "acum": 59.95
+   },
+   {
+    "departamento": "Antioquia",
+    "municipio": "ENVIGADO",
+    "vehiculos": 20819,
+    "pct": 6.25,
+    "acum": 66.2
+   },
+   {
+    "departamento": "Cundinamarca",
+    "municipio": "FUNZA",
+    "vehiculos": 10723,
+    "pct": 3.22,
+    "acum": 69.42
+   },
+   {
+    "departamento": "Norte de Santander",
+    "municipio": "VILLA DEL ROSARIO",
+    "vehiculos": 9319,
+    "pct": 2.8,
+    "acum": 72.22
+   },
+   {
+    "departamento": "Cundinamarca",
+    "municipio": "CHIA",
+    "vehiculos": 9235,
+    "pct": 2.77,
+    "acum": 74.99
+   },
+   {
+    "departamento": "Antioquia",
+    "municipio": "SABANETA",
+    "vehiculos": 7161,
+    "pct": 2.15,
+    "acum": 77.14
+   },
+   {
+    "departamento": "Atlantico",
+    "municipio": "BARRANQUILLA",
+    "vehiculos": 5901,
+    "pct": 1.77,
+    "acum": 78.91
+   },
+   {
+    "departamento": "Risaralda",
+    "municipio": "PEREIRA",
+    "vehiculos": 5351,
+    "pct": 1.61,
+    "acum": 80.52
+   },
+   {
+    "departamento": "Caldas",
+    "municipio": "MANIZALES",
+    "vehiculos": 5104,
+    "pct": 1.53,
+    "acum": 82.05
+   },
+   {
+    "departamento": "Cundinamarca",
+    "municipio": "MOSQUERA",
+    "vehiculos": 3899,
+    "pct": 1.17,
+    "acum": 83.22
+   },
+   {
+    "departamento": "Santander",
+    "municipio": "GIRON",
+    "vehiculos": 3144,
+    "pct": 0.94,
+    "acum": 84.16
+   },
+   {
+    "departamento": "Meta",
+    "municipio": "VILLAVICENCIO",
+    "vehiculos": 2866,
+    "pct": 0.86,
+    "acum": 85.02
+   },
+   {
+    "departamento": "Tolima",
+    "municipio": "IBAGUE",
+    "vehiculos": 2769,
+    "pct": 0.83,
+    "acum": 85.85
+   }
+  ],
+  "top1_pct": 42.88,
+  "top3_pct": 72.78,
+  "top5_pct": 84.9,
+  "hhi": 2439.0,
+  "municipios_para_50": 2,
+  "municipios_para_80": 10,
+  "deps_menos_1pct": 21,
+  "deps_menos_01pct": 9,
+  "municipios_menos_10_veh": 92,
+  "menores": [
+   {
+    "categoria": "Vichada",
+    "vehiculos": 3,
+    "filas": 3,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Choco",
+    "vehiculos": 12,
+    "filas": 12,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 2
+   },
+   {
+    "categoria": "Amazonas",
+    "vehiculos": 12,
+    "filas": 10,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Guaviare",
+    "vehiculos": 15,
+    "filas": 9,
+    "pct": 0.0,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Guainia",
+    "vehiculos": 24,
+    "filas": 14,
+    "pct": 0.01,
+    "acum": 99.97,
+    "municipios": 1
+   },
+   {
+    "categoria": "Archipielago de San Andres, Providencia",
+    "vehiculos": 47,
+    "filas": 32,
+    "pct": 0.01,
+    "acum": 99.96,
+    "municipios": 1
+   },
+   {
+    "categoria": "Arauca",
+    "vehiculos": 52,
+    "filas": 34,
+    "pct": 0.02,
+    "acum": 99.95,
+    "municipios": 3
+   },
+   {
+    "categoria": "La Guajira",
+    "vehiculos": 55,
+    "filas": 25,
+    "pct": 0.02,
+    "acum": 99.93,
+    "municipios": 3
+   }
+  ],
+  "composicion_top10": [
+   {
+    "departamento": "Bogota D.C.",
+    "vehiculos": 142753,
+    "pct_electrico": 27.17,
+    "pct_hibrido_gas": 72.08,
+    "pct_otros": 0.74,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 72.95
+   },
+   {
+    "departamento": "Antioquia",
+    "vehiculos": 66029,
+    "pct_electrico": 30.59,
+    "pct_hibrido_gas": 68.23,
+    "pct_otros": 1.18,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 67.46
+   },
+   {
+    "departamento": "Cundinamarca",
+    "vehiculos": 33525,
+    "pct_electrico": 30.06,
+    "pct_hibrido_gas": 68.92,
+    "pct_otros": 1.02,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 55.96
+   },
+   {
+    "departamento": "Valle del Cauca",
+    "vehiculos": 28408,
+    "pct_electrico": 26.66,
+    "pct_hibrido_gas": 72.56,
+    "pct_otros": 0.77,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 69.99
+   },
+   {
+    "departamento": "Norte de Santander",
+    "vehiculos": 11963,
+    "pct_electrico": 5.69,
+    "pct_hibrido_gas": 93.07,
+    "pct_otros": 1.24,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 73.55
+   },
+   {
+    "departamento": "Atlantico",
+    "vehiculos": 6918,
+    "pct_electrico": 16.65,
+    "pct_hibrido_gas": 82.42,
+    "pct_otros": 0.93,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 75.15
+   },
+   {
+    "departamento": "Santander",
+    "vehiculos": 6202,
+    "pct_electrico": 29.64,
+    "pct_hibrido_gas": 68.83,
+    "pct_otros": 1.53,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 69.03
+   },
+   {
+    "departamento": "Risaralda",
+    "vehiculos": 5590,
+    "pct_electrico": 20.86,
+    "pct_hibrido_gas": 78.32,
+    "pct_otros": 0.82,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 72.61
+   },
+   {
+    "departamento": "Caldas",
+    "vehiculos": 5225,
+    "pct_electrico": 16.0,
+    "pct_hibrido_gas": 82.93,
+    "pct_otros": 1.07,
+    "clase_dominante": "CAMIONETA",
+    "pct_clase_dominante": 75.56
+   },
+   {
+    "departamento": "Bolivar",
+    "vehiculos": 4459,
+    "pct_electrico": 71.09,
+    "pct_hibrido_gas": 28.48,
+    "pct_otros": 0.43,
+    "clase_dominante": "CICLOMOTOR",
+    "pct_clase_dominante": 65.73
+   }
+  ],
+  "mayor_pct_electrico": [
+   {
+    "departamento": "Bolivar",
+    "vehiculos": 4459,
+    "pct_electrico": 71.09
+   },
+   {
+    "departamento": "Cauca",
+    "vehiculos": 974,
+    "pct_electrico": 47.54
+   },
+   {
+    "departamento": "Quindio",
+    "vehiculos": 1419,
+    "pct_electrico": 43.97
+   },
+   {
+    "departamento": "Antioquia",
+    "vehiculos": 66029,
+    "pct_electrico": 30.59
+   },
+   {
+    "departamento": "Cundinamarca",
+    "vehiculos": 33525,
+    "pct_electrico": 30.06
+   }
+  ],
+  "menor_pct_electrico": [
+   {
+    "departamento": "Sucre",
+    "vehiculos": 1118,
+    "pct_electrico": 4.2
+   },
+   {
+    "departamento": "Caqueta",
+    "vehiculos": 971,
+    "pct_electrico": 4.43
+   },
+   {
+    "departamento": "Norte de Santander",
+    "vehiculos": 11963,
+    "pct_electrico": 5.69
+   }
+  ],
+  "clase_dominante_no_camioneta": [
+   {
+    "departamento": "Bolivar",
+    "clase": "CICLOMOTOR",
+    "vehiculos": 4459,
+    "pct_clase": 65.73
+   },
+   {
+    "departamento": "Putumayo",
+    "clase": "CICLOMOTOR",
+    "vehiculos": 110,
+    "pct_clase": 92.73
+   }
+  ],
+  "bogota_vs_resto": {
+   "bogota": 142753,
+   "resto": 190148,
+   "pct_bogota": 42.88
+  }
+ },
+ "temporal": {
+  "serie": [
+   {
+    "anio": 2015,
+    "vehiculos": 586,
+    "filas": 107,
+    "pct_total": 0.18,
+    "var_pct": null,
+    "var_abs": null,
+    "pct_electrico": 85.84,
+    "pct_hibrido_gas": 1.02,
+    "electrico": 503,
+    "hibrido_gas": 6,
+    "hibrido_dies": 76,
+    "hidrogeno": 1,
+    "parcial": false
+   },
+   {
+    "anio": 2016,
+    "vehiculos": 504,
+    "filas": 92,
+    "pct_total": 0.15,
+    "var_pct": -14.0,
+    "var_abs": -82,
+    "pct_electrico": 84.92,
+    "pct_hibrido_gas": 4.96,
+    "electrico": 428,
+    "hibrido_gas": 25,
+    "hibrido_dies": 51,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2017,
+    "vehiculos": 450,
+    "filas": 122,
+    "pct_total": 0.14,
+    "var_pct": -10.7,
+    "var_abs": -54,
+    "pct_electrico": 84.89,
+    "pct_hibrido_gas": 14.0,
+    "electrico": 382,
+    "hibrido_gas": 63,
+    "hibrido_dies": 5,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2018,
+    "vehiculos": 2104,
+    "filas": 297,
+    "pct_total": 0.63,
+    "var_pct": 367.6,
+    "var_abs": 1654,
+    "pct_electrico": 73.95,
+    "pct_hibrido_gas": 25.48,
+    "electrico": 1556,
+    "hibrido_gas": 536,
+    "hibrido_dies": 12,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2019,
+    "vehiculos": 5435,
+    "filas": 551,
+    "pct_total": 1.63,
+    "var_pct": 158.3,
+    "var_abs": 3331,
+    "pct_electrico": 59.65,
+    "pct_hibrido_gas": 36.19,
+    "electrico": 3242,
+    "hibrido_gas": 1967,
+    "hibrido_dies": 226,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2020,
+    "vehiculos": 7908,
+    "filas": 645,
+    "pct_total": 2.38,
+    "var_pct": 45.5,
+    "var_abs": 2473,
+    "pct_electrico": 41.11,
+    "pct_hibrido_gas": 51.06,
+    "electrico": 3251,
+    "hibrido_gas": 4038,
+    "hibrido_dies": 619,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2021,
+    "vehiculos": 20304,
+    "filas": 1002,
+    "pct_total": 6.1,
+    "var_pct": 156.8,
+    "var_abs": 12396,
+    "pct_electrico": 19.81,
+    "pct_hibrido_gas": 79.33,
+    "electrico": 4022,
+    "hibrido_gas": 16107,
+    "hibrido_dies": 175,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2022,
+    "vehiculos": 30513,
+    "filas": 1112,
+    "pct_total": 9.17,
+    "var_pct": 50.3,
+    "var_abs": 10209,
+    "pct_electrico": 19.69,
+    "pct_hibrido_gas": 80.25,
+    "electrico": 6008,
+    "hibrido_gas": 24486,
+    "hibrido_dies": 18,
+    "hidrogeno": 1,
+    "parcial": false
+   },
+   {
+    "anio": 2023,
+    "vehiculos": 34039,
+    "filas": 1287,
+    "pct_total": 10.22,
+    "var_pct": 11.6,
+    "var_abs": 3526,
+    "pct_electrico": 18.45,
+    "pct_hibrido_gas": 81.04,
+    "electrico": 6279,
+    "hibrido_gas": 27586,
+    "hibrido_dies": 173,
+    "hidrogeno": 1,
+    "parcial": false
+   },
+   {
+    "anio": 2024,
+    "vehiculos": 53934,
+    "filas": 1557,
+    "pct_total": 16.2,
+    "var_pct": 58.4,
+    "var_abs": 19895,
+    "pct_electrico": 20.95,
+    "pct_hibrido_gas": 78.8,
+    "electrico": 11298,
+    "hibrido_gas": 42501,
+    "hibrido_dies": 134,
+    "hidrogeno": 1,
+    "parcial": false
+   },
+   {
+    "anio": 2025,
+    "vehiculos": 89163,
+    "filas": 2092,
+    "pct_total": 26.78,
+    "var_pct": 65.3,
+    "var_abs": 35229,
+    "pct_electrico": 23.88,
+    "pct_hibrido_gas": 75.07,
+    "electrico": 21290,
+    "hibrido_gas": 66935,
+    "hibrido_dies": 938,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2026,
+    "vehiculos": 87961,
+    "filas": 1884,
+    "pct_total": 26.42,
+    "var_pct": -1.3,
+    "var_abs": -1202,
+    "pct_electrico": 35.97,
+    "pct_hibrido_gas": 63.21,
+    "electrico": 31641,
+    "hibrido_gas": 55601,
+    "hibrido_dies": 719,
+    "hidrogeno": 0,
+    "parcial": true
+   }
+  ],
+  "anio_min": 2015,
+  "anio_max": 2026,
+  "mayor_alza_pct": {
+   "anio": 2018,
+   "vehiculos": 2104,
+   "filas": 297,
+   "pct_total": 0.63,
+   "var_pct": 367.6,
+   "var_abs": 1654,
+   "pct_electrico": 73.95,
+   "pct_hibrido_gas": 25.48,
+   "electrico": 1556,
+   "hibrido_gas": 536,
+   "hibrido_dies": 12,
+   "hidrogeno": 0,
+   "parcial": false
+  },
+  "mayor_alza_abs": {
+   "anio": 2025,
+   "vehiculos": 89163,
+   "filas": 2092,
+   "pct_total": 26.78,
+   "var_pct": 65.3,
+   "var_abs": 35229,
+   "pct_electrico": 23.88,
+   "pct_hibrido_gas": 75.07,
+   "electrico": 21290,
+   "hibrido_gas": 66935,
+   "hibrido_dies": 938,
+   "hidrogeno": 0,
+   "parcial": false
+  },
+  "caidas": [
+   {
+    "anio": 2016,
+    "vehiculos": 504,
+    "filas": 92,
+    "pct_total": 0.15,
+    "var_pct": -14.0,
+    "var_abs": -82,
+    "pct_electrico": 84.92,
+    "pct_hibrido_gas": 4.96,
+    "electrico": 428,
+    "hibrido_gas": 25,
+    "hibrido_dies": 51,
+    "hidrogeno": 0,
+    "parcial": false
+   },
+   {
+    "anio": 2017,
+    "vehiculos": 450,
+    "filas": 122,
+    "pct_total": 0.14,
+    "var_pct": -10.7,
+    "var_abs": -54,
+    "pct_electrico": 84.89,
+    "pct_hibrido_gas": 14.0,
+    "electrico": 382,
+    "hibrido_gas": 63,
+    "hibrido_dies": 5,
+    "hidrogeno": 0,
+    "parcial": false
+   }
+  ],
+  "anio_mas_vehiculos_completo": {
+   "anio": 2025,
+   "vehiculos": 89163,
+   "filas": 2092,
+   "pct_total": 26.78,
+   "var_pct": 65.3,
+   "var_abs": 35229,
+   "pct_electrico": 23.88,
+   "pct_hibrido_gas": 75.07,
+   "electrico": 21290,
+   "hibrido_gas": 66935,
+   "hibrido_dies": 938,
+   "hidrogeno": 0,
+   "parcial": false
+  },
+  "anio_menos_vehiculos": {
+   "anio": 2017,
+   "vehiculos": 450,
+   "filas": 122,
+   "pct_total": 0.14,
+   "var_pct": -10.7,
+   "var_abs": -54,
+   "pct_electrico": 84.89,
+   "pct_hibrido_gas": 14.0,
+   "electrico": 382,
+   "hibrido_gas": 63,
+   "hibrido_dies": 5,
+   "hidrogeno": 0,
+   "parcial": false
+  },
+  "periodos": [
+   {
+    "periodo": "2015 – 2019",
+    "vehiculos": 9079,
+    "pct": 2.73
+   },
+   {
+    "periodo": "2020 – 2023",
+    "vehiculos": 92764,
+    "pct": 27.87
+   },
+   {
+    "periodo": "2024 – 2026 (parcial)",
+    "vehiculos": 231058,
+    "pct": 69.41
+   }
+  ],
+  "cagr_2018_ultimo_completo": 70.8,
+  "anio_cagr_fin": 2025,
+  "meses_transcurridos_parcial": 7.6,
+  "ritmo_mensual_parcial": 11574,
+  "ritmo_mensual_ultimo_completo": 7430,
+  "ritmo_mensual_2018": 175,
+  "rezago_modelo": [
+   {
+    "categoria": "Modelo posterior al registro",
+    "vehiculos": 174737,
+    "pct": 52.49
+   },
+   {
+    "categoria": "Mismo año",
+    "vehiculos": 143802,
+    "pct": 43.2
+   },
+   {
+    "categoria": "1 año de antigüedad",
+    "vehiculos": 11823,
+    "pct": 3.55
+   },
+   {
+    "categoria": "2 a 4 años",
+    "vehiculos": 2441,
+    "pct": 0.73
+   },
+   {
+    "categoria": "5 años o más",
+    "vehiculos": 98,
+    "pct": 0.03
+   }
+  ],
+  "granularidad": "anual",
+  "estacionalidad_evaluable": false
+ },
+ "multivariado": {
+  "cruce_combustible_clase": [
+   {
+    "clase": "CAMIONETA",
+    "vehiculos": 229794,
+    "electrico": 48079,
+    "hibrido_gas": 179057,
+    "hibrido_dies": 2658,
+    "hidrogeno": 0,
+    "pct_electrico": 20.92,
+    "pct_hibrido_gas": 77.92
+   },
+   {
+    "clase": "AUTOMOVIL",
+    "vehiculos": 65686,
+    "electrico": 18653,
+    "hibrido_gas": 46806,
+    "hibrido_dies": 226,
+    "hidrogeno": 1,
+    "pct_electrico": 28.4,
+    "pct_hibrido_gas": 71.26
+   },
+   {
+    "clase": "CICLOMOTOR",
+    "vehiculos": 15622,
+    "electrico": 15621,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 1,
+    "pct_electrico": 99.99,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "CAMPERO",
+    "vehiculos": 14247,
+    "electrico": 249,
+    "hibrido_gas": 13976,
+    "hibrido_dies": 21,
+    "hidrogeno": 1,
+    "pct_electrico": 1.75,
+    "pct_hibrido_gas": 98.1
+   },
+   {
+    "clase": "BUS",
+    "vehiculos": 1906,
+    "electrico": 1785,
+    "hibrido_gas": 0,
+    "hibrido_dies": 121,
+    "hidrogeno": 0,
+    "pct_electrico": 93.65,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "CUADRICICLO",
+    "vehiculos": 1602,
+    "electrico": 1602,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 100.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "MOTOCICLETA",
+    "vehiculos": 1552,
+    "electrico": 1540,
+    "hibrido_gas": 11,
+    "hibrido_dies": 0,
+    "hidrogeno": 1,
+    "pct_electrico": 99.23,
+    "pct_hibrido_gas": 0.71
+   },
+   {
+    "clase": "MOTOCARRO",
+    "vehiculos": 992,
+    "electrico": 991,
+    "hibrido_gas": 1,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 99.9,
+    "pct_hibrido_gas": 0.1
+   },
+   {
+    "clase": "CAMION",
+    "vehiculos": 804,
+    "electrico": 687,
+    "hibrido_gas": 0,
+    "hibrido_dies": 117,
+    "hidrogeno": 0,
+    "pct_electrico": 85.45,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "TRICIMOTO",
+    "vehiculos": 633,
+    "electrico": 633,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 100.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "MOTOTRICICLO",
+    "vehiculos": 22,
+    "electrico": 22,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 100.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "BUSETA",
+    "vehiculos": 18,
+    "electrico": 18,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 100.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "MICROBUS",
+    "vehiculos": 13,
+    "electrico": 13,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 100.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "CUATRIMOTO",
+    "vehiculos": 4,
+    "electrico": 4,
+    "hibrido_gas": 0,
+    "hibrido_dies": 0,
+    "hidrogeno": 0,
+    "pct_electrico": 100.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "TRACTOCAMION",
+    "vehiculos": 4,
+    "electrico": 3,
+    "hibrido_gas": 0,
+    "hibrido_dies": 1,
+    "hidrogeno": 0,
+    "pct_electrico": 75.0,
+    "pct_hibrido_gas": 0.0
+   },
+   {
+    "clase": "VOLQUETA",
+    "vehiculos": 2,
+    "electrico": 0,
+    "hibrido_gas": 0,
+    "hibrido_dies": 2,
+    "hidrogeno": 0,
+    "pct_electrico": 0.0,
+    "pct_hibrido_gas": 0.0
+   }
+  ],
+  "cruce_clase_departamento": {
+   "departamentos": [
+    "Bogota D.C.",
+    "Antioquia",
+    "Cundinamarca",
+    "Valle del Cauca",
+    "Norte de Santander",
+    "Atlantico",
+    "Santander",
+    "Risaralda"
+   ],
+   "clases": [
+    "AUTOMOVIL",
+    "BUS",
+    "CAMIONETA",
+    "CAMPERO",
+    "CICLOMOTOR"
+   ],
+   "porcentaje": [
+    [
+     20.8,
+     1.2,
+     73.0,
+     4.2,
+     0.3
+    ],
+    [
+     21.2,
+     0.1,
+     67.5,
+     4.5,
+     4.0
+    ],
+    [
+     23.1,
+     0.0,
+     56.0,
+     3.1,
+     13.4
+    ],
+    [
+     17.2,
+     0.1,
+     70.0,
+     3.7,
+     6.1
+    ],
+    [
+     19.0,
+     0.0,
+     73.6,
+     5.7,
+     1.3
+    ],
+    [
+     16.9,
+     0.0,
+     75.2,
+     2.8,
+     4.6
+    ],
+    [
+     16.7,
+     0.0,
+     69.0,
+     4.3,
+     7.4
+    ],
+    [
+     14.2,
+     0.0,
+     72.6,
+     6.3,
+     6.0
+    ]
+   ],
+   "vehiculos": [
+    [
+     29686,
+     1765,
+     104141,
+     5965,
+     401
+    ],
+    [
+     14028,
+     75,
+     44540,
+     2953,
+     2637
+    ],
+    [
+     7746,
+     3,
+     18760,
+     1045,
+     4480
+    ],
+    [
+     4893,
+     38,
+     19882,
+     1053,
+     1735
+    ],
+    [
+     2268,
+     0,
+     8799,
+     682,
+     156
+    ],
+    [
+     1171,
+     1,
+     5199,
+     191,
+     315
+    ],
+    [
+     1037,
+     3,
+     4281,
+     268,
+     460
+    ],
+    [
+     794,
+     0,
+     4059,
+     352,
+     334
+    ]
+   ]
+  },
+  "triple_comb_clase_dep": [
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "Bogota D.C.",
+    "vehiculos": 77509,
+    "pct": 23.28
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "Antioquia",
+    "vehiculos": 32329,
+    "pct": 9.71
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CAMIONETA",
+    "departamento": "Bogota D.C.",
+    "vehiculos": 25822,
+    "pct": 7.76
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "departamento": "Bogota D.C.",
+    "vehiculos": 19552,
+    "pct": 5.87
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "Valle del Cauca",
+    "vehiculos": 15988,
+    "pct": 4.8
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "Cundinamarca",
+    "vehiculos": 15868,
+    "pct": 4.77
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CAMIONETA",
+    "departamento": "Antioquia",
+    "vehiculos": 11524,
+    "pct": 3.46
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "AUTOMOVIL",
+    "departamento": "Bogota D.C.",
+    "vehiculos": 10014,
+    "pct": 3.01
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "departamento": "Antioquia",
+    "vehiculos": 9832,
+    "pct": 2.95
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "Norte de Santander",
+    "vehiculos": 8336,
+    "pct": 2.5
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "departamento": "Cundinamarca",
+    "vehiculos": 6197,
+    "pct": 1.86
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMPERO",
+    "departamento": "Bogota D.C.",
+    "vehiculos": 5839,
+    "pct": 1.75
+   }
+  ],
+  "combos_comb_clase_carroceria": [
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "carroceria": "WAGON",
+    "vehiculos": 176929,
+    "pct": 53.15
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CAMIONETA",
+    "carroceria": "WAGON",
+    "vehiculos": 34710,
+    "pct": 10.43
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "carroceria": "SEDAN",
+    "vehiculos": 25752,
+    "pct": 7.74
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "carroceria": "HATCH BACK",
+    "vehiculos": 20857,
+    "pct": 6.27
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CICLOMOTOR",
+    "carroceria": "SIN CARROCERIA",
+    "vehiculos": 15621,
+    "pct": 4.69
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "AUTOMOVIL",
+    "carroceria": "HATCH BACK",
+    "vehiculos": 14366,
+    "pct": 4.32
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMPERO",
+    "carroceria": "WAGON",
+    "vehiculos": 13389,
+    "pct": 4.02
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CAMIONETA",
+    "carroceria": "SUV",
+    "vehiculos": 11100,
+    "pct": 3.33
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "AUTOMOVIL",
+    "carroceria": "SEDAN",
+    "vehiculos": 3002,
+    "pct": 0.9
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "carroceria": "DOBLE CABINA CON PLATON",
+    "vehiculos": 1757,
+    "pct": 0.53
+   }
+  ],
+  "matriz_clase_anio_electrico": {
+   "anios": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+   ],
+   "filas": [
+    {
+     "clase": "CAMIONETA",
+     "valores": [
+      {
+       "anio": 2018,
+       "total": 372,
+       "pct_electrico": 10.2
+      },
+      {
+       "anio": 2019,
+       "total": 1367,
+       "pct_electrico": 5.4
+      },
+      {
+       "anio": 2020,
+       "total": 2455,
+       "pct_electrico": 6.4
+      },
+      {
+       "anio": 2021,
+       "total": 9245,
+       "pct_electrico": 4.3
+      },
+      {
+       "anio": 2022,
+       "total": 17159,
+       "pct_electrico": 7.4
+      },
+      {
+       "anio": 2023,
+       "total": 20848,
+       "pct_electrico": 9.7
+      },
+      {
+       "anio": 2024,
+       "total": 39121,
+       "pct_electrico": 14.8
+      },
+      {
+       "anio": 2025,
+       "total": 69727,
+       "pct_electrico": 20.5
+      },
+      {
+       "anio": 2026,
+       "total": 69358,
+       "pct_electrico": 34.5
+      }
+     ]
+    },
+    {
+     "clase": "AUTOMOVIL",
+     "valores": [
+      {
+       "anio": 2018,
+       "total": 440,
+       "pct_electrico": 54.1
+      },
+      {
+       "anio": 2019,
+       "total": 1429,
+       "pct_electrico": 38.6
+      },
+      {
+       "anio": 2020,
+       "total": 2625,
+       "pct_electrico": 12.9
+      },
+      {
+       "anio": 2021,
+       "total": 5414,
+       "pct_electrico": 8.9
+      },
+      {
+       "anio": 2022,
+       "total": 7100,
+       "pct_electrico": 8.5
+      },
+      {
+       "anio": 2023,
+       "total": 8589,
+       "pct_electrico": 13.1
+      },
+      {
+       "anio": 2024,
+       "total": 10100,
+       "pct_electrico": 30.8
+      },
+      {
+       "anio": 2025,
+       "total": 15073,
+       "pct_electrico": 35.0
+      },
+      {
+       "anio": 2026,
+       "total": 14442,
+       "pct_electrico": 44.8
+      }
+     ]
+    },
+    {
+     "clase": "CICLOMOTOR",
+     "valores": [
+      {
+       "anio": 2018,
+       "total": 1116,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2019,
+       "total": 2266,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2020,
+       "total": 2043,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2021,
+       "total": 2498,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2022,
+       "total": 2623,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2023,
+       "total": 2285,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2024,
+       "total": 1471,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2025,
+       "total": 910,
+       "pct_electrico": 100.0
+      },
+      {
+       "anio": 2026,
+       "total": 271,
+       "pct_electrico": 100.0
+      }
+     ]
+    },
+    {
+     "clase": "CAMPERO",
+     "valores": [
+      {
+       "anio": 2018,
+       "total": 0,
+       "pct_electrico": null
+      },
+      {
+       "anio": 2019,
+       "total": 4,
+       "pct_electrico": null
+      },
+      {
+       "anio": 2020,
+       "total": 55,
+       "pct_electrico": 0.0
+      },
+      {
+       "anio": 2021,
+       "total": 2482,
+       "pct_electrico": 0.0
+      },
+      {
+       "anio": 2022,
+       "total": 2109,
+       "pct_electrico": 0.0
+      },
+      {
+       "anio": 2023,
+       "total": 1463,
+       "pct_electrico": 0.1
+      },
+      {
+       "anio": 2024,
+       "total": 2321,
+       "pct_electrico": 0.0
+      },
+      {
+       "anio": 2025,
+       "total": 2619,
+       "pct_electrico": 0.2
+      },
+      {
+       "anio": 2026,
+       "total": 3193,
+       "pct_electrico": 7.6
+      }
+     ]
+    }
+   ]
+  },
+  "asociaciones": [
+   {
+    "par": "combustible – clase",
+    "v": 0.271,
+    "fuerza": "moderada"
+   },
+   {
+    "par": "clase – año de registro",
+    "v": 0.189,
+    "fuerza": "moderada"
+   },
+   {
+    "par": "combustible – año de registro",
+    "v": 0.155,
+    "fuerza": "moderada"
+   },
+   {
+    "par": "clase – departamento",
+    "v": 0.119,
+    "fuerza": "débil"
+   },
+   {
+    "par": "combustible – departamento",
+    "v": 0.107,
+    "fuerza": "débil"
+   }
+  ],
+  "sobre_representadas": [
+   {
+    "clase": "CICLOMOTOR",
+    "combustible": "ELECTRICO",
+    "observado": 15621,
+    "esperado": 4218.7,
+    "residuo": 175.6
+   },
+   {
+    "clase": "CUADRICICLO",
+    "combustible": "ELECTRICO",
+    "observado": 1602,
+    "esperado": 432.6,
+    "residuo": 56.2
+   },
+   {
+    "clase": "BUS",
+    "combustible": "ELECTRICO",
+    "observado": 1785,
+    "esperado": 514.7,
+    "residuo": 56.0
+   },
+   {
+    "clase": "MOTOCICLETA",
+    "combustible": "ELECTRICO",
+    "observado": 1540,
+    "esperado": 419.1,
+    "residuo": 54.8
+   },
+   {
+    "clase": "MOTOCARRO",
+    "combustible": "ELECTRICO",
+    "observado": 991,
+    "esperado": 267.9,
+    "residuo": 44.2
+   },
+   {
+    "clase": "CAMION",
+    "combustible": "DIES ELEC",
+    "observado": 117,
+    "esperado": 7.6,
+    "residuo": 39.7
+   }
+  ],
+  "sub_representadas": [
+   {
+    "clase": "CICLOMOTOR",
+    "combustible": "GASO ELEC",
+    "observado": 0,
+    "esperado": 11255.5,
+    "residuo": -106.1
+   },
+   {
+    "clase": "CAMPERO",
+    "combustible": "ELECTRICO",
+    "observado": 249,
+    "esperado": 3847.4,
+    "residuo": -58.0
+   },
+   {
+    "clase": "CAMIONETA",
+    "combustible": "ELECTRICO",
+    "observado": 48079,
+    "esperado": 62055.9,
+    "residuo": -56.1
+   },
+   {
+    "clase": "BUS",
+    "combustible": "GASO ELEC",
+    "observado": 0,
+    "esperado": 1373.2,
+    "residuo": -37.1
+   }
+  ],
+  "casos_inusuales": {
+   "hidrogeno": [
+    {
+     "clase": "CAMPERO",
+     "carroceria": "CABINADO",
+     "municipio": "IBAGUE",
+     "departamento": "Tolima",
+     "modelo": 2015,
+     "anio": 2015
+    },
+    {
+     "clase": "AUTOMOVIL",
+     "carroceria": "SEDAN",
+     "municipio": "BOGOTA",
+     "departamento": "Bogota D.C.",
+     "modelo": 2023,
+     "anio": 2022
+    },
+    {
+     "clase": "CICLOMOTOR",
+     "carroceria": "SIN CARROCERIA",
+     "municipio": "ZIPAQUIRA",
+     "departamento": "Cundinamarca",
+     "modelo": 2022,
+     "anio": 2023
+    },
+    {
+     "clase": "MOTOCICLETA",
+     "carroceria": "SIN CARROCERIA",
+     "municipio": "JAMUNDI",
+     "departamento": "Valle del Cauca",
+     "modelo": 2017,
+     "anio": 2024
+    }
+   ],
+   "mayores_grupos": [
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2026,
+     "a_o_registro": 2025,
+     "clase": "CAMIONETA",
+     "carroceria": "WAGON",
+     "municipio": "BOGOTA",
+     "departamento": "Bogota D.C.",
+     "cantidad": 17230
+    },
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2026,
+     "a_o_registro": 2026,
+     "clase": "CAMIONETA",
+     "carroceria": "WAGON",
+     "municipio": "BOGOTA",
+     "departamento": "Bogota D.C.",
+     "cantidad": 10849
+    },
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2027,
+     "a_o_registro": 2026,
+     "clase": "CAMIONETA",
+     "carroceria": "WAGON",
+     "municipio": "BOGOTA",
+     "departamento": "Bogota D.C.",
+     "cantidad": 8313
+    },
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2025,
+     "a_o_registro": 2024,
+     "clase": "CAMIONETA",
+     "carroceria": "WAGON",
+     "municipio": "BOGOTA",
+     "departamento": "Bogota D.C.",
+     "cantidad": 8071
+    },
+    {
+     "combustible": "ELECTRICO",
+     "modelo": 2026,
+     "a_o_registro": 2026,
+     "clase": "CAMIONETA",
+     "carroceria": "SUV",
+     "municipio": "BOGOTA",
+     "departamento": "Bogota D.C.",
+     "cantidad": 5779
+    }
+   ],
+   "grupos_de_1": {
+    "filas": 4352,
+    "pct_filas": 40.49,
+    "pct_vehiculos": 1.31
+   },
+   "modelo_inusual": [
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2027,
+     "anio": 2025,
+     "municipio": "BOGOTA",
+     "cantidad": 104
+    },
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2023,
+     "anio": 2021,
+     "municipio": "BOGOTA",
+     "cantidad": 63
+    },
+    {
+     "combustible": "GASO ELEC",
+     "modelo": 2026,
+     "anio": 2024,
+     "municipio": "BOGOTA",
+     "cantidad": 36
+    },
+    {
+     "combustible": "ELECTRICO",
+     "modelo": 2026,
+     "anio": 2024,
+     "municipio": "BOGOTA",
+     "cantidad": 18
+    }
+   ],
+   "modelo_inusual_total": {
+    "filas": 60,
+    "vehiculos": 349
+   },
+   "clases_poco_representadas": [
+    {
+     "categoria": "VOLQUETA",
+     "vehiculos": 2
+    },
+    {
+     "categoria": "CUATRIMOTO",
+     "vehiculos": 4
+    },
+    {
+     "categoria": "TRACTOCAMION",
+     "vehiculos": 4
+    },
+    {
+     "categoria": "MICROBUS",
+     "vehiculos": 13
+    },
+    {
+     "categoria": "BUSETA",
+     "vehiculos": 18
+    },
+    {
+     "categoria": "MOTOTRICICLO",
+     "vehiculos": 22
+    }
+   ],
+   "electrico_pesados": [
+    {
+     "clase": "BUS",
+     "electrico": 1785,
+     "total": 1906
+    },
+    {
+     "clase": "CAMION",
+     "electrico": 687,
+     "total": 804
+    },
+    {
+     "clase": "BUSETA",
+     "electrico": 18,
+     "total": 18
+    },
+    {
+     "clase": "MICROBUS",
+     "electrico": 13,
+     "total": 13
+    }
+   ]
+  }
+ }
+}

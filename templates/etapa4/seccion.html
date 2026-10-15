@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ seccion.titulo }} · Etapa 4 · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">Etapa 4: Análisis exploratorio</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ seccion.titulo }}</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de Sección -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-graph-up-arrow text-warning me-1"></i>Análisis exploratorio de la población
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-2">{{ seccion.titulo }}</h1>
+  <p class="mb-0 text-muted">
+    <strong class="text-dark">Pregunta que responde:</strong>
+    {% block pregunta %}Contenido en construcción.{% endblock %}
+  </p>
+</div>
+
+{% include "_fuente_datos.html" %}
+
+{% block seccion_contenido %}
+<div class="content-card p-5 text-center bg-white border">
+  <i class="bi bi-hourglass-split display-4 text-warning mb-3"></i>
+  <h4 class="fw-bold text-dark">Contenido en construcción</h4>
+</div>
+{% endblock %}
+{% endblock %}

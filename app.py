@@ -15,14 +15,21 @@ RAIZ = Path(__file__).resolve().parent
 RESULTADOS = json.loads(
     (RAIZ / "data" / "processed" / "resultados_eda.json").read_text(encoding="utf-8")
 )
+# Resultados del análisis exploratorio de la Etapa 4 (python eda_etapa4.py)
+RESULTADOS.update(
+    json.loads(
+        (RAIZ / "data" / "processed" / "resultados_etapa4.json").read_text(encoding="utf-8")
+    )
+)
 
 # Archivos que la app permite descargar/consultar (evidencia de dónde salen los resultados).
 DATOS_PUBLICOS = {
     "vehiculos_electricos_hibridos_runt.csv": RAIZ / "data" / "raw",
     "FUENTE.json": RAIZ / "data" / "raw",
     "resultados_eda.json": RAIZ / "data" / "processed",
+    "resultados_etapa4.json": RAIZ / "data" / "processed",
 }
-CODIGO_PUBLICO = {"calidad_etapa2.py": RAIZ}
+CODIGO_PUBLICO = {"calidad_etapa2.py": RAIZ, "eda_etapa4.py": RAIZ}
 
 
 def _numero(valor, decimales=0):
@@ -127,6 +134,12 @@ ETAPA3_SECCIONES = [
     },
 ]
 
+# Secciones de la Etapa 4 (Análisis exploratorio de la población)
+ETAPA4_SECCIONES = [
+    {"slug": "poblacional", "num": 1, "titulo": "Dimensión poblacional"},
+    {"slug": "territorial", "num": 2, "titulo": "Dimensión territorial"},
+]
+
 # Evidencias de la Etapa 3: documento de soporte (PDF) y video explicativo.
 # Ajusta estos dos valores cuando tengas el archivo y el enlace definitivos.
 ETAPA3_PDF = "docs/etl_proceso.pdf"  # ruta dentro de static/
@@ -146,6 +159,7 @@ def inject_nav():
         "etapa1_secciones": ETAPA1_SECCIONES,
         "etapa2_secciones": ETAPA2_SECCIONES,
         "etapa3_secciones": ETAPA3_SECCIONES,
+        "etapa4_secciones": ETAPA4_SECCIONES,
         "res": RESULTADOS,
     }
 
@@ -242,6 +256,27 @@ def etapa3_seccion(slug):
         return render_template(template_a_renderizar, **ctx)
     except TemplateNotFound:
         return render_template("etapa3/seccion.html", **ctx)
+
+
+# --- Rutas Etapa 4 ----------------------------------------------------------
+
+
+@app.route("/etapa4/<slug>")
+def etapa4_seccion(slug):
+    seccion = next((s for s in ETAPA4_SECCIONES if s["slug"] == slug), None)
+    if seccion is None:
+        abort(404)
+
+    plantillas = {
+        "poblacional": "etapa4/poblacional.html",
+        "territorial": "etapa4/territorial.html",
+    }
+
+    ctx = {"seccion": seccion, "active": f"etapa4:{slug}"}
+    try:
+        return render_template(plantillas.get(slug, "etapa4/seccion.html"), **ctx)
+    except TemplateNotFound:
+        return render_template("etapa4/seccion.html", **ctx)
 
 
 # --- Evidencia: datos y código ----------------------------------------------

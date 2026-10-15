@@ -1,0 +1,198 @@
+{% extends "etapa4/seccion.html" %}
+
+{% block pregunta %}¿Cómo está compuesta y distribuida la población analizada según sus principales características?{% endblock %}
+
+{% block seccion_contenido %}
+{% set p = res.poblacional %}
+
+<!-- Indicadores principales -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Registros (filas)</span>
+      <h3 class="fw-bold text-dark my-1">{{ p.filas | miles }}</h3>
+      <span class="text-muted small">Grupos de vehículos</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Vehículos (población)</span>
+      <h3 class="fw-bold text-primary my-1">{{ p.vehiculos | miles }}</h3>
+      <span class="text-muted small">Suma de <code>cantidad</code></span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Categorías</span>
+      <h3 class="fw-bold text-dark my-1">{{ p.combustible | length }} · {{ p.clase | length }} · {{ p.n_carrocerias }}</h3>
+      <span class="text-muted small">Combustible · clase · carrocería</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Vehículos por grupo</span>
+      <h3 class="fw-bold text-dark my-1">{{ p.mediana_por_fila | dec(0) }} <small class="fs-6 text-muted">mediana</small></h3>
+      <span class="text-muted small">Promedio {{ p.promedio_por_fila | dec(1) }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- 1. Combustible -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">1. Composición por tipo de combustible</h4>
+  <p class="text-muted small mb-3">Participación porcentual de cada tecnología sobre el total de {{ p.vehiculos | miles }} vehículos.</p>
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-5"><div style="height: 280px;"><canvas id="chartCombustible"></canvas></div></div>
+    <div class="col-lg-7">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light"><tr><th>Tecnología</th><th class="text-end">Vehículos</th><th class="text-end">Participación</th><th class="text-end">Grupos (filas)</th></tr></thead>
+          <tbody>
+            {% for r in p.combustible %}
+            <tr>
+              <td>{{ r.etiqueta }} <code class="small">{{ r.categoria }}</code>
+                {% if loop.first %}<span class="badge bg-success ms-1">predominante</span>{% endif %}
+                {% if r.pct < 1 %}<span class="badge bg-secondary ms-1">minoritario</span>{% endif %}</td>
+              <td class="text-end">{{ r.vehiculos | miles }}</td>
+              <td class="text-end fw-semibold">{{ r.pct | pct }}</td>
+              <td class="text-end text-muted">{{ r.filas | miles }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="table-light fw-bold"><td>Total</td><td class="text-end">{{ p.vehiculos | miles }}</td><td class="text-end">100,00 %</td><td class="text-end">{{ p.filas | miles }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Clase -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">2. Clases de vehículo</h4>
+  <p class="text-muted small mb-3">
+    Dos clases concentran el {{ p.top2_clase_pct | pct }} de la población:
+    <strong>{{ p.clase[0].categoria }}</strong> ({{ p.clase[0].pct | pct }}) y <strong>{{ p.clase[1].categoria }}</strong> ({{ p.clase[1].pct | pct }}).
+  </p>
+  <div class="row g-4">
+    <div class="col-lg-6"><div style="height: 330px;"><canvas id="chartClase"></canvas></div></div>
+    <div class="col-lg-6">
+      <div class="table-responsive" style="max-height: 330px; overflow-y: auto;">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light sticky-top"><tr><th>Clase</th><th class="text-end">Vehículos</th><th class="text-end">%</th><th class="text-end">% acum.</th></tr></thead>
+          <tbody>
+            {% for r in p.clase %}
+            <tr>
+              <td>{{ r.categoria }}{% if r.pct < 0.1 %} <span class="badge bg-secondary">minoritaria</span>{% endif %}</td>
+              <td class="text-end">{{ r.vehiculos | miles }}</td>
+              <td class="text-end">{{ r.pct | pct }}</td>
+              <td class="text-end text-muted">{{ r.acum | pct }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Carrocería -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">3. Carrocerías más frecuentes</h4>
+  <p class="text-muted small mb-3">
+    Existen {{ p.n_carrocerias }} carrocerías; las 10 principales reúnen el {{ (100 - p.carroceria_otras.pct) | pct }} de la población.
+    «SIN CARROCERIA» ({{ p.sin_carroceria_pct | pct }}) corresponde a vehículos que no la declaran (motos, ciclomotores, etc.).
+  </p>
+  <div style="height: 340px;"><canvas id="chartCarroceria"></canvas></div>
+</div>
+
+<!-- 4. Año modelo -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">4. Distribución por año modelo</h4>
+  <p class="text-muted small mb-3">
+    Es una población muy reciente: los modelos 2023 a 2027 suman el
+    <strong>{{ (p.modelo | selectattr('categoria', 'in', ['2023','2024','2025','2026','2027']) | sum(attribute='pct')) | pct(1) }}</strong>
+    de los vehículos (el año modelo puede ser posterior al año de registro, práctica habitual del sector).
+  </p>
+  <div style="height: 300px;"><canvas id="chartModelo"></canvas></div>
+</div>
+
+<!-- Hallazgos -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-success">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>Conocimientos evidentes</h4>
+  <ul class="mb-0">
+    <li class="mb-2"><strong>Población:</strong> {{ p.vehiculos | miles }} vehículos eléctricos e híbridos matriculados, resumidos en {{ p.filas | miles }} grupos.</li>
+    <li class="mb-2"><strong>Grupo predominante:</strong> los híbridos gasolina-eléctricos ({{ p.combustible[0].pct | pct }}) y, en segundo lugar, los eléctricos puros ({{ p.combustible[1].pct | pct }}); juntos suman {{ (p.combustible[0].pct + p.combustible[1].pct) | pct }}.</li>
+    <li class="mb-2"><strong>Grupos minoritarios:</strong> híbridos diésel-eléctricos ({{ p.combustible[2].pct | pct }}) e hidrógeno ({{ p.combustible[3].vehiculos }} vehículos); y {{ p.minoritarias_clase | length }} clases con menos del 0,1 % cada una ({% for r in p.minoritarias_clase %}{{ r.categoria | lower }}{{ ", " if not loop.last }}{% endfor %}).</li>
+    <li class="mb-2"><strong>Perfil típico:</strong> una camioneta o automóvil con carrocería <em>wagon</em>, <em>hatch back</em> o sedán, de modelo reciente.</li>
+    <li><strong>Distribución muy desigual de los grupos:</strong> el {{ res.perfilamiento.cantidad.pct_filas_cantidad_1 | pct }} de las filas tiene un solo vehículo, mientras unos pocos grupos son enormes (el mayor reúne {{ res.perfilamiento.cantidad.maximo | miles }} vehículos).</li>
+  </ul>
+</div>
+
+<!-- Código -->
+<details class="card shadow-sm border-0 mb-4 p-3 bg-white">
+  <summary class="fw-bold text-dark"><i class="bi bi-code-slash me-2 text-primary"></i>Código utilizado (de dónde salen estas cifras)</summary>
+<pre class="bg-dark text-light p-3 rounded-3 mt-3 mb-2 small"><code>import pandas as pd
+
+df = pd.read_csv("data/raw/vehiculos_electricos_hibridos_runt.csv",
+                 dtype=str, keep_default_na=False, na_values=[""])
+df["cantidad"] = df["cantidad"].astype(int)
+
+total = df["cantidad"].sum()                                   # {{ p.vehiculos | miles }} vehículos
+por_combustible = df.groupby("combustible")["cantidad"].sum().sort_values(ascending=False)
+participacion = (por_combustible / total * 100).round(2)       # % por tecnología
+por_clase = df.groupby("clase")["cantidad"].sum().sort_values(ascending=False)
+por_carroceria = df.groupby("carroceria")["cantidad"].sum().sort_values(ascending=False)</code></pre>
+  <small class="text-muted">Script completo y reproducible: <a href="{{ url_for('ver_codigo', archivo='eda_etapa4.py') }}" target="_blank">eda_etapa4.py</a>.</small>
+</details>
+
+<div class="alert alert-secondary small">
+  <strong>Limitaciones:</strong> la fuente no distingue híbridos enchufables (PHEV) de híbridos convencionales (HEV) ni trae marca,
+  potencia o servicio; la población se describe solo con las 8 variables disponibles.
+</div>
+
+<div class="d-flex justify-content-end pt-3 border-top">
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa4_seccion', slug='territorial') }}">
+    2. Dimensión territorial <i class="bi bi-arrow-right ms-1"></i>
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const P = {{ res.poblacional | tojson }};
+  const verde = ['#2d5a43', '#f2ba1d', '#447a5b', '#d9a314', '#1b382b', '#9bbfaa', '#6c757d', '#0d6efd'];
+  const fmt = n => n.toLocaleString('es-CO');
+
+  new Chart(document.getElementById('chartCombustible'), {
+    type: 'doughnut',
+    data: { labels: P.combustible.map(x => x.etiqueta),
+            datasets: [{ data: P.combustible.map(x => x.vehiculos), backgroundColor: verde, borderColor: '#fff', borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' },
+      tooltip: { callbacks: { label: c => ` ${fmt(c.parsed)} vehículos (${P.combustible[c.dataIndex].pct.toLocaleString('es-CO')} %)` } } } }
+  });
+
+  const clases = P.clase.slice(0, 8);
+  new Chart(document.getElementById('chartClase'), {
+    type: 'bar',
+    data: { labels: clases.map(x => x.categoria), datasets: [{ data: clases.map(x => x.pct), backgroundColor: '#2d5a43', borderRadius: 4 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: v => v + ' %' }, title: { display: true, text: '% de los vehículos' } } } }
+  });
+
+  const carr = P.carroceria_top;
+  new Chart(document.getElementById('chartCarroceria'), {
+    type: 'bar',
+    data: { labels: carr.map(x => x.categoria), datasets: [{ data: carr.map(x => x.pct), backgroundColor: '#f2ba1d', borderRadius: 4 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: v => v + ' %' }, title: { display: true, text: '% de los vehículos' } } } }
+  });
+
+  new Chart(document.getElementById('chartModelo'), {
+    type: 'bar',
+    data: { labels: P.modelo.map(x => x.categoria), datasets: [{ data: P.modelo.map(x => x.vehiculos), backgroundColor: '#447a5b', borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => fmt(v) }, title: { display: true, text: 'Vehículos' } }, x: { title: { display: true, text: 'Año modelo' } } } }
+  });
+</script>
+{% endblock %}

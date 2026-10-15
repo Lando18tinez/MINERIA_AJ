@@ -1,0 +1,257 @@
+{% extends "etapa4/seccion.html" %}
+
+{% block pregunta %}¿Cómo se distribuye la población y sus principales características entre los territorios disponibles?{% endblock %}
+
+{% block seccion_contenido %}
+{% set t = res.territorial %}
+
+<!-- Indicadores principales -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Territorios</span>
+      <h3 class="fw-bold text-dark my-1">{{ t.n_departamentos }} · {{ t.n_municipios }}</h3>
+      <span class="text-muted small">Departamentos · municipios</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Bogotá D.C.</span>
+      <h3 class="fw-bold text-dark my-1">{{ t.top1_pct | pct }}</h3>
+      <span class="text-muted small">{{ t.bogota_vs_resto.bogota | miles }} vehículos</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Cinco primeros</span>
+      <h3 class="fw-bold text-primary my-1">{{ t.top5_pct | pct(1) }}</h3>
+      <span class="text-muted small">Participación acumulada</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Con menos del 1 %</span>
+      <h3 class="fw-bold text-danger my-1">{{ t.deps_menos_1pct }} de {{ t.n_departamentos }}</h3>
+      <span class="text-muted small">Departamentos</span>
+    </div>
+  </div>
+</div>
+
+<!-- 1. Departamentos -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">1. Distribución por departamento</h4>
+  <p class="text-muted small mb-3">
+    Bogotá D.C. concentra por sí sola el {{ t.top1_pct | pct }} de los vehículos; con Antioquia y Cundinamarca
+    se llega al {{ t.top3_pct | pct }}.
+  </p>
+  <div class="row g-4">
+    <div class="col-lg-6"><div style="height: 360px;"><canvas id="chartDeps"></canvas></div></div>
+    <div class="col-lg-6">
+      <div class="table-responsive" style="max-height: 360px; overflow-y: auto;">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light sticky-top"><tr><th>#</th><th>Departamento</th><th class="text-end">Vehículos</th><th class="text-end">%</th><th class="text-end">% acum.</th><th class="text-end">Municipios</th></tr></thead>
+          <tbody>
+            {% for r in t.departamentos %}
+            <tr>
+              <td class="text-muted">{{ loop.index }}</td>
+              <td>{{ r.categoria }}</td>
+              <td class="text-end">{{ r.vehiculos | miles }}</td>
+              <td class="text-end fw-semibold">{{ r.pct | pct }}</td>
+              <td class="text-end text-muted">{{ r.acum | pct(1) }}</td>
+              <td class="text-end text-muted">{{ r.municipios }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Municipios -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">2. Municipios con más vehículos</h4>
+  <p class="text-muted small mb-3">
+    Solo <strong>{{ t.municipios_para_50 }}</strong> municipios reúnen más de la mitad de la población y
+    <strong>{{ t.municipios_para_80 }}</strong> superan el 80 %. En el otro extremo, {{ t.municipios_menos_10_veh }} municipios
+    tienen menos de 10 vehículos.
+  </p>
+  <div class="row g-4">
+    <div class="col-lg-7"><div style="height: 380px;"><canvas id="chartMunis"></canvas></div></div>
+    <div class="col-lg-5">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light"><tr><th>Municipio</th><th>Departamento</th><th class="text-end">%</th></tr></thead>
+          <tbody>
+            {% for m in t.municipios_top[:10] %}
+            <tr><td>{{ m.municipio }}</td><td class="text-muted small">{{ m.departamento }}</td><td class="text-end">{{ m.pct | pct }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Menor presencia -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h4 class="fw-bold text-dark mb-1">3. Territorios con menor cantidad</h4>
+      <p class="text-muted small mb-3">{{ t.deps_menos_01pct }} departamentos no llegan al 0,1 % de la población.</p>
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light"><tr><th>Departamento</th><th class="text-end">Vehículos</th><th class="text-end">%</th></tr></thead>
+        <tbody>
+          {% for r in t.menores %}
+          <tr><td>{{ r.categoria }}</td><td class="text-end">{{ r.vehiculos | miles }}</td><td class="text-end">{{ r.pct | pct(3) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h4 class="fw-bold text-dark mb-1">4. Concentración territorial</h4>
+      <p class="text-muted small mb-3">Indicadores que resumen qué tan desigual es la distribución.</p>
+      <div class="row g-3 text-center">
+        <div class="col-4"><div class="p-3 border rounded-3 bg-light h-100"><div class="fs-4 fw-bold text-dark">{{ t.top1_pct | pct(1) }}</div><div class="small text-muted">1 departamento</div></div></div>
+        <div class="col-4"><div class="p-3 border rounded-3 bg-light h-100"><div class="fs-4 fw-bold text-dark">{{ t.top3_pct | pct(1) }}</div><div class="small text-muted">3 departamentos</div></div></div>
+        <div class="col-4"><div class="p-3 border rounded-3 bg-light h-100"><div class="fs-4 fw-bold text-dark">{{ t.top5_pct | pct(1) }}</div><div class="small text-muted">5 departamentos</div></div></div>
+      </div>
+      <p class="small text-muted mt-3 mb-0">
+        <strong>Índice de Herfindahl-Hirschman (HHI):</strong> {{ t.hhi | miles }} sobre 10.000
+        (suma de los cuadrados de las participaciones; entre más cerca de 10.000, más concentrado).
+        Si los vehículos se repartieran por igual entre los {{ t.n_departamentos }} departamentos, sería ≈ 313.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Diferencias entre territorios -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h4 class="fw-bold text-dark mb-1">5. Diferencias entre los diez departamentos con más vehículos</h4>
+  <p class="text-muted small mb-3">Composición por tecnología dentro de cada territorio (100 % = vehículos del departamento).</p>
+  <div style="height: 360px;"><canvas id="chartComposicion"></canvas></div>
+  <div class="table-responsive mt-3">
+    <table class="table table-sm align-middle mb-0">
+      <thead class="table-light"><tr><th>Departamento</th><th class="text-end">Vehículos</th><th class="text-end">% eléctrico</th><th class="text-end">% híbrido gasolina</th><th>Clase dominante</th></tr></thead>
+      <tbody>
+        {% for c in t.composicion_top10 %}
+        <tr>
+          <td>{{ c.departamento }}</td>
+          <td class="text-end">{{ c.vehiculos | miles }}</td>
+          <td class="text-end">{{ c.pct_electrico | pct(1) }}</td>
+          <td class="text-end">{{ c.pct_hibrido_gas | pct(1) }}</td>
+          <td>{{ c.clase_dominante }} <span class="text-muted small">({{ c.pct_clase_dominante | pct(1) }})</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 6. Comportamientos particulares -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-exclamation-diamond text-warning me-2"></i>6. Comportamientos particulares de algunas zonas</h4>
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <h6 class="fw-bold">Mayor proporción de vehículos 100 % eléctricos (departamentos con ≥ 500 vehículos)</h6>
+      <ul class="small mb-3">
+        {% for d in t.mayor_pct_electrico %}<li>{{ d.departamento }}: <strong>{{ d.pct_electrico | pct(1) }}</strong> eléctricos ({{ d.vehiculos | miles }} vehículos)</li>{% endfor %}
+      </ul>
+      <h6 class="fw-bold">Menor proporción</h6>
+      <ul class="small mb-0">
+        {% for d in t.menor_pct_electrico %}<li>{{ d.departamento }}: <strong>{{ d.pct_electrico | pct(1) }}</strong> eléctricos ({{ d.vehiculos | miles }} vehículos)</li>{% endfor %}
+      </ul>
+    </div>
+    <div class="col-lg-6">
+      <h6 class="fw-bold">Territorios donde la clase dominante no es la camioneta</h6>
+      <ul class="small mb-2">
+        {% for d in t.clase_dominante_no_camioneta %}<li>{{ d.departamento }}: <strong>{{ d.clase }}</strong> ({{ d.pct_clase | pct(1) }} de {{ d.vehiculos | miles }} vehículos)</li>{% endfor %}
+      </ul>
+      <p class="small text-muted mb-0">
+        En el resto del país domina la camioneta. En Bolívar y Putumayo predomina el ciclomotor (eléctrico), lo que explica su alta
+        proporción de eléctricos. Con estos datos no es posible establecer las <em>causas</em>; se señalan como zonas a explorar.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Hallazgos -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-success">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>Conocimientos evidentes</h4>
+  <ul class="mb-0">
+    <li class="mb-2"><strong>Concentración muy alta:</strong> Bogotá ({{ t.top1_pct | pct }}), Antioquia ({{ t.departamentos[1].pct | pct }}), Cundinamarca ({{ t.departamentos[2].pct | pct }}) y Valle del Cauca ({{ t.departamentos[3].pct | pct }}) reúnen el {{ t.departamentos[3].acum | pct(1) }} de los vehículos.</li>
+    <li class="mb-2"><strong>Ciudades principales:</strong> Bogotá, Medellín ({{ t.municipios_top[1].pct | pct }}), Cali ({{ t.municipios_top[2].pct | pct }}) y Envigado ({{ t.municipios_top[3].pct | pct }}) encabezan la lista municipal. Llama la atención que municipios intermedios como Envigado (20.819 vehículos), Funza, Villa del Rosario, Chía o Sabaneta superan a capitales como Barranquilla (5.901).</li>
+    <li class="mb-2"><strong>Larga cola:</strong> {{ t.deps_menos_1pct }} de {{ t.n_departamentos }} departamentos tienen menos del 1 % y {{ t.municipios_menos_10_veh }} municipios menos de 10 vehículos.</li>
+    <li><strong>Diferencias de composición:</strong> la proporción de eléctricos puros va de {{ t.menor_pct_electrico[0].pct_electrico | pct(1) }} ({{ t.menor_pct_electrico[0].departamento }}) a {{ t.mayor_pct_electrico[0].pct_electrico | pct(1) }} ({{ t.mayor_pct_electrico[0].departamento }}) entre departamentos con más de 500 vehículos.</li>
+  </ul>
+</div>
+
+<details class="card shadow-sm border-0 mb-4 p-3 bg-white">
+  <summary class="fw-bold text-dark"><i class="bi bi-code-slash me-2 text-primary"></i>Código utilizado (de dónde salen estas cifras)</summary>
+<pre class="bg-dark text-light p-3 rounded-3 mt-3 mb-2 small"><code>por_dep = df.groupby("departamento")["cantidad"].sum().sort_values(ascending=False)
+participacion = (por_dep / por_dep.sum() * 100).round(2)
+acumulada = participacion.cumsum()                      # concentración territorial
+
+# municipios: se agrupa por (departamento, municipio) porque BARBOSA, LA UNION y RICAURTE existen en 2 departamentos
+por_muni = df.groupby(["departamento", "municipio"])["cantidad"].sum().sort_values(ascending=False)
+
+hhi = ((por_dep / por_dep.sum()) ** 2).sum() * 10000   # {{ t.hhi | miles }}
+composicion = df.pivot_table(index="departamento", columns="combustible",
+                             values="cantidad", aggfunc="sum", fill_value=0)</code></pre>
+  <small class="text-muted">Script completo: <a href="{{ url_for('ver_codigo', archivo='eda_etapa4.py') }}" target="_blank">eda_etapa4.py</a>.</small>
+</details>
+
+<div class="alert alert-secondary small">
+  <strong>Limitaciones:</strong> la fuente solo llega hasta departamento y municipio (no hay localidad ni zona) y no incluye población, por lo
+  que las comparaciones son de cantidad y participación, no per cápita. El municipio puede repetirse en varios departamentos
+  (BARBOSA, LA UNION, RICAURTE), por eso se usa la llave municipio + departamento.
+</div>
+
+<div class="d-flex justify-content-between align-items-center pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('etapa4_seccion', slug='poblacional') }}"><i class="bi bi-arrow-left me-1"></i> 1. Dimensión poblacional</a>
+  {% if etapa4_secciones | selectattr('slug', 'equalto', 'temporal') | list %}
+  <a class="btn btn-warning fw-bold text-dark" href="{{ url_for('etapa4_seccion', slug='temporal') }}">3. Dimensión temporal <i class="bi bi-arrow-right ms-1"></i></a>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const T = {{ res.territorial | tojson }};
+  const fmt = n => n.toLocaleString('es-CO');
+  const eje = { ticks: { callback: v => v + ' %' } };
+
+  const d10 = T.departamentos.slice(0, 10);
+  new Chart(document.getElementById('chartDeps'), {
+    type: 'bar',
+    data: { labels: d10.map(x => x.categoria), datasets: [{ data: d10.map(x => x.pct), backgroundColor: '#2d5a43', borderRadius: 4 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: c => ` ${c.parsed.x.toLocaleString('es-CO')} % · ${fmt(d10[c.dataIndex].vehiculos)} vehículos` } } },
+      scales: { x: { ...eje, title: { display: true, text: '% de los vehículos' } } } }
+  });
+
+  const m15 = T.municipios_top;
+  new Chart(document.getElementById('chartMunis'), {
+    type: 'bar',
+    data: { labels: m15.map(x => x.municipio), datasets: [{ data: m15.map(x => x.pct), backgroundColor: '#f2ba1d', borderRadius: 4 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ...eje, title: { display: true, text: '% de los vehículos' } } } }
+  });
+
+  const comp = T.composicion_top10;
+  new Chart(document.getElementById('chartComposicion'), {
+    type: 'bar',
+    data: { labels: comp.map(x => x.departamento),
+      datasets: [
+        { label: 'Eléctrico (BEV)', data: comp.map(x => x.pct_electrico), backgroundColor: '#2d5a43' },
+        { label: 'Híbrido gasolina-eléctrico', data: comp.map(x => x.pct_hibrido_gas), backgroundColor: '#f2ba1d' },
+        { label: 'Otros (diésel-eléctrico, hidrógeno)', data: comp.map(x => x.pct_otros), backgroundColor: '#6c757d' }
+      ] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { x: { stacked: true }, y: { stacked: true, max: 100, ticks: { callback: v => v + ' %' } } } }
+  });
+</script>
+{% endblock %}

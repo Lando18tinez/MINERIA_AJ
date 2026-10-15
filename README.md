@@ -43,6 +43,13 @@ La barra de navegación tiene dos menús desplegables, uno por etapa del proyect
 |---|---|---|
 | 1 | ETL: Extracción, Transformación y Carga (PDF embebido + enlace al video) | `/etapa3/etl` |
 
+### Etapa 4 · Análisis exploratorio de la población
+
+| # | Dimensión | Ruta |
+|---|---|---|
+| 1 | Poblacional | `/etapa4/poblacional` |
+| 2 | Territorial | `/etapa4/territorial` |
+
 Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 
 ### Evidencia: datos y código
@@ -53,6 +60,8 @@ Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 | `/datos/FUENTE.json` | Procedencia: identificador, URL, fecha de descarga |
 | `/datos/resultados_eda.json` | Todos los resultados calculados que muestra la app |
 | `/codigo/calidad_etapa2.py` | Script que genera esos resultados |
+| `/datos/resultados_etapa4.json` | Resultados del análisis exploratorio (Etapa 4) |
+| `/codigo/eda_etapa4.py` | Script que genera los resultados de la Etapa 4 |
 
 ## Tecnologías
 
@@ -68,6 +77,7 @@ Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 MINERIA_AJ-1/
 ├── app.py                        # Rutas, datos de las secciones y contexto Jinja2
 ├── calidad_etapa2.py                 # Perfilamiento, calidad y tratamiento (pandas) -> data/processed/resultados_eda.json
+├── eda_etapa4.py                 # Análisis exploratorio (pandas) -> data/processed/resultados_etapa4.json
 ├── requirements-dev.txt          # Dependencias para regenerar los resultados (pandas, numpy)
 ├── data/
 │   ├── raw/                      # CSV descargado de datos.gov.co (ntxy-q9ix) + FUENTE.json (procedencia)
@@ -102,11 +112,12 @@ La aplicación queda disponible en `http://127.0.0.1:5000`.
 
 ### Reproducir los resultados
 
-Todas las cifras de la Etapa 2 salen de `data/processed/resultados_eda.json`, generado a partir del CSV de `data/raw/`:
+Todas las cifras de las Etapas 2 y 4 salen de `data/processed/resultados_eda.json` y `resultados_etapa4.json`, generados a partir del CSV de `data/raw/`:
 
 ```bash
 pip install -r requirements-dev.txt
-python calidad_etapa2.py
+python calidad_etapa2.py   # Etapa 2 -> resultados_eda.json
+python eda_etapa4.py       # Etapa 4 -> resultados_etapa4.json (requiere el paso anterior)
 ```
 
 El CSV se descargó de `https://www.datos.gov.co/resource/ntxy-q9ix.csv?$limit=50000&$order=:id` (ver `data/raw/FUENTE.json`).
