@@ -1,0 +1,11 @@
+{
+  "nombre": "VEHÍCULOS ELÉCTRICOS E HÍBRIDOS MATRICULADOS EN COLOMBIA - RUNT 2.0",
+  "portal": "Portal Nacional de Datos Abiertos de Colombia (datos.gov.co)",
+  "identificador": "ntxy-q9ix",
+  "url_portal": "https://www.datos.gov.co/Transporte/VEH-CULOS-EL-CTRICOS-E-H-BRIDOS-MATRICULADOS-EN-CO/ntxy-q9ix/about_data",
+  "url_descarga": "https://www.datos.gov.co/resource/ntxy-q9ix.csv?$limit=50000&$order=:id",
+  "fecha_descarga": "2026-10-14",
+  "actualizacion_portal_epoch": 1787150771,
+  "archivo_local": "data/raw/vehiculos_electricos_hibridos_runt.csv",
+  "nota": "Dataset agregado: cada fila es un grupo de vehículos (columna 'cantidad'), no un vehículo individual."
+}

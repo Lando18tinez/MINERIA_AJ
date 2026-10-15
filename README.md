@@ -37,7 +37,22 @@ La barra de navegación tiene dos menús desplegables, uno por etapa del proyect
 | 5 | Plan de tratamiento y homologación | `/etapa2/plan-tratamiento` |
 | 6 | Comparación antes y después | `/etapa2/comparacion-antes-despues` |
 
+### Etapa 3 · Preparación de los datos (ETL)
+
+| # | Sección | Ruta |
+|---|---|---|
+| 1 | ETL: Extracción, Transformación y Carga (PDF embebido + enlace al video) | `/etapa3/etl` |
+
 Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
+
+### Evidencia: datos y código
+
+| Ruta | Contenido |
+|---|---|
+| `/datos/vehiculos_electricos_hibridos_runt.csv` | Dataset descargado de datos.gov.co (fuente única) |
+| `/datos/FUENTE.json` | Procedencia: identificador, URL, fecha de descarga |
+| `/datos/resultados_eda.json` | Todos los resultados calculados que muestra la app |
+| `/codigo/calidad_etapa2.py` | Script que genera esos resultados |
 
 ## Tecnologías
 
@@ -52,7 +67,12 @@ Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 ```
 MINERIA_AJ-1/
 ├── app.py                        # Rutas, datos de las secciones y contexto Jinja2
-├── auditoria_calidad_etapa2.py   # Script de apoyo: calcula las métricas de calidad (Pandas) sobre el dataset crudo
+├── calidad_etapa2.py                 # Perfilamiento, calidad y tratamiento (pandas) -> data/processed/resultados_eda.json
+├── requirements-dev.txt          # Dependencias para regenerar los resultados (pandas, numpy)
+├── data/
+│   ├── raw/                      # CSV descargado de datos.gov.co (ntxy-q9ix) + FUENTE.json (procedencia)
+│   └── processed/                # resultados_eda.json (lo único que lee la app)
+├── auditoria_calidad_etapa2.py   # (obsoleto) borrador previo: apuntaba a un dataset de 18 variables que la fuente no contiene
 ├── requirements.txt
 ├── static/
 │   ├── css/styles.css            # Sistema de diseño "Green Energy" (paleta, componentes, navbar)
@@ -80,6 +100,18 @@ python app.py
 
 La aplicación queda disponible en `http://127.0.0.1:5000`.
 
+### Reproducir los resultados
+
+Todas las cifras de la Etapa 2 salen de `data/processed/resultados_eda.json`, generado a partir del CSV de `data/raw/`:
+
+```bash
+pip install -r requirements-dev.txt
+python calidad_etapa2.py
+```
+
+El CSV se descargó de `https://www.datos.gov.co/resource/ntxy-q9ix.csv?$limit=50000&$order=:id` (ver `data/raw/FUENTE.json`).
+Es un dataset **agregado**: cada fila es un grupo de vehículos y `cantidad` indica cuántos son, por eso los porcentajes se ponderan por `cantidad`.
+
 ## Flujo de trabajo con Git
 
 El desarrollo se organiza por etapas, cada una en su propia rama:
@@ -90,13 +122,21 @@ El desarrollo se organiza por etapas, cada una en su propia rama:
 
 Al cerrar cada etapa se abre un **Pull Request** hacia `main` para integrar los cambios.
 
-## Fuentes de datos
+## Fuente de datos
 
-Los microdatos provienen de fuentes oficiales abiertas: **RUNT 2.0** (matrículas y parque automotor), **DANE** (proyecciones de población), **Datos Abiertos Bogotá / SIMUR** (transporte y movilidad), y factores de emisión de ciclo de vida *Well-to-Wheel* (**Ecoinvent / UPME / IEA**). El detalle de cada dataset —formato, granularidad y enlace directo— está documentado en **Etapa 1 → Sección 4 · Fuentes de datos**.
+El análisis usa **una única fuente**: *Vehículos eléctricos e híbridos matriculados en Colombia - RUNT 2.0*
+([datos.gov.co · `ntxy-q9ix`](https://www.datos.gov.co/Transporte/VEH-CULOS-EL-CTRICOS-E-H-BRIDOS-MATRICULADOS-EN-CO/ntxy-q9ix/about_data)).
+Trae 8 variables (`combustible`, `modelo`, `a_o_registro`, `clase`, `carroceria`, `municipio`, `departamento`, `cantidad`): 10.748 filas que resumen 332.901 vehículos
+registrados entre 2015 y 2026 (2026 parcial).
+
+Las variables previstas en el diccionario de datos que esta fuente **no incluye** (potencia, cilindraje, marca, códigos DIVIPOLA, población, etc.) se conservan documentadas
+como *no disponibles* en la Etapa 2, sin reportar resultados sobre ellas.
 
 ## Estado del proyecto
 
-- ✅ Etapa 1 y Etapa 2 implementadas en la aplicación (contenido, tablas y gráficas).
+- ✅ Etapas 1 a 4 implementadas en la aplicación (contenido, tablas y gráficas).
+- ✅ Etapa 2 corregida: perfilamiento y métricas recalculados sobre el dataset real, con datos, código y resultados descargables.
+- ⚠️ Pendiente: alinear el texto de la Etapa 1 (dataset, diccionario, calidad inicial) con el esquema real de la fuente.
 - ⏳ Despliegue en producción (Render) pendiente de configurar.
 - ⏳ Informe técnico del proceso (documento aparte, con evidencias incrustadas).
 
