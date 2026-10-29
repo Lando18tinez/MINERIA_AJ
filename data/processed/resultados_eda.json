@@ -1,0 +1,832 @@
+{
+ "meta": {
+  "fuente": "VEHÍCULOS ELÉCTRICOS E HÍBRIDOS MATRICULADOS EN COLOMBIA - RUNT 2.0",
+  "portal": "Portal Nacional de Datos Abiertos de Colombia (datos.gov.co)",
+  "identificador": "ntxy-q9ix",
+  "url_portal": "https://www.datos.gov.co/Transporte/VEH-CULOS-EL-CTRICOS-E-H-BRIDOS-MATRICULADOS-EN-CO/ntxy-q9ix/about_data",
+  "url_descarga": "https://www.datos.gov.co/resource/ntxy-q9ix.csv?$limit=50000&$order=:id",
+  "fecha_descarga": "2026-10-14",
+  "actualizacion_portal": "2026-08-19",
+  "dias_desde_actualizacion": 56,
+  "archivo": "data/raw/vehiculos_electricos_hibridos_runt.csv",
+  "bytes": 842276,
+  "sha256": "b05991084aecc1ad20cfbff1d8547752408b0a6229b0052e6d0a78d1a63dd27a",
+  "filas": 10748,
+  "columnas": 8,
+  "vehiculos": 332901,
+  "anio_min": 2015,
+  "anio_max": 2026,
+  "n_departamentos": 32,
+  "n_municipios": 265,
+  "etiqueta_combustible": {
+   "ELECTRICO": "Eléctrico (BEV)",
+   "GASO ELEC": "Híbrido gasolina-eléctrico (HEV/PHEV)",
+   "DIES ELEC": "Híbrido diésel-eléctrico",
+   "HIDROGENO": "Hidrógeno"
+  }
+ },
+ "perfilamiento": {
+  "variables": [
+   {
+    "variable": "combustible",
+    "tipo_portal": "text",
+    "tipo_recomendado": "category",
+    "unicos": 4,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": null,
+    "maximo": null,
+    "moda": "GASO ELEC",
+    "moda_vehiculos": 239851,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "modelo",
+    "tipo_portal": "text",
+    "tipo_recomendado": "int (año)",
+    "unicos": 26,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": 1997,
+    "maximo": 2027,
+    "moda": "2026",
+    "moda_vehiculos": 115783,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "a_o_registro",
+    "tipo_portal": "text",
+    "tipo_recomendado": "int (año)",
+    "unicos": 12,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": 2015,
+    "maximo": 2026,
+    "moda": "2025",
+    "moda_vehiculos": 89163,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "clase",
+    "tipo_portal": "text",
+    "tipo_recomendado": "category",
+    "unicos": 16,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": null,
+    "maximo": null,
+    "moda": "CAMIONETA",
+    "moda_vehiculos": 229794,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "carroceria",
+    "tipo_portal": "text",
+    "tipo_recomendado": "category",
+    "unicos": 51,
+    "nulos": 1,
+    "pct_nulos": 0.0093,
+    "minimo": null,
+    "maximo": null,
+    "moda": "WAGON",
+    "moda_vehiculos": 226933,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "municipio",
+    "tipo_portal": "text",
+    "tipo_recomendado": "category",
+    "unicos": 262,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": null,
+    "maximo": null,
+    "moda": "BOGOTA",
+    "moda_vehiculos": 142753,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "departamento",
+    "tipo_portal": "text",
+    "tipo_recomendado": "category",
+    "unicos": 32,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": null,
+    "maximo": null,
+    "moda": "Bogota D.C.",
+    "moda_vehiculos": 142753,
+    "moda_unidad": "vehículos"
+   },
+   {
+    "variable": "cantidad",
+    "tipo_portal": "number",
+    "tipo_recomendado": "int",
+    "unicos": 392,
+    "nulos": 0,
+    "pct_nulos": 0.0,
+    "minimo": 1,
+    "maximo": 17230,
+    "moda": "1",
+    "moda_vehiculos": 4352,
+    "moda_unidad": "filas"
+   }
+  ],
+  "cantidad": {
+   "minimo": 1,
+   "q1": 1.0,
+   "mediana": 2.0,
+   "media": 30.97,
+   "q3": 7.0,
+   "maximo": 17230,
+   "desv": 289.67,
+   "iqr": 6.0,
+   "limite_superior": 16.0,
+   "filas_atipicas": 1592,
+   "pct_filas_atipicas": 14.81,
+   "vehiculos_en_atipicas": 304116,
+   "pct_vehiculos_en_atipicas": 91.35,
+   "filas_cantidad_1": 4352,
+   "pct_filas_cantidad_1": 40.49
+  },
+  "histograma_cantidad": [
+   {
+    "rango": "1",
+    "filas": 4352,
+    "vehiculos": 4352
+   },
+   {
+    "rango": "2 – 5",
+    "filas": 3229,
+    "vehiculos": 9580
+   },
+   {
+    "rango": "6 – 20",
+    "filas": 1795,
+    "vehiculos": 18911
+   },
+   {
+    "rango": "21 – 100",
+    "filas": 944,
+    "vehiculos": 42766
+   },
+   {
+    "rango": "101 – 1.000",
+    "filas": 375,
+    "vehiculos": 107039
+   },
+   {
+    "rango": "> 1.000",
+    "filas": 53,
+    "vehiculos": 150253
+   }
+  ],
+  "duplicados_exactos": 0,
+  "duplicados_llave": 0,
+  "llave": [
+   "combustible",
+   "modelo",
+   "a_o_registro",
+   "clase",
+   "carroceria",
+   "municipio",
+   "departamento"
+  ],
+  "nulos_totales": 1,
+  "mayores_grupos": [
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2026,
+    "a_o_registro": 2025,
+    "clase": "CAMIONETA",
+    "carroceria": "WAGON",
+    "municipio": "BOGOTA",
+    "departamento": "Bogota D.C.",
+    "cantidad": 17230
+   },
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2026,
+    "a_o_registro": 2026,
+    "clase": "CAMIONETA",
+    "carroceria": "WAGON",
+    "municipio": "BOGOTA",
+    "departamento": "Bogota D.C.",
+    "cantidad": 10849
+   },
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2027,
+    "a_o_registro": 2026,
+    "clase": "CAMIONETA",
+    "carroceria": "WAGON",
+    "municipio": "BOGOTA",
+    "departamento": "Bogota D.C.",
+    "cantidad": 8313
+   },
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2025,
+    "a_o_registro": 2024,
+    "clase": "CAMIONETA",
+    "carroceria": "WAGON",
+    "municipio": "BOGOTA",
+    "departamento": "Bogota D.C.",
+    "cantidad": 8071
+   },
+   {
+    "combustible": "ELECTRICO",
+    "modelo": 2026,
+    "a_o_registro": 2026,
+    "clase": "CAMIONETA",
+    "carroceria": "SUV",
+    "municipio": "BOGOTA",
+    "departamento": "Bogota D.C.",
+    "cantidad": 5779
+   }
+  ],
+  "modelo_mayor_anio_mas1": {
+   "filas": 60,
+   "vehiculos": 349
+  },
+  "modelo_mayor_anio": {
+   "filas": 3694,
+   "vehiculos": 174737
+  },
+  "ejemplos_modelo_inusual": [
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2027,
+    "anio": 2025,
+    "municipio": "BOGOTA",
+    "cantidad": 104
+   },
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2023,
+    "anio": 2021,
+    "municipio": "BOGOTA",
+    "cantidad": 63
+   },
+   {
+    "combustible": "GASO ELEC",
+    "modelo": 2026,
+    "anio": 2024,
+    "municipio": "BOGOTA",
+    "cantidad": 36
+   },
+   {
+    "combustible": "ELECTRICO",
+    "modelo": 2026,
+    "anio": 2024,
+    "municipio": "BOGOTA",
+    "cantidad": 18
+   }
+  ],
+  "carroceria_nula": {
+   "filas": 1,
+   "vehiculos": 2
+  },
+  "homonimos": [
+   {
+    "municipio": "BARBOSA",
+    "departamentos": [
+     "Santander",
+     "Antioquia"
+    ]
+   },
+   {
+    "municipio": "LA UNION",
+    "departamentos": [
+     "Valle del Cauca",
+     "Narino"
+    ]
+   },
+   {
+    "municipio": "RICAURTE",
+    "departamentos": [
+     "Cundinamarca",
+     "Narino"
+    ]
+   }
+  ],
+  "filas_homonimas": 60,
+  "carroceria_caracteres_especiales": 6,
+  "filas_carroceria_especial": 85,
+  "sin_carroceria": {
+   "filas": 2663,
+   "vehiculos": 19278,
+   "pct_vehiculos": 5.79
+  },
+  "ventana": {
+   "declarada": "2014 – 2024",
+   "real": "2015 – 2026",
+   "filas_fuera": 3976,
+   "pct_filas_fuera": 36.99,
+   "vehiculos_fuera": 177124,
+   "pct_vehiculos_fuera": 53.21
+  },
+  "anio_parcial": {
+   "anio": 2026,
+   "filas": 1884,
+   "vehiculos": 87961,
+   "pct_vehiculos": 26.42
+  },
+  "clases_poco_representadas": [
+   {
+    "categoria": "VOLQUETA",
+    "vehiculos": 2
+   },
+   {
+    "categoria": "CUATRIMOTO",
+    "vehiculos": 4
+   },
+   {
+    "categoria": "TRACTOCAMION",
+    "vehiculos": 4
+   },
+   {
+    "categoria": "MICROBUS",
+    "vehiculos": 13
+   },
+   {
+    "categoria": "BUSETA",
+    "vehiculos": 18
+   },
+   {
+    "categoria": "MOTOTRICICLO",
+    "vehiculos": 22
+   }
+  ],
+  "no_disponibles": [
+   {
+    "variable": "ID_Registro",
+    "descripcion": "Identificador único de la matrícula",
+    "tratamiento_previsto": "Verificación de unicidad sobre la llave técnica"
+   },
+   {
+    "variable": "Fecha_Matricula",
+    "descripcion": "Fecha exacta de matrícula (la fuente solo trae el año)",
+    "tratamiento_previsto": "Conversión a datetime64 y validación de rango"
+   },
+   {
+    "variable": "Servicio",
+    "descripcion": "Particular / público",
+    "tratamiento_previsto": "Homologación de categorías"
+   },
+   {
+    "variable": "Marca",
+    "descripcion": "Marca del vehículo",
+    "tratamiento_previsto": "Normalización de texto y homologación de catálogo"
+   },
+   {
+    "variable": "Linea",
+    "descripcion": "Línea / referencia comercial",
+    "tratamiento_previsto": "Normalización de texto; llave Marca + Línea"
+   },
+   {
+    "variable": "Potencia",
+    "descripcion": "Potencia del motor (kW)",
+    "tratamiento_previsto": "Imputación asistida por catálogo Marca + Línea; validación de rango [1,2 – 450 kW]"
+   },
+   {
+    "variable": "Cilindraje",
+    "descripcion": "Cilindrada (cc)",
+    "tratamiento_previsto": "Regla física: BEV ⇒ Cilindraje = 0"
+   },
+   {
+    "variable": "Capacidad_Pasajeros",
+    "descripcion": "Pasajeros transportables",
+    "tratamiento_previsto": "Imputación por moda según Clase"
+   },
+   {
+    "variable": "Capacidad_Carga",
+    "descripcion": "Carga útil (kg)",
+    "tratamiento_previsto": "Imputación por moda según Clase y chasis"
+   },
+   {
+    "variable": "Codigo_Municipio_DANE",
+    "descripcion": "Código DIVIPOLA del municipio",
+    "tratamiento_previsto": "Homologación contra catálogo DIVIPOLA"
+   },
+   {
+    "variable": "Codigo_Depto_DANE",
+    "descripcion": "Código DIVIPOLA del departamento",
+    "tratamiento_previsto": "Homologación contra catálogo DIVIPOLA"
+   },
+   {
+    "variable": "Poblacion_Total",
+    "descripcion": "Población por territorio (DANE)",
+    "tratamiento_previsto": "Fuente externa (no usada en esta etapa)"
+   },
+   {
+    "variable": "Numero_Puntos_Carga",
+    "descripcion": "Puntos de recarga públicos",
+    "tratamiento_previsto": "Fuente externa (no usada en esta etapa)"
+   },
+   {
+    "variable": "Km_Recorridos_Anual",
+    "descripcion": "Kilometraje anual promedio (SIMUR)",
+    "tratamiento_previsto": "Fuente externa (no usada en esta etapa)"
+   },
+   {
+    "variable": "Huella_CO2_Evitada_Ton",
+    "descripcion": "Toneladas de CO2 evitadas",
+    "tratamiento_previsto": "Derivada: km anuales × factor Well-to-Wheel (requiere variables ausentes)"
+   }
+  ]
+ },
+ "calidad": [
+  {
+   "dimension": "Completitud",
+   "metrica": "Celdas no nulas sobre el total de celdas",
+   "formula": "(celdas totales − celdas nulas) / celdas totales × 100",
+   "numerador": 85983,
+   "denominador": 85984,
+   "valor": 99.9988,
+   "criterio": "≥ 99,0 %",
+   "cumple": true,
+   "codigo": "1 - df.isna().sum().sum() / df.size"
+  },
+  {
+   "dimension": "Exactitud",
+   "metrica": "Filas cuyo año modelo no supera en más de 1 año el año de registro",
+   "formula": "filas con modelo ≤ año_registro + 1 / filas totales × 100",
+   "numerador": 10688,
+   "denominador": 10748,
+   "valor": 99.44,
+   "criterio": "≥ 99,0 %",
+   "cumple": true,
+   "codigo": "(df.modelo <= df.a_o_registro + 1).mean()"
+  },
+  {
+   "dimension": "Consistencia",
+   "metrica": "Filas cuyo municipio pertenece a un único departamento (relación referencial)",
+   "formula": "filas en municipios no ambiguos / filas totales × 100",
+   "numerador": 10688,
+   "denominador": 10748,
+   "valor": 99.44,
+   "criterio": "≥ 99,0 %",
+   "cumple": true,
+   "codigo": "df.groupby('municipio').departamento.nunique() > 1"
+  },
+  {
+   "dimension": "Consistencia",
+   "metrica": "Filas con departamento en formato canónico (MAYÚSCULAS sin tildes)",
+   "formula": "filas con departamento == canónico(departamento) / filas totales × 100",
+   "numerador": 0,
+   "denominador": 10748,
+   "valor": 0.0,
+   "criterio": "100 %",
+   "cumple": false,
+   "codigo": "(df.departamento == df.departamento.map(canonico)).mean()"
+  },
+  {
+   "dimension": "Unicidad",
+   "metrica": "Filas sin duplicar la combinación de las 7 variables categóricas",
+   "formula": "(filas − duplicados por llave) / filas × 100",
+   "numerador": 10748,
+   "denominador": 10748,
+   "valor": 100.0,
+   "criterio": "100 %",
+   "cumple": true,
+   "codigo": "df.duplicated(subset=llave).sum()"
+  },
+  {
+   "dimension": "Validez",
+   "metrica": "Filas con todos los valores dentro de su dominio (catálogo de combustible, años, cantidad ≥ 1)",
+   "formula": "filas dentro del dominio / filas totales × 100",
+   "numerador": 10748,
+   "denominador": 10748,
+   "valor": 100.0,
+   "criterio": "100 %",
+   "cumple": true,
+   "codigo": "df.combustible.isin(catalogo) & df.a_o_registro.between(2015, 2026) & (df.cantidad >= 1)"
+  },
+  {
+   "dimension": "Actualidad",
+   "metrica": "Días entre la última actualización del portal y la descarga",
+   "formula": "fecha_descarga − actualización_portal",
+   "numerador": 56,
+   "denominador": null,
+   "valor": 56,
+   "criterio": "≤ 90 días",
+   "cumple": true,
+   "codigo": "(fecha_descarga - actualizacion_portal).days"
+  }
+ ],
+ "inventario": [
+  {
+   "campo": "combustible, clase, … (8 variables)",
+   "descripcion": "Dataset agregado: no trae identificador, fecha exacta ni los atributos técnicos previstos (potencia, cilindraje, marca…).",
+   "filas": 10748,
+   "pct": 100.0,
+   "vehiculos": null,
+   "dimension": "Completitud (cobertura de variables)",
+   "impacto": "Alto",
+   "evidencia": "set(diccionario) - set(df.columns)  →  15 variables previstas ausentes"
+  },
+  {
+   "campo": "a_o_registro",
+   "descripcion": "La ventana de estudio declarada (2014 – 2024) no coincide con la cobertura real (2015 – 2026).",
+   "filas": 3976,
+   "pct": 36.99,
+   "vehiculos": 177124,
+   "dimension": "Validez",
+   "impacto": "Alto",
+   "evidencia": "df[(df.a_o_registro < 2014) | (df.a_o_registro > 2024)]"
+  },
+  {
+   "campo": "a_o_registro",
+   "descripcion": "El año 2026 es parcial (corte del portal: 19/08/2026); compararlo con años completos produce falsas caídas.",
+   "filas": 1884,
+   "pct": 17.53,
+   "vehiculos": 87961,
+   "dimension": "Actualidad",
+   "impacto": "Alto",
+   "evidencia": "df[df.a_o_registro == 2026]"
+  },
+  {
+   "campo": "departamento, municipio",
+   "descripcion": "Formato heterogéneo entre columnas territoriales: departamento en Mayúscula Inicial («Bogota D.C.») y municipio en MAYÚSCULAS («BOGOTA»).",
+   "filas": 10748,
+   "pct": 100.0,
+   "vehiculos": 332901,
+   "dimension": "Consistencia",
+   "impacto": "Medio",
+   "evidencia": "(df.departamento == df.departamento.str.upper()).mean()  →  0 %"
+  },
+  {
+   "campo": "municipio",
+   "descripcion": "3 municipios homónimos (BARBOSA, LA UNION, RICAURTE) existen en más de un departamento; agrupar solo por municipio mezclaría territorios distintos.",
+   "filas": 60,
+   "pct": 0.56,
+   "vehiculos": 110,
+   "dimension": "Consistencia",
+   "impacto": "Medio",
+   "evidencia": "df.groupby('municipio').departamento.nunique() > 1"
+  },
+  {
+   "campo": "modelo",
+   "descripcion": "Año modelo superior en más de 1 año al año de registro (p. ej., modelo 2027 registrado en 2025).",
+   "filas": 60,
+   "pct": 0.56,
+   "vehiculos": 349,
+   "dimension": "Exactitud",
+   "impacto": "Medio",
+   "evidencia": "df[df.modelo > df.a_o_registro + 1]"
+  },
+  {
+   "campo": "cantidad",
+   "descripcion": "Distribución extremadamente asimétrica: 1.592 filas (14.81 %) superan el límite IQR (16) y concentran el 91.35 % de los vehículos.",
+   "filas": 1592,
+   "pct": 14.81,
+   "vehiculos": 304116,
+   "dimension": "Exactitud (atípicos legítimos)",
+   "impacto": "Medio",
+   "evidencia": "df[df.cantidad > Q3 + 1.5 * IQR]"
+  },
+  {
+   "campo": "carroceria",
+   "descripcion": "Un valor nulo (triciclo eléctrico en Funza).",
+   "filas": 1,
+   "pct": 0.01,
+   "vehiculos": 2,
+   "dimension": "Completitud",
+   "impacto": "Bajo",
+   "evidencia": "df.carroceria.isna().sum()"
+  },
+  {
+   "campo": "carroceria",
+   "descripcion": "6 valores con tildes o signos especiales; dos de ellos («REPARTO Ó PALET» y «REPARTO ó PALET») son la misma categoría escrita de forma distinta.",
+   "filas": 85,
+   "pct": 0.79,
+   "vehiculos": 227,
+   "dimension": "Consistencia",
+   "impacto": "Bajo",
+   "evidencia": "valores != canonico(valores)  →  6 valores; 51 → 50 categorías al homologar"
+  },
+  {
+   "campo": "llave de 7 variables",
+   "descripcion": "Sin duplicados exactos ni por combinación de categorías (revisión sin novedad).",
+   "filas": 0,
+   "pct": 0.0,
+   "vehiculos": null,
+   "dimension": "Unicidad",
+   "impacto": "Bajo",
+   "evidencia": "df.duplicated(subset=llave).sum()  →  0"
+  }
+ ],
+ "tratamiento": {
+  "acciones": [
+   {
+    "proceso": "Eliminación de duplicados",
+    "variable": "llave de 7 variables",
+    "tecnica": "Verificación con df.duplicated(subset=llave); no se elimina ninguna fila.",
+    "filas": 0,
+    "justificacion": "El resultado ya es 0 duplicados; eliminar filas sería innecesario y arriesgaría perder grupos válidos.",
+    "resultado": "0 duplicados (sin cambio)"
+   },
+   {
+    "proceso": "Tratamiento de nulos",
+    "variable": "carroceria",
+    "tecnica": "Se reemplaza el nulo por la categoría explícita «SIN DATO».",
+    "filas": 1,
+    "justificacion": "Se distingue «sin dato» de «SIN CARROCERIA» (categoría real, p. ej. motos); imputar una carrocería inventaría información.",
+    "resultado": "1 nulo → 0 nulos"
+   },
+   {
+    "proceso": "Corrección de tipos de dato",
+    "variable": "modelo, a_o_registro, cantidad",
+    "tecnica": "Conversión de texto a entero (int).",
+    "filas": 10748,
+    "justificacion": "Permite ordenar, filtrar por rangos y agregar; como texto «2025» < «999» al comparar.",
+    "resultado": "3 columnas con tipo numérico"
+   },
+   {
+    "proceso": "Estandarización de texto",
+    "variable": "departamento, municipio, carroceria",
+    "tecnica": "MAYÚSCULAS, sin tildes, sin caracteres especiales y espacios simples (función canonico).",
+    "filas": 10748,
+    "justificacion": "Una sola convención evita que «Bogota D.C.» y «BOGOTA» se traten como categorías distintas en cruces y agrupaciones.",
+    "resultado": "100 % de filas en formato canónico"
+   },
+   {
+    "proceso": "Homologación de categorías",
+    "variable": "combustible",
+    "tecnica": "Catálogo de etiquetas legibles (GASO ELEC → Híbrido gasolina-eléctrico, etc.).",
+    "filas": 10748,
+    "justificacion": "El código técnico de la fuente no es interpretable por un lector; el catálogo es 1 a 1 y no altera los conteos. Nota: la fuente no distingue HEV de PHEV.",
+    "resultado": "4 de 4 categorías con etiqueta"
+   },
+   {
+    "proceso": "Homologación de categorías",
+    "variable": "territorio (municipio + departamento)",
+    "tecnica": "Llave compuesta «MUNICIPIO (DEPARTAMENTO)».",
+    "filas": 60,
+    "justificacion": "Tres municipios existen en más de un departamento; la llave compuesta evita fusionarlos al agrupar.",
+    "resultado": "0 municipios ambiguos"
+   },
+   {
+    "proceso": "Validación de rangos",
+    "variable": "modelo",
+    "tecnica": "Regla modelo ≤ año de registro + 1; las filas que no cumplen se MARCAN con el indicador modelo_inusual.",
+    "filas": 60,
+    "justificacion": "No existe fuente de verdad para corregir el año modelo; se conserva el dato y se deja trazabilidad en lugar de alterarlo.",
+    "resultado": "60 filas marcadas (dato intacto)"
+   },
+   {
+    "proceso": "Tratamiento de atípicos",
+    "variable": "cantidad",
+    "tecnica": "Regla IQR (Q3 + 1,5·IQR); se MARCAN con grupo_grande y se conservan.",
+    "filas": 1592,
+    "justificacion": "Son grupos reales (p. ej. 17.230 camionetas híbridas en Bogotá), no errores; eliminarlos borraría el 91 % de los vehículos. Se analiza ponderando por cantidad.",
+    "resultado": "1.592 filas marcadas. 0 eliminadas"
+   },
+   {
+    "proceso": "Validación de actualidad",
+    "variable": "a_o_registro",
+    "tecnica": "Se marca el año 2026 con el indicador anio_parcial y se redefine la ventana de análisis a 2015 – 2026.",
+    "filas": 1884,
+    "justificacion": "La fuente se actualizó el 19/08/2026; comparar un año parcial con años completos genera conclusiones falsas.",
+    "resultado": "1.884 filas marcadas"
+   }
+  ],
+  "antes_despues": [
+   {
+    "indicador": "Celdas nulas",
+    "antes": 1,
+    "despues": 0,
+    "unidad": "celdas",
+    "cambio": "corregido"
+   },
+   {
+    "indicador": "Completitud",
+    "antes": 99.9988,
+    "despues": 100.0,
+    "unidad": "%",
+    "cambio": "corregido"
+   },
+   {
+    "indicador": "Filas con departamento en formato canónico",
+    "antes": 0.0,
+    "despues": 100.0,
+    "unidad": "%",
+    "cambio": "corregido"
+   },
+   {
+    "indicador": "Filas en municipios homónimos sin departamento en la llave",
+    "antes": 60,
+    "despues": 0,
+    "unidad": "filas",
+    "cambio": "corregido"
+   },
+   {
+    "indicador": "Valores de carrocería con tildes o signos especiales",
+    "antes": 6,
+    "despues": 0,
+    "unidad": "valores",
+    "cambio": "corregido"
+   },
+   {
+    "indicador": "Categorías distintas de carrocería (sin contar «SIN DATO»)",
+    "antes": 51,
+    "despues": 50,
+    "unidad": "categorías",
+    "cambio": "corregido (variantes fusionadas)"
+   },
+   {
+    "indicador": "Categorías de combustible con etiqueta legible",
+    "antes": 0,
+    "despues": 4,
+    "unidad": "categorías",
+    "cambio": "corregido"
+   },
+   {
+    "indicador": "Filas con año modelo inusual",
+    "antes": 60,
+    "despues": 60,
+    "unidad": "filas",
+    "cambio": "marcado (dato intacto)"
+   },
+   {
+    "indicador": "Filas atípicas por cantidad",
+    "antes": 1592,
+    "despues": 1592,
+    "unidad": "filas",
+    "cambio": "marcado (dato intacto)"
+   },
+   {
+    "indicador": "Duplicados por llave",
+    "antes": 0,
+    "despues": 0,
+    "unidad": "filas",
+    "cambio": "sin cambio"
+   },
+   {
+    "indicador": "Total de vehículos",
+    "antes": 332901,
+    "despues": 332901,
+    "unidad": "vehículos",
+    "cambio": "sin cambio (integridad)"
+   }
+  ],
+  "muestra_antes": [
+   {
+    "combustible": "ELECTRICO",
+    "clase": "AUTOMOVIL",
+    "carroceria": "COUPE",
+    "municipio": "ENVIGADO",
+    "departamento": "Antioquia",
+    "cantidad": 14
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "AUTOMOVIL",
+    "carroceria": "BUGGY",
+    "municipio": "ENVIGADO",
+    "departamento": "Antioquia",
+    "cantidad": 2
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "AUTOMOVIL",
+    "carroceria": "COUPE",
+    "municipio": "ENVIGADO",
+    "departamento": "Antioquia",
+    "cantidad": 2
+   }
+  ],
+  "muestra_despues": [
+   {
+    "combustible_etiqueta": "Eléctrico (BEV)",
+    "clase": "AUTOMOVIL",
+    "carroceria": "COUPE",
+    "territorio": "ENVIGADO (ANTIOQUIA)",
+    "cantidad": 14
+   },
+   {
+    "combustible_etiqueta": "Eléctrico (BEV)",
+    "clase": "AUTOMOVIL",
+    "carroceria": "BUGGY",
+    "territorio": "ENVIGADO (ANTIOQUIA)",
+    "cantidad": 2
+   },
+   {
+    "combustible_etiqueta": "Eléctrico (BEV)",
+    "clase": "AUTOMOVIL",
+    "carroceria": "COUPE",
+    "territorio": "ENVIGADO (ANTIOQUIA)",
+    "cantidad": 2
+   }
+  ]
+ },
+ "calidad_despues": {
+  "completitud": 100.0,
+  "consistencia_formato": 100.0,
+  "consistencia_referencial": 100.0,
+  "exactitud": 99.44,
+  "unicidad": 100.0,
+  "validez": 100.0
+ }
+}

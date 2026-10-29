@@ -1,162 +1,115 @@
 {% extends "etapa2/seccion.html" %}
 
 {% block seccion_contenido %}
-<!-- Resumen de Evaluación por Dimensiones (DAMA-DMBOK) -->
+{% set q = res.calidad %}
+{% set d = res.calidad_despues %}
+
+<div class="alert alert-light border small">
+  <i class="bi bi-info-circle me-1"></i>
+  Todas las métricas se calculan sobre el dataset único <code>{{ res.meta.identificador }}</code>
+  ({{ res.meta.filas | miles }} filas · {{ res.meta.vehiculos | miles }} vehículos), descargado el {{ res.meta.fecha_descarga }}.
+  Cada fila indica la fórmula, el cálculo y la línea de código que la reproduce.
+  <a href="{{ url_for('etapa2_seccion', slug='perfilamiento') }}">Ver el perfilamiento</a>.
+</div>
+
+<!-- Resumen -->
 <div class="row g-3 mb-4">
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Unicidad</span>
-      <h3 class="fw-bold text-dark my-1">100.0%</h3>
-      <span class="text-muted small">Sin duplicados en ID_Registro</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Métricas evaluadas</span>
+      <h3 class="fw-bold text-dark my-1">{{ q | length }}</h3>
+      <span class="text-muted small">6 dimensiones</span>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Completitud Potencia (Origen)</span>
-      <h3 class="fw-bold text-danger my-1">91.47%</h3>
-      <span class="text-muted small">8.53% de registros faltantes</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Cumplen el criterio</span>
+      <h3 class="fw-bold text-primary my-1">{{ q | selectattr('cumple') | list | length }} de {{ q | length }}</h3>
+      <span class="text-muted small">antes del tratamiento</span>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Exactitud Lógica BEV (Origen)</span>
-      <h3 class="fw-bold text-warning my-1">97.81%</h3>
-      <span class="text-muted small">1.240 vehículos con cilindraje erróneo</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Consistencia de formato</span>
+      <h3 class="fw-bold text-danger my-1">{{ q[3].valor | pct(1) }}</h3>
+      <span class="text-muted small">departamento ≠ municipio</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Exactitud lógica</span>
+      <h3 class="fw-bold text-dark my-1">{{ q[1].valor | pct }}</h3>
+      <span class="text-muted small">{{ (q[1].denominador - q[1].numerador) }} filas con año modelo adelantado</span>
     </div>
   </div>
 </div>
 
-<!-- Matriz Cuantitativa de Dimensiones, Métricas y Fórmulas -->
+<!-- Matriz de métricas -->
 <div class="card shadow-sm border-0 mb-4 p-4 bg-white">
   <div class="border-bottom pb-3 mb-3">
-    <h4 class="fw-bold text-dark mb-1">Medición Formal de Dimensiones de Calidad</h4>
-    <p class="text-muted small mb-0">Formulación matemática, umbrales de negocio y resultados verificables sobre los microdatos.</p>
+    <h4 class="fw-bold text-dark mb-1">Medición de las dimensiones de calidad</h4>
+    <p class="text-muted small mb-0">Fórmula, cálculo y resultado verificable de cada métrica sobre los datos crudos (antes del tratamiento).</p>
   </div>
-
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.86rem;">
       <thead class="table-light">
-        <tr>
-          <th style="width: 14%;">Dimensión</th>
-          <th style="width: 26%;">Definición y Métrica</th>
-          <th style="width: 25%;">Fórmula Operativa</th>
-          <th style="width: 12%;">Línea Base (Crudo)</th>
-          <th style="width: 15%;">Criterio Aceptación</th>
-          <th style="width: 13%;">Problema Asociado</th>
-        </tr>
+        <tr><th>Dimensión</th><th>Métrica</th><th>Fórmula</th><th class="text-end">Cálculo</th><th class="text-end">Resultado</th><th>Criterio</th><th>Estado</th><th>Código</th></tr>
       </thead>
       <tbody>
+        {% for m in q %}
         <tr>
-          <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
-          <td>Proporción de celdas no vacías en variables críticas de motorización (<code>Potencia</code>).</td>
-          <td><code>(1 - (Nulos / N_Total)) * 100</code></td>
-          <td><strong class="text-danger">91.47%</strong> (4.821 nulos)</td>
-          <td>&ge; 98.0% (100% tras imputación)</td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
+          <td><span class="badge bg-success bg-opacity-10 text-success border border-success">{{ m.dimension }}</span></td>
+          <td>{{ m.metrica }}</td>
+          <td class="text-muted small">{{ m.formula }}</td>
+          <td class="text-end small">{% if m.denominador %}{{ m.numerador | miles }} / {{ m.denominador | miles }}{% else %}{{ m.numerador }} días{% endif %}</td>
+          <td class="text-end fw-bold">{% if m.denominador %}{{ m.valor | pct(4 if m.valor > 99.9 and m.valor < 100 else 2) }}{% else %}{{ m.valor }} días{% endif %}</td>
+          <td>{{ m.criterio }}</td>
+          <td>{% if m.cumple %}<span class="badge bg-success">Cumple</span>{% else %}<span class="badge bg-danger">No cumple</span>{% endif %}</td>
+          <td><code class="small">{{ m.codigo }}</code></td>
         </tr>
-        <tr>
-          <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
-          <td>Proporción de vehículos 100% eléctricos (BEV) conformes a la regla física: <code>Cilindraje = 0 cc</code>.</td>
-          <td><code>(BEV_Cil_Cero / Total_BEV) * 100</code></td>
-          <td><strong class="text-warning">97.81%</strong> (1.240 fallos)</td>
-          <td>100% estricto</td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
-          <td>Correspondencia exacta entre el código municipal y la tabla DIVIPOLA oficial del DANE.</td>
-          <td><code>(FK_Validas / N_Total) * 100</code></td>
-          <td><strong class="text-danger">92.30%</strong> (discrepancias texto)</td>
-          <td>100% homologado</td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
-          <td>Ausencia de tuplas redundantes correspondientes al mismo hecho de matrícula en el RUNT.</td>
-          <td><code>(1 - (Duplicados / N_Total)) * 100</code></td>
-          <td><strong class="text-success">100.0%</strong> (0 redundancias)</td>
-          <td>100% único</td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='inventario-problemas') }}" class="small">Ver detalle &rarr;</a></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Validez</span></td>
-          <td>Porcentaje de registros con potencia dentro del rango comercial factible <code>[1.2 – 450.0 kW]</code>.</td>
-          <td><code>(Registros_Rango / N_Total) * 100</code></td>
-          <td><strong class="text-danger">89.60%</strong> (outliers y nulos)</td>
-          <td>&ge; 99.0%</td>
-          <td><span class="small text-muted">Ver Sección 2 · Perfilamiento</span></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">Actualidad</span></td>
-          <td>Vigencia de la información respecto al corte de investigación establecido (diciembre 2024).</td>
-          <td><code>Fecha_Corte - Max(Fecha_Registro)</code></td>
-          <td><strong class="text-success">0 días</strong> (cierre 2024)</td>
-          <td>Actualizado al cierre</td>
-          <td><span class="small text-muted">Sin problemas registrados</span></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
+  <small class="text-muted d-block mt-2">
+    La <strong>exactitud</strong> se mide como coherencia con una regla de negocio verificable internamente (año modelo ≤ año de registro + 1); no existe una
+    fuente de verdad externa para validar cada registro. La <strong>unicidad</strong> se evalúa sobre la combinación de las 7 variables categóricas porque el
+    dataset no trae un identificador por vehículo.
+  </small>
 </div>
 
-<!-- Gráfica: Línea Base vs. Meta por Dimensión -->
+<!-- Gráfica -->
 <div class="card shadow-sm border-0 mb-4 p-4 bg-white">
-  <h5 class="fw-bold text-dark mb-3">
-    <i class="bi bi-bar-chart-line text-primary me-2"></i>Línea Base (Dataset Crudo) vs. Meta de Calidad por Dimensión
-  </h5>
-  <div style="max-height: 320px;">
-    <canvas id="chartDimensiones"></canvas>
-  </div>
+  <h5 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-line text-primary me-2"></i>Resultado antes y después del tratamiento (%)</h5>
+  <div style="height: 320px;"><canvas id="chartDimensiones"></canvas></div>
+  <small class="text-muted d-block mt-2">La exactitud no cambia: las {{ q[1].denominador - q[1].numerador }} filas con año modelo adelantado se marcan, pero no se alteran (no hay fuente para corregirlas).</small>
 </div>
 
-<!-- Justificación Técnica por Dimensión -->
+<!-- Lectura -->
 <div class="row g-4 mb-4">
   <div class="col-md-6">
     <div class="card shadow-sm border-0 p-4 h-100 bg-white">
-      <h5 class="fw-bold text-dark mb-2">
-        <i class="bi bi-shield-exclamation text-warning me-2"></i>Impacto del Diagnóstico en el Modelado
-      </h5>
-      <p class="text-secondary small mb-3">
-        Consecuencias analíticas detectadas durante la auditoría inicial de las dimensiones:
-      </p>
-      <ul class="list-unstyled small mb-0">
-        <li class="py-2 border-bottom">
-          <strong class="text-dark">Sesgo por pérdida de registros:</strong> El 8.53% de nulos en <code>Potencia</code> obligaría a descartar 4.821 vehículos en algoritmos de clustering si no se aplica una imputación controlada.
-        </li>
-        <li class="py-2 border-bottom">
-          <strong class="text-dark">Distorsión de consumo energético:</strong> Registrar un automóvil eléctrico con 1.600 cc térmicos genera cálculos incompatibles en matrices de emisiones basadas en ciclo de vida (Well-to-Wheel).
-        </li>
-        <li class="py-2">
-          <strong class="text-dark">Agrupación espacial errónea:</strong> Diferencias de acentos y caracteres en el campo municipio fragmentan los totales de Bogotá D.C. en múltiples categorías separadas.
-        </li>
+      <h5 class="fw-bold text-dark mb-2"><i class="bi bi-shield-exclamation text-warning me-2"></i>Qué implican los resultados</h5>
+      <ul class="small mb-0">
+        <li class="mb-2"><strong>Completitud y unicidad</strong> son prácticamente perfectas: la fuente casi no tiene vacíos ni repetidos.</li>
+        <li class="mb-2"><strong>Consistencia:</strong> el problema es de <em>forma</em> (departamento y municipio escritos con convenciones distintas) y de <em>identificación</em> (3 municipios homónimos). Ambos se resuelven con estandarización y una llave compuesta.</li>
+        <li class="mb-2"><strong>Actualidad:</strong> el portal se actualizó {{ res.meta.dias_desde_actualizacion }} días antes de la descarga, pero el año {{ res.meta.anio_max }} es parcial.</li>
+        <li><strong>Cobertura de variables:</strong> la mayor limitación no es la calidad sino la ausencia de variables previstas (ver Sección 2, punto 5).</li>
       </ul>
     </div>
   </div>
-
   <div class="col-md-6">
     <div class="card shadow-sm border-0 p-4 h-100 bg-white">
-      <h5 class="fw-bold text-dark mb-2">
-        <i class="bi bi-diagram-2 text-primary me-2"></i>Controles Técnicos Propuestos
-      </h5>
-      <p class="text-secondary small mb-3">
-        Mecanismos de control aplicables en la capa de procesamiento (Python/Pandas):
-      </p>
+      <h5 class="fw-bold text-dark mb-2"><i class="bi bi-diagram-2 text-primary me-2"></i>Controles aplicados</h5>
       <div class="d-flex flex-column gap-2 small">
-        <div class="p-2 border rounded bg-light">
-          <strong class="text-dark">Aserciones Condicionales:</strong> Reglas booleanas deterministas para verificar que la condición <code>Combustible == 'ELECTRICO'</code> obligue a <code>Cilindraje == 0</code>.
-        </div>
-        <div class="p-2 border rounded bg-light">
-          <strong class="text-dark">Tablas de Búsqueda (Lookups):</strong> Catálogo técnico estructurado por <code>Marca + Linea</code> para sustituir la imputación general por el valor de catálogo correspondiente.
-        </div>
-        <div class="p-2 border rounded bg-light">
-          <strong class="text-dark">Normalización Tipográfica:</strong> Función de preprocesamiento de texto con <code>str.upper()</code>, <code>str.strip()</code> y eliminación de tildes antes de cruzar con DIVIPOLA.
-        </div>
+        <div class="p-2 border rounded bg-light"><strong>Reglas condicionales:</strong> <code>modelo ≤ a_o_registro + 1</code> marca los casos adelantados.</div>
+        <div class="p-2 border rounded bg-light"><strong>Normalización de texto:</strong> mayúsculas, sin tildes ni signos, antes de agrupar.</div>
+        <div class="p-2 border rounded bg-light"><strong>Llave compuesta:</strong> municipio + departamento para no mezclar homónimos.</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Botones de Navegación -->
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
   <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='perfilamiento') }}">
     <i class="bi bi-arrow-left me-1"></i> 2. Perfilamiento
@@ -170,33 +123,18 @@
 {% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+  const Q = {{ res.calidad | tojson }}.slice(0, 6);
+  const D = {{ res.calidad_despues | tojson }};
+  const despues = [D.completitud, D.exactitud, D.consistencia_referencial, D.consistencia_formato, D.unicidad, D.validez];
   new Chart(document.getElementById('chartDimensiones'), {
     type: 'bar',
-    data: {
-      labels: ['Completitud', 'Exactitud Lógica', 'Consistencia', 'Unicidad', 'Validez', 'Actualidad'],
+    data: { labels: ['Completitud', 'Exactitud', 'Consistencia referencial', 'Consistencia de formato', 'Unicidad', 'Validez'],
       datasets: [
-        {
-          label: 'Línea base (crudo)',
-          data: [91.47, 97.81, 92.30, 100.0, 89.60, 100.0],
-          backgroundColor: '#d9a314',
-          borderRadius: 5
-        },
-        {
-          label: 'Meta de aceptación',
-          data: [98.0, 100.0, 100.0, 100.0, 99.0, 100.0],
-          backgroundColor: '#2d5a43',
-          borderRadius: 5
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
-      scales: {
-        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
-      }
-    }
+        { label: 'Antes (datos crudos)', data: Q.map(x => x.valor), backgroundColor: '#dc3545', borderRadius: 5 },
+        { label: 'Después (tratado)', data: despues, backgroundColor: '#2d5a43', borderRadius: 5 }
+      ] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + ' %' } } } }
   });
 </script>
 {% endblock %}

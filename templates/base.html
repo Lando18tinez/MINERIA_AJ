@@ -71,7 +71,7 @@
       </div>
 
       <!-- Menú Etapa 3: Misma píldora integrada -->
-      <div class="dropdown me-auto">
+      <div class="dropdown me-2">
         <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active and active.startswith('etapa3:') }}"
                 type="button" id="menuEtapa3" data-bs-toggle="dropdown" aria-expanded="false"
                 title="Etapa 3: Preparación de los Datos">
@@ -90,6 +90,12 @@
           {% endfor %}
         </ul>
       </div>
+
+      <!-- Conocimiento evidente: tableros de Power BI (misma píldora, enlace directo) -->
+      <a class="brand-badge brand-badge--menu text-decoration-none me-auto {{ 'active' if active == 'conocimiento' }}"
+         href="{{ url_for('conocimiento_evidente') }}" title="Conocimiento evidente: tableros de Power BI">
+        <span>E4</span><i class="bi bi-bar-chart-line-fill"></i>Conocimiento evidente
+      </a>
 
       <!-- Botón colapsable para móviles -->
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"

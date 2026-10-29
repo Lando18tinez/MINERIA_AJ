@@ -11,10 +11,19 @@
       </div>
       <h3 class="fw-bold text-dark mb-2">Propósito del Análisis y Relevancia Operativa</h3>
       <p class="text-secondary mb-3">
-        El conjunto consolidado de datos (56.545 microdatos del RUNT enriquecidos con estándares territoriales DIVIPOLA, proyecciones DANE y factores ambientales Well-to-Wheel) tiene como propósito modelar la adopción vehicular limpia (<strong>BEV, HEV, PHEV</strong>) en Bogotá D.C. frente a la dinámica nacional entre 2014 y 2024, evaluando su impacto en la reducción de toneladas de CO₂-eq emitidas.
+        El conjunto de datos utilizado es <strong>«{{ res.meta.fuente }}»</strong> del Portal Nacional de Datos Abiertos (<code>{{ res.meta.identificador }}</code>):
+        <strong>{{ res.meta.vehiculos | miles }} vehículos</strong> resumidos en {{ res.meta.filas | miles }} grupos, registrados entre {{ res.meta.anio_min }} y {{ res.meta.anio_max }}
+        (este último año parcial). Su propósito es describir la adopción de vehículos eléctricos e híbridos en Colombia, con énfasis en Bogotá D.C., según
+        tecnología, clase, territorio y tiempo, y servir de base a un posterior cálculo de impacto ambiental (toneladas de CO₂-eq evitadas).
       </p>
-      <p class="text-secondary mb-0">
-        Para que los modelos de segmentación no supervisada (K-prototypes / clustering jerárquico) y las estimaciones de huella evitada sean válidos, los datos deben someterse a controles estrictos de calidad que garanticen consistencia física entre tecnología y motor, unicidad de registros e integridad referencial territorial.
+      <p class="text-secondary mb-2">
+        Para que el análisis exploratorio y los futuros modelos de segmentación sean válidos, los datos deben cumplir requisitos de completitud, coherencia lógica,
+        consistencia territorial, unicidad, validez de dominio y actualidad.
+      </p>
+      <p class="small text-muted mb-0">
+        <i class="bi bi-info-circle me-1"></i>Alcance real: la fuente trae 8 variables; las variables técnicas previstas en el diccionario (potencia, cilindraje, marca, códigos DIVIPOLA, etc.)
+        <strong>no están en este dataset</strong> y se documentan como no disponibles en el <a href="{{ url_for('etapa2_seccion', slug='perfilamiento') }}">perfilamiento</a>.
+        El cálculo de la huella de CO₂ queda pendiente de una fuente complementaria.
       </p>
     </div>
   </div>
@@ -28,7 +37,7 @@
       <h5 class="fw-bold mb-1">Nivel 2: Reactivo</h5>
       <p class="small text-white-50 mb-3">Modelo de David Loshin (2009)</p>
       <p class="small text-light mb-0">
-        El repositorio opera sin un <em>Golden Record</em> unificado en el origen. La remediación técnica se realiza mediante una capa analítica correctiva en Python (generando los atributos rectificados <code>_R</code>) para subsanar vacíos e incongruencias del registro administrativo antes del modelado.
+        El repositorio opera sin un <em>Golden Record</em> unificado en el origen. La remediación técnica se realiza mediante una capa analítica correctiva en Python (<code>calidad_etapa2.py</code>: estandariza, homologa y marca inconsistencias sin alterar el dato original) para subsanar formatos y ambigüedades del registro administrativo antes del modelado.
       </p>
     </div>
   </div>
@@ -54,43 +63,48 @@
       <tbody>
         <tr>
           <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
-          <td>Presencia total de registros en atributos clave: <code>Potencia</code>, <code>Cilindraje</code>, <code>Clase</code> y <code>Combustible</code>.</td>
+          <td>Presencia total de valores en las variables de la fuente (<code>clase</code>, <code>combustible</code>, <code>carroceria</code>, <code>municipio</code>…) y en <code>Potencia</code> y <code>Cilindraje</code>&nbsp;†.</td>
           <td>Evita el descarte de tuplas en el entrenamiento de algoritmos de segmentación vehicular.</td>
-          <td><code>100%</code> en atributos rectificados (<code>_R</code>).</td>
+          <td>≥ 99,0 % de celdas no nulas (medido en la Sección 3).</td>
         </tr>
         <tr>
           <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
-          <td>Coherencia física y mecánica: ausencia de cilindraje térmico en vehículos 100% eléctricos (BEV).</td>
+          <td>Coherencia lógica: el año modelo no puede superar en más de 1 año el año de registro; y ausencia de cilindraje térmico en BEV&nbsp;†.</td>
           <td>Previene distorsiones en las curvas de consumo energético y cálculo de factores de emisión.</td>
-          <td><code>Cilindraje_R = 0 cc</code> en todos los BEV.</td>
+          <td>≥ 99,0 % de filas con <code>modelo ≤ año + 1</code>.</td>
         </tr>
         <tr>
           <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
-          <td>Emparejamiento unívoco entre nombres de departamento/municipio y el catálogo DIVIPOLA del DANE.</td>
+          <td>Municipio asociado a un único departamento, formato homogéneo y, si se dispone, emparejamiento con el catálogo DIVIPOLA&nbsp;†.</td>
           <td>Garantiza la agregación espacial correcta sin duplicación de métricas para Bogotá D.C.</td>
-          <td><code>100%</code> de códigos territoriales validados.</td>
+          <td>≥ 99,0 % de filas sin ambigüedad municipio–departamento; formato 100 % homogéneo.</td>
         </tr>
         <tr>
           <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
-          <td>Ausencia de tuplas duplicadas representativas de un mismo hecho de matrícula vehicular.</td>
+          <td>Ausencia de filas repetidas para la misma combinación de categorías (la fuente no trae identificador por vehículo&nbsp;†).</td>
           <td>Previene la sobrestimación del inventario acumulado y de la reducción de huella de carbono.</td>
-          <td><code>0</code> duplicados en <code>ID_Registro</code>.</td>
+          <td><code>0</code> duplicados por la llave de 7 variables categóricas.</td>
         </tr>
         <tr>
           <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning">Validez</span></td>
           <td>Conformidad de valores numéricos dentro de los rangos de ingeniería automotriz y dominios válidos.</td>
           <td>Evita anomalías que rompan escalas euclidianas en clustering (ej. potencias negativas o > 1.000 kW).</td>
-          <td>Potencia: <code>[1.2 – 450.0 kW]</code>.<br>Años: <code>[2014 – 2024]</code>.</td>
+          <td>Combustible dentro del catálogo; años de registro en <code>[2015 – 2026]</code>; <code>cantidad ≥ 1</code>. Potencia <code>[1,2 – 450 kW]</code>&nbsp;†.</td>
         </tr>
         <tr>
           <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">Actualidad</span></td>
-          <td>Disponibilidad de registros hasta el cierre de la ventana de estudio establecida (2024).</td>
+          <td>Datos descargados poco después de la última actualización del portal; el año en curso se trata como parcial.</td>
           <td>Permite contrastar metas del Plan Nacional de Desarrollo frente a la flota real en circulación.</td>
-          <td>Fecha de corte: <code>31/12/2024</code>.</td>
+          <td>Descarga ≤ 90 días después de la actualización del portal.</td>
         </tr>
       </tbody>
     </table>
   </div>
+  <small class="text-muted d-block mt-2">
+    † Requisito definido sobre variables previstas en el diccionario que la fuente enlazada (<code>{{ res.meta.identificador }}</code>) <strong>no incluye</strong>
+    (<code>Potencia</code>, <code>Cilindraje</code>, <code>ID_Registro</code>, códigos DIVIPOLA). Se conserva como requisito, pero no puede verificarse con esta fuente;
+    la Sección 3 mide los equivalentes disponibles.
+  </small>
 </div>
 
 <!-- Estructura Metodológica: Oliveira et al. y Modelo de Otto -->
@@ -105,16 +119,16 @@
       </p>
       <ul class="list-unstyled small mb-0">
         <li class="py-2 border-bottom">
-          <strong class="text-dark">1. Atributo / Tupla:</strong> Control de celdas nulas en potencia, cilindraje erróneo en BEV y normalización de textos ortográficos.
+          <strong class="text-dark">1. Atributo / Tupla:</strong> Control de nulos, tipos de dato, coherencia del año modelo y normalización de textos (formato, tildes, signos).
         </li>
         <li class="py-2 border-bottom">
-          <strong class="text-dark">2. Relación (Tabla):</strong> Detección de duplicados generados por descargas acumuladas en datos abiertos.
+          <strong class="text-dark">2. Relación (Tabla):</strong> Detección de filas repetidas para una misma combinación de categorías.
         </li>
         <li class="py-2 border-bottom">
-          <strong class="text-dark">3. Varias Relaciones:</strong> Integridad foránea entre hechos de tránsito y el estándar DIVIPOLA de municipios.
+          <strong class="text-dark">3. Varias Relaciones:</strong> Relación municipio–departamento (municipios homónimos) y, si se dispone de él, el estándar DIVIPOLA.
         </li>
         <li class="py-2">
-          <strong class="text-dark">4. Múltiples Fuentes:</strong> Homogeneización de unidades entre factores de ciclo de vida (g CO₂-eq/km) y encuestas de viaje.
+          <strong class="text-dark">4. Múltiples Fuentes:</strong> No aplica con la fuente única actual; queda prevista si se incorporan fuentes complementarias (factores de emisión, población).
         </li>
       </ul>
     </div>

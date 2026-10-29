@@ -1,0 +1,1683 @@
+{
+ "meta": {
+  "fuente": "VEHÍCULOS ELÉCTRICOS E HÍBRIDOS MATRICULADOS EN COLOMBIA - RUNT 2.0",
+  "identificador": "ntxy-q9ix",
+  "url_portal": "https://www.datos.gov.co/Transporte/VEH-CULOS-EL-CTRICOS-E-H-BRIDOS-MATRICULADOS-EN-CO/ntxy-q9ix/about_data",
+  "fecha_descarga": "2026-10-14",
+  "actualizacion_portal": "2026-08-19",
+  "periodo": {
+   "desde": 2015,
+   "hasta": 2024
+  },
+  "fuera_de_la_ventana": {
+   "anios": "2025-2026",
+   "grupos": 3976,
+   "vehiculos": 177124,
+   "motivo": "El alcance del proyecto es 2015-2024. Además, 2026 es un año incompleto (la fuente se actualizó el 19/08/2026) y no trae mes."
+  },
+  "unidad_analisis": "Cada fila es un grupo de vehículos eléctricos o híbridos matriculados con las mismas características (combustible, modelo, año de registro, clase, carrocería y municipio); `cantidad` indica cuántos vehículos tiene el grupo. No es un vehículo individual ni parque activo: son matrículas por año de registro."
+ },
+ "preparacion": {
+  "registros_fuente": 10748,
+  "vehiculos_fuente": 332901,
+  "registros_analisis": 6772,
+  "vehiculos": 155777,
+  "excluidos_por_ventana": {
+   "grupos": 3976,
+   "vehiculos": 177124
+  },
+  "filas_eliminadas_por_calidad": 0,
+  "tratamientos": [
+   "Sin duplicados por la llave de 7 variables (ninguna fila eliminada).",
+   "Un nulo de carrocería (triciclo eléctrico en Funza) reemplazado por «SIN DATO».",
+   "modelo, año de registro y cantidad convertidos a entero.",
+   "Texto canónico (mayúsculas, sin tildes ni caracteres especiales) en departamento, municipio, clase y carrocería.",
+   "Llave territorial «MUNICIPIO (DEPARTAMENTO)»: 3 nombres de municipio existen en más de un departamento.",
+   "Combustible homologado a etiquetas legibles (catálogo 1 a 1).",
+   "Se MARCAN, sin eliminar, 34 grupos con modelo > año de registro + 1 (modelo_inusual).",
+   "Se MARCAN, sin eliminar, 942 grupos con cantidad > 16 según IQR (grupo_grande; umbral de la Etapa 2).",
+   "Ventana de análisis 2015-2024 (alcance del proyecto): se excluyen 3.976 grupos y 177.124 vehículos registrados en 2025-2026."
+  ],
+  "problemas_pendientes": [
+   "El dataset no trae mes ni fecha: la unidad temporal mínima es el año de registro.",
+   "La fuente no distingue HEV de PHEV: «Híbrido gasolina-eléctrico» agrupa ambos.",
+   "Sin placa ni identificador: no se pueden contar vehículos únicos ni parque activo.",
+   "Sin población, ingresos ni puntos de carga: no se pueden calcular tasas per cápita ni explicar causas.",
+   "Distribución muy asimétrica: pocos grupos grandes concentran la mayoría de los vehículos.",
+   "La fuente no trae códigos DIVIPOLA; el territorio se identifica por nombre."
+  ],
+  "marcas": {
+   "modelo_inusual": {
+    "grupos": 34,
+    "vehiculos": 173
+   },
+   "grupo_grande": {
+    "grupos": 942,
+    "vehiculos": 137628,
+    "limite_cantidad": 16.0
+   }
+  },
+  "modelo_estrella": {
+   "hechos_vehiculos": {
+    "filas": 6772,
+    "columnas": [
+     "combustible",
+     "clase",
+     "carroceria",
+     "anio_registro",
+     "modelo",
+     "territorio",
+     "cantidad",
+     "modelo_inusual",
+     "grupo_grande"
+    ]
+   },
+   "dim_territorio": {
+    "filas": 247,
+    "llave": "territorio"
+   },
+   "dim_combustible": {
+    "filas": 4,
+    "llave": "combustible"
+   },
+   "dim_anio": {
+    "filas": 10,
+    "llave": "anio_registro"
+   },
+   "relaciones": [
+    "hechos_vehiculos[territorio] -> dim_territorio[territorio]  (muchos a uno, un solo sentido)",
+    "hechos_vehiculos[combustible] -> dim_combustible[combustible]  (muchos a uno, un solo sentido)",
+    "hechos_vehiculos[anio_registro] -> dim_anio[anio_registro]  (muchos a uno, un solo sentido)"
+   ]
+  }
+ },
+ "p1_composicion": {
+  "pregunta": "¿Cómo se compone la población de vehículos eléctricos e híbridos registrados en Colombia entre 2015 y 2024, según su combustible, clase, carrocería y año del modelo?",
+  "variables": [
+   "combustible",
+   "clase",
+   "carroceria",
+   "modelo",
+   "cantidad"
+  ],
+  "denominador": "Total de vehículos (suma de cantidad) = 155777",
+  "indicadores": {
+   "total_vehiculos": 155777,
+   "grupos_de_registro": 6772,
+   "pct_electrico_bev": 23.73,
+   "clase_predominante": {
+    "categoria": "CAMIONETA",
+    "pct": 58.23
+   },
+   "pct_tres_clases_principales": 90.72
+  },
+  "por_combustible": [
+   {
+    "categoria": "GASO ELEC",
+    "vehiculos": 117315,
+    "pct": 75.31,
+    "grupos": 2911,
+    "etiqueta": "Híbrido gasolina-eléctrico (HEV/PHEV)"
+   },
+   {
+    "categoria": "ELECTRICO",
+    "vehiculos": 36969,
+    "pct": 23.73,
+    "grupos": 3583,
+    "etiqueta": "Eléctrico (BEV)"
+   },
+   {
+    "categoria": "DIES ELEC",
+    "vehiculos": 1489,
+    "pct": 0.96,
+    "grupos": 274,
+    "etiqueta": "Híbrido diésel-eléctrico"
+   },
+   {
+    "categoria": "HIDROGENO",
+    "vehiculos": 4,
+    "pct": 0.0,
+    "grupos": 4,
+    "etiqueta": "Hidrógeno"
+   }
+  ],
+  "por_clase": [
+   {
+    "categoria": "CAMIONETA",
+    "vehiculos": 90709,
+    "pct": 58.23,
+    "grupos": 2180
+   },
+   {
+    "categoria": "AUTOMOVIL",
+    "vehiculos": 36171,
+    "pct": 23.22,
+    "grupos": 1632
+   },
+   {
+    "categoria": "CICLOMOTOR",
+    "vehiculos": 14441,
+    "pct": 9.27,
+    "grupos": 1562
+   },
+   {
+    "categoria": "CAMPERO",
+    "vehiculos": 8435,
+    "pct": 5.41,
+    "grupos": 436
+   },
+   {
+    "categoria": "BUS",
+    "vehiculos": 1750,
+    "pct": 1.12,
+    "grupos": 33
+   },
+   {
+    "categoria": "CUADRICICLO",
+    "vehiculos": 1410,
+    "pct": 0.91,
+    "grupos": 200
+   },
+   {
+    "categoria": "MOTOCICLETA",
+    "vehiculos": 1159,
+    "pct": 0.74,
+    "grupos": 275
+   },
+   {
+    "categoria": "CAMION",
+    "vehiculos": 718,
+    "pct": 0.46,
+    "grupos": 157
+   },
+   {
+    "categoria": "MOTOCARRO",
+    "vehiculos": 674,
+    "pct": 0.43,
+    "grupos": 192
+   },
+   {
+    "categoria": "TRICIMOTO",
+    "vehiculos": 275,
+    "pct": 0.18,
+    "grupos": 86
+   },
+   {
+    "categoria": "MOTOTRICICLO",
+    "vehiculos": 15,
+    "pct": 0.01,
+    "grupos": 6
+   },
+   {
+    "categoria": "MICROBUS",
+    "vehiculos": 10,
+    "pct": 0.01,
+    "grupos": 3
+   },
+   {
+    "categoria": "TRACTOCAMION",
+    "vehiculos": 4,
+    "pct": 0.0,
+    "grupos": 4
+   },
+   {
+    "categoria": "BUSETA",
+    "vehiculos": 2,
+    "pct": 0.0,
+    "grupos": 2
+   },
+   {
+    "categoria": "CUATRIMOTO",
+    "vehiculos": 2,
+    "pct": 0.0,
+    "grupos": 2
+   },
+   {
+    "categoria": "VOLQUETA",
+    "vehiculos": 2,
+    "pct": 0.0,
+    "grupos": 2
+   }
+  ],
+  "clases_minoritarias_menor_1pct": [
+   "CUADRICICLO",
+   "MOTOCICLETA",
+   "CAMION",
+   "MOTOCARRO",
+   "TRICIMOTO",
+   "MOTOTRICICLO",
+   "MICROBUS",
+   "TRACTOCAMION",
+   "BUSETA",
+   "CUATRIMOTO",
+   "VOLQUETA"
+  ],
+  "por_carroceria_top10": [
+   {
+    "categoria": "WAGON",
+    "vehiculos": 96214,
+    "pct": 61.76,
+    "grupos": 1921
+   },
+   {
+    "categoria": "HATCH BACK",
+    "vehiculos": 18515,
+    "pct": 11.89,
+    "grupos": 766
+   },
+   {
+    "categoria": "SIN CARROCERIA",
+    "vehiculos": 17260,
+    "pct": 11.08,
+    "grupos": 2117
+   },
+   {
+    "categoria": "SEDAN",
+    "vehiculos": 17167,
+    "pct": 11.02,
+    "grupos": 741
+   },
+   {
+    "categoria": "CERRADA",
+    "vehiculos": 1758,
+    "pct": 1.13,
+    "grupos": 34
+   },
+   {
+    "categoria": "DOBLE CABINA CON PLATON",
+    "vehiculos": 1089,
+    "pct": 0.7,
+    "grupos": 238
+   },
+   {
+    "categoria": "FURGON",
+    "vehiculos": 935,
+    "pct": 0.6,
+    "grupos": 190
+   },
+   {
+    "categoria": "PANEL",
+    "vehiculos": 759,
+    "pct": 0.49,
+    "grupos": 135
+   },
+   {
+    "categoria": "COUPE",
+    "vehiculos": 470,
+    "pct": 0.3,
+    "grupos": 108
+   },
+   {
+    "categoria": "CABINADO",
+    "vehiculos": 433,
+    "pct": 0.28,
+    "grupos": 102
+   }
+  ],
+  "por_anio_modelo": [
+   {
+    "categoria": 1997,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2000,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2004,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2005,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2006,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2007,
+    "vehiculos": 2,
+    "pct": 0.0,
+    "grupos": 2
+   },
+   {
+    "categoria": 2008,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2009,
+    "vehiculos": 1,
+    "pct": 0.0,
+    "grupos": 1
+   },
+   {
+    "categoria": 2010,
+    "vehiculos": 3,
+    "pct": 0.0,
+    "grupos": 3
+   },
+   {
+    "categoria": 2011,
+    "vehiculos": 2,
+    "pct": 0.0,
+    "grupos": 2
+   },
+   {
+    "categoria": 2012,
+    "vehiculos": 6,
+    "pct": 0.0,
+    "grupos": 4
+   },
+   {
+    "categoria": 2013,
+    "vehiculos": 22,
+    "pct": 0.01,
+    "grupos": 10
+   },
+   {
+    "categoria": 2014,
+    "vehiculos": 218,
+    "pct": 0.14,
+    "grupos": 30
+   },
+   {
+    "categoria": 2015,
+    "vehiculos": 382,
+    "pct": 0.25,
+    "grupos": 78
+   },
+   {
+    "categoria": 2016,
+    "vehiculos": 551,
+    "pct": 0.35,
+    "grupos": 134
+   },
+   {
+    "categoria": 2017,
+    "vehiculos": 625,
+    "pct": 0.4,
+    "grupos": 141
+   },
+   {
+    "categoria": 2018,
+    "vehiculos": 1301,
+    "pct": 0.84,
+    "grupos": 268
+   },
+   {
+    "categoria": 2019,
+    "vehiculos": 4246,
+    "pct": 2.73,
+    "grupos": 568
+   },
+   {
+    "categoria": 2020,
+    "vehiculos": 9974,
+    "pct": 6.4,
+    "grupos": 847
+   },
+   {
+    "categoria": 2021,
+    "vehiculos": 9519,
+    "pct": 6.11,
+    "grupos": 705
+   },
+   {
+    "categoria": 2022,
+    "vehiculos": 26902,
+    "pct": 17.27,
+    "grupos": 1153
+   },
+   {
+    "categoria": 2023,
+    "vehiculos": 35799,
+    "pct": 22.98,
+    "grupos": 1309
+   },
+   {
+    "categoria": 2024,
+    "vehiculos": 38480,
+    "pct": 24.7,
+    "grupos": 1063
+   },
+   {
+    "categoria": 2025,
+    "vehiculos": 27659,
+    "pct": 17.76,
+    "grupos": 431
+   },
+   {
+    "categoria": 2026,
+    "vehiculos": 79,
+    "pct": 0.05,
+    "grupos": 17
+   }
+  ],
+  "composicion_de_cada_combustible_por_clase_top3": {
+   "DIES ELEC": {
+    "vehiculos": 1489,
+    "top": [
+     {
+      "categoria": "CAMIONETA",
+      "vehiculos": 1223,
+      "pct": 82.14,
+      "grupos": 185
+     },
+     {
+      "categoria": "BUS",
+      "vehiculos": 121,
+      "pct": 8.13,
+      "grupos": 7
+     },
+     {
+      "categoria": "CAMION",
+      "vehiculos": 107,
+      "pct": 7.19,
+      "grupos": 67
+     }
+    ]
+   },
+   "ELECTRICO": {
+    "vehiculos": 36969,
+    "top": [
+     {
+      "categoria": "CICLOMOTOR",
+      "vehiculos": 14440,
+      "pct": 39.06,
+      "grupos": 1561
+     },
+     {
+      "categoria": "CAMIONETA",
+      "vehiculos": 9835,
+      "pct": 26.6,
+      "grupos": 598
+     },
+     {
+      "categoria": "AUTOMOVIL",
+      "vehiculos": 6908,
+      "pct": 18.69,
+      "grupos": 543
+     }
+    ]
+   },
+   "GASO ELEC": {
+    "vehiculos": 117315,
+    "top": [
+     {
+      "categoria": "CAMIONETA",
+      "vehiculos": 79651,
+      "pct": 67.89,
+      "grupos": 1397
+     },
+     {
+      "categoria": "AUTOMOVIL",
+      "vehiculos": 29247,
+      "pct": 24.93,
+      "grupos": 1085
+     },
+     {
+      "categoria": "CAMPERO",
+      "vehiculos": 8412,
+      "pct": 7.17,
+      "grupos": 424
+     }
+    ]
+   },
+   "HIDROGENO": {
+    "vehiculos": 4,
+    "top": [
+     {
+      "categoria": "AUTOMOVIL",
+      "vehiculos": 1,
+      "pct": 25.0,
+      "grupos": 1
+     },
+     {
+      "categoria": "CAMPERO",
+      "vehiculos": 1,
+      "pct": 25.0,
+      "grupos": 1
+     },
+     {
+      "categoria": "CICLOMOTOR",
+      "vehiculos": 1,
+      "pct": 25.0,
+      "grupos": 1
+     }
+    ]
+   }
+  },
+  "concentracion_grupos_grandes": {
+   "grupos": 942,
+   "pct_de_grupos": 13.91,
+   "pct_de_vehiculos": 88.35
+  }
+ },
+ "p2_territorial": {
+  "pregunta": "¿Cómo se concentran los vehículos eléctricos e híbridos entre departamentos y municipios, y qué tecnología predomina en los principales?",
+  "variables": [
+   "departamento",
+   "municipio (territorio)",
+   "combustible",
+   "cantidad"
+  ],
+  "denominador": "Total de vehículos (155777); para la mezcla por combustible, vehículos de cada departamento",
+  "indicadores": {
+   "departamentos_con_registros": 32,
+   "territorios_con_registros": 247,
+   "municipios_por_nombre": 244,
+   "departamento_lider": {
+    "categoria": "BOGOTA D.C.",
+    "pct": 40.83
+   },
+   "pct_tres_primeros_departamentos": 73.68,
+   "pct_diez_primeros_territorios": 79.91
+  },
+  "por_departamento": [
+   {
+    "categoria": "BOGOTA D.C.",
+    "vehiculos": 63610,
+    "pct": 40.83,
+    "grupos": 417
+   },
+   {
+    "categoria": "ANTIOQUIA",
+    "vehiculos": 31566,
+    "pct": 20.26,
+    "grupos": 1204
+   },
+   {
+    "categoria": "CUNDINAMARCA",
+    "vehiculos": 19598,
+    "pct": 12.58,
+    "grupos": 1243
+   },
+   {
+    "categoria": "VALLE DEL CAUCA",
+    "vehiculos": 11312,
+    "pct": 7.26,
+    "grupos": 712
+   },
+   {
+    "categoria": "NORTE DE SANTANDER",
+    "vehiculos": 6505,
+    "pct": 4.18,
+    "grupos": 296
+   },
+   {
+    "categoria": "RISARALDA",
+    "vehiculos": 3936,
+    "pct": 2.53,
+    "grupos": 178
+   },
+   {
+    "categoria": "BOLIVAR",
+    "vehiculos": 3367,
+    "pct": 2.16,
+    "grupos": 202
+   },
+   {
+    "categoria": "ATLANTICO",
+    "vehiculos": 2534,
+    "pct": 1.63,
+    "grupos": 195
+   },
+   {
+    "categoria": "SANTANDER",
+    "vehiculos": 2211,
+    "pct": 1.42,
+    "grupos": 333
+   },
+   {
+    "categoria": "META",
+    "vehiculos": 1711,
+    "pct": 1.1,
+    "grupos": 210
+   },
+   {
+    "categoria": "CALDAS",
+    "vehiculos": 1494,
+    "pct": 0.96,
+    "grupos": 163
+   },
+   {
+    "categoria": "BOYACA",
+    "vehiculos": 1325,
+    "pct": 0.85,
+    "grupos": 310
+   },
+   {
+    "categoria": "TOLIMA",
+    "vehiculos": 1225,
+    "pct": 0.79,
+    "grupos": 192
+   },
+   {
+    "categoria": "NARINO",
+    "vehiculos": 729,
+    "pct": 0.47,
+    "grupos": 129
+   },
+   {
+    "categoria": "HUILA",
+    "vehiculos": 683,
+    "pct": 0.44,
+    "grupos": 160
+   },
+   {
+    "categoria": "CORDOBA",
+    "vehiculos": 617,
+    "pct": 0.4,
+    "grupos": 99
+   },
+   {
+    "categoria": "CAUCA",
+    "vehiculos": 604,
+    "pct": 0.39,
+    "grupos": 124
+   },
+   {
+    "categoria": "CESAR",
+    "vehiculos": 566,
+    "pct": 0.36,
+    "grupos": 114
+   },
+   {
+    "categoria": "QUINDIO",
+    "vehiculos": 543,
+    "pct": 0.35,
+    "grupos": 120
+   },
+   {
+    "categoria": "SUCRE",
+    "vehiculos": 409,
+    "pct": 0.26,
+    "grupos": 54
+   },
+   {
+    "categoria": "CASANARE",
+    "vehiculos": 368,
+    "pct": 0.24,
+    "grupos": 60
+   },
+   {
+    "categoria": "MAGDALENA",
+    "vehiculos": 309,
+    "pct": 0.2,
+    "grupos": 80
+   },
+   {
+    "categoria": "CAQUETA",
+    "vehiculos": 286,
+    "pct": 0.18,
+    "grupos": 47
+   },
+   {
+    "categoria": "PUTUMAYO",
+    "vehiculos": 105,
+    "pct": 0.07,
+    "grupos": 29
+   },
+   {
+    "categoria": "ARAUCA",
+    "vehiculos": 43,
+    "pct": 0.03,
+    "grupos": 26
+   },
+   {
+    "categoria": "LA GUAJIRA",
+    "vehiculos": 35,
+    "pct": 0.02,
+    "grupos": 16
+   },
+   {
+    "categoria": "ARCHIPIELAGO DE SAN ANDRES PROVIDENCIA",
+    "vehiculos": 32,
+    "pct": 0.02,
+    "grupos": 22
+   },
+   {
+    "categoria": "GUAINIA",
+    "vehiculos": 24,
+    "pct": 0.02,
+    "grupos": 14
+   },
+   {
+    "categoria": "GUAVIARE",
+    "vehiculos": 13,
+    "pct": 0.01,
+    "grupos": 8
+   },
+   {
+    "categoria": "AMAZONAS",
+    "vehiculos": 9,
+    "pct": 0.01,
+    "grupos": 7
+   },
+   {
+    "categoria": "CHOCO",
+    "vehiculos": 6,
+    "pct": 0.0,
+    "grupos": 6
+   },
+   {
+    "categoria": "VICHADA",
+    "vehiculos": 2,
+    "pct": 0.0,
+    "grupos": 2
+   }
+  ],
+  "territorios_top10": [
+   {
+    "categoria": "BOGOTA (BOGOTA D.C.)",
+    "vehiculos": 63610,
+    "pct": 40.83,
+    "grupos": 417
+   },
+   {
+    "categoria": "MEDELLIN (ANTIOQUIA)",
+    "vehiculos": 15414,
+    "pct": 9.89,
+    "grupos": 232
+   },
+   {
+    "categoria": "ENVIGADO (ANTIOQUIA)",
+    "vehiculos": 9207,
+    "pct": 5.91,
+    "grupos": 288
+   },
+   {
+    "categoria": "CALI (VALLE DEL CAUCA)",
+    "vehiculos": 8781,
+    "pct": 5.64,
+    "grupos": 183
+   },
+   {
+    "categoria": "FUNZA (CUNDINAMARCA)",
+    "vehiculos": 6137,
+    "pct": 3.94,
+    "grupos": 250
+   },
+   {
+    "categoria": "CHIA (CUNDINAMARCA)",
+    "vehiculos": 5937,
+    "pct": 3.81,
+    "grupos": 163
+   },
+   {
+    "categoria": "VILLA DEL ROSARIO (NORTE DE SANTANDER)",
+    "vehiculos": 5264,
+    "pct": 3.38,
+    "grupos": 129
+   },
+   {
+    "categoria": "SABANETA (ANTIOQUIA)",
+    "vehiculos": 4247,
+    "pct": 2.73,
+    "grupos": 196
+   },
+   {
+    "categoria": "PEREIRA (RISARALDA)",
+    "vehiculos": 3763,
+    "pct": 2.42,
+    "grupos": 127
+   },
+   {
+    "categoria": "BARRANQUILLA (ATLANTICO)",
+    "vehiculos": 2129,
+    "pct": 1.37,
+    "grupos": 98
+   }
+  ],
+  "territorios_con_menos_de_10_vehiculos": 98,
+  "mezcla_combustible_top5_departamentos": {
+   "ANTIOQUIA": {
+    "vehiculos": 31566,
+    "top": [
+     {
+      "categoria": "GASO ELEC",
+      "vehiculos": 23463,
+      "pct": 74.33,
+      "grupos": 427
+     },
+     {
+      "categoria": "ELECTRICO",
+      "vehiculos": 7673,
+      "pct": 24.31,
+      "grupos": 723
+     },
+     {
+      "categoria": "DIES ELEC",
+      "vehiculos": 430,
+      "pct": 1.36,
+      "grupos": 54
+     }
+    ]
+   },
+   "BOGOTA D.C.": {
+    "vehiculos": 63610,
+    "top": [
+     {
+      "categoria": "GASO ELEC",
+      "vehiculos": 51043,
+      "pct": 80.24,
+      "grupos": 147
+     },
+     {
+      "categoria": "ELECTRICO",
+      "vehiculos": 12001,
+      "pct": 18.87,
+      "grupos": 247
+     },
+     {
+      "categoria": "DIES ELEC",
+      "vehiculos": 565,
+      "pct": 0.89,
+      "grupos": 22
+     },
+     {
+      "categoria": "HIDROGENO",
+      "vehiculos": 1,
+      "pct": 0.0,
+      "grupos": 1
+     }
+    ]
+   },
+   "CUNDINAMARCA": {
+    "vehiculos": 19598,
+    "top": [
+     {
+      "categoria": "GASO ELEC",
+      "vehiculos": 12937,
+      "pct": 66.01,
+      "grupos": 554
+     },
+     {
+      "categoria": "ELECTRICO",
+      "vehiculos": 6549,
+      "pct": 33.42,
+      "grupos": 628
+     },
+     {
+      "categoria": "DIES ELEC",
+      "vehiculos": 111,
+      "pct": 0.57,
+      "grupos": 60
+     },
+     {
+      "categoria": "HIDROGENO",
+      "vehiculos": 1,
+      "pct": 0.01,
+      "grupos": 1
+     }
+    ]
+   },
+   "NORTE DE SANTANDER": {
+    "vehiculos": 6505,
+    "top": [
+     {
+      "categoria": "GASO ELEC",
+      "vehiculos": 6163,
+      "pct": 94.74,
+      "grupos": 172
+     },
+     {
+      "categoria": "ELECTRICO",
+      "vehiculos": 290,
+      "pct": 4.46,
+      "grupos": 111
+     },
+     {
+      "categoria": "DIES ELEC",
+      "vehiculos": 52,
+      "pct": 0.8,
+      "grupos": 13
+     }
+    ]
+   },
+   "VALLE DEL CAUCA": {
+    "vehiculos": 11312,
+    "top": [
+     {
+      "categoria": "GASO ELEC",
+      "vehiculos": 8144,
+      "pct": 71.99,
+      "grupos": 181
+     },
+     {
+      "categoria": "ELECTRICO",
+      "vehiculos": 3058,
+      "pct": 27.03,
+      "grupos": 510
+     },
+     {
+      "categoria": "DIES ELEC",
+      "vehiculos": 109,
+      "pct": 0.96,
+      "grupos": 20
+     },
+     {
+      "categoria": "HIDROGENO",
+      "vehiculos": 1,
+      "pct": 0.01,
+      "grupos": 1
+     }
+    ]
+   }
+  },
+  "nota_territorial": "BOGOTA D.C. y CUNDINAMARCA son territorios distintos en la fuente. No hay población ni área: se comparan cantidades y participaciones, no tasas per cápita."
+ },
+ "p3_temporal": {
+  "pregunta": "¿Cómo evolucionó el registro anual de vehículos eléctricos e híbridos en Colombia entre 2015 y 2024, y en qué años hubo los mayores cambios?",
+  "variables": [
+   "anio_registro",
+   "combustible",
+   "cantidad"
+  ],
+  "denominador": "Variación porcentual: vehículos del año anterior. Participación: total de vehículos (155777)",
+  "indicadores": {
+   "anio_maximo": {
+    "anio": 2024,
+    "vehiculos": 53934
+   },
+   "anio_minimo": {
+    "anio": 2017,
+    "vehiculos": 450
+   },
+   "veces_2024_vs_2019": 9.92,
+   "var_pct_ultimo_anio": 58.45,
+   "anio_mayor_variacion_pct": 2018
+  },
+  "serie_anual": [
+   {
+    "anio": 2015,
+    "vehiculos": 586,
+    "pct_del_total": 0.38,
+    "var_abs": null,
+    "var_pct": null,
+    "pct_electrico_bev": 85.84,
+    "departamentos": 22,
+    "territorios": 46,
+    "clases": 10
+   },
+   {
+    "anio": 2016,
+    "vehiculos": 504,
+    "pct_del_total": 0.32,
+    "var_abs": -82,
+    "var_pct": -13.99,
+    "pct_electrico_bev": 84.92,
+    "departamentos": 16,
+    "territorios": 48,
+    "clases": 6
+   },
+   {
+    "anio": 2017,
+    "vehiculos": 450,
+    "pct_del_total": 0.29,
+    "var_abs": -54,
+    "var_pct": -10.71,
+    "pct_electrico_bev": 84.89,
+    "departamentos": 18,
+    "territorios": 43,
+    "clases": 8
+   },
+   {
+    "anio": 2018,
+    "vehiculos": 2104,
+    "pct_del_total": 1.35,
+    "var_abs": 1654,
+    "var_pct": 367.56,
+    "pct_electrico_bev": 73.95,
+    "departamentos": 26,
+    "territorios": 91,
+    "clases": 9
+   },
+   {
+    "anio": 2019,
+    "vehiculos": 5435,
+    "pct_del_total": 3.49,
+    "var_abs": 3331,
+    "var_pct": 158.32,
+    "pct_electrico_bev": 59.65,
+    "departamentos": 31,
+    "territorios": 143,
+    "clases": 11
+   },
+   {
+    "anio": 2020,
+    "vehiculos": 7908,
+    "pct_del_total": 5.08,
+    "var_abs": 2473,
+    "var_pct": 45.5,
+    "pct_electrico_bev": 41.11,
+    "departamentos": 29,
+    "territorios": 154,
+    "clases": 11
+   },
+   {
+    "anio": 2021,
+    "vehiculos": 20304,
+    "pct_del_total": 13.03,
+    "var_abs": 12396,
+    "var_pct": 156.75,
+    "pct_electrico_bev": 19.81,
+    "departamentos": 31,
+    "territorios": 158,
+    "clases": 12
+   },
+   {
+    "anio": 2022,
+    "vehiculos": 30513,
+    "pct_del_total": 19.59,
+    "var_abs": 10209,
+    "var_pct": 50.28,
+    "pct_electrico_bev": 19.69,
+    "departamentos": 29,
+    "territorios": 171,
+    "clases": 10
+   },
+   {
+    "anio": 2023,
+    "vehiculos": 34039,
+    "pct_del_total": 21.85,
+    "var_abs": 3526,
+    "var_pct": 11.56,
+    "pct_electrico_bev": 18.45,
+    "departamentos": 31,
+    "territorios": 182,
+    "clases": 13
+   },
+   {
+    "anio": 2024,
+    "vehiculos": 53934,
+    "pct_del_total": 34.62,
+    "var_abs": 19895,
+    "var_pct": 58.45,
+    "pct_electrico_bev": 20.95,
+    "departamentos": 30,
+    "territorios": 194,
+    "clases": 11
+   }
+  ],
+  "por_anio_y_combustible": [
+   {
+    "anio_registro": 2015,
+    "DIES ELEC": 76,
+    "ELECTRICO": 503,
+    "GASO ELEC": 6,
+    "HIDROGENO": 1
+   },
+   {
+    "anio_registro": 2016,
+    "DIES ELEC": 51,
+    "ELECTRICO": 428,
+    "GASO ELEC": 25,
+    "HIDROGENO": 0
+   },
+   {
+    "anio_registro": 2017,
+    "DIES ELEC": 5,
+    "ELECTRICO": 382,
+    "GASO ELEC": 63,
+    "HIDROGENO": 0
+   },
+   {
+    "anio_registro": 2018,
+    "DIES ELEC": 12,
+    "ELECTRICO": 1556,
+    "GASO ELEC": 536,
+    "HIDROGENO": 0
+   },
+   {
+    "anio_registro": 2019,
+    "DIES ELEC": 226,
+    "ELECTRICO": 3242,
+    "GASO ELEC": 1967,
+    "HIDROGENO": 0
+   },
+   {
+    "anio_registro": 2020,
+    "DIES ELEC": 619,
+    "ELECTRICO": 3251,
+    "GASO ELEC": 4038,
+    "HIDROGENO": 0
+   },
+   {
+    "anio_registro": 2021,
+    "DIES ELEC": 175,
+    "ELECTRICO": 4022,
+    "GASO ELEC": 16107,
+    "HIDROGENO": 0
+   },
+   {
+    "anio_registro": 2022,
+    "DIES ELEC": 18,
+    "ELECTRICO": 6008,
+    "GASO ELEC": 24486,
+    "HIDROGENO": 1
+   },
+   {
+    "anio_registro": 2023,
+    "DIES ELEC": 173,
+    "ELECTRICO": 6279,
+    "GASO ELEC": 27586,
+    "HIDROGENO": 1
+   },
+   {
+    "anio_registro": 2024,
+    "DIES ELEC": 134,
+    "ELECTRICO": 11298,
+    "GASO ELEC": 42501,
+    "HIDROGENO": 1
+   }
+  ],
+  "nota_periodos": "Los 10 años de la ventana son comparables entre sí. La fuente no trae mes, así que no hay periodos más finos que el año. 2025 y 2026 quedan fuera (2026 es parcial)."
+ },
+ "p4_multivariado": {
+  "pregunta": "¿Qué perfiles surgen al cruzar combustible, clase de vehículo y departamento, y qué grupos son atípicos?",
+  "variables": [
+   "combustible",
+   "clase",
+   "departamento",
+   "cantidad"
+  ],
+  "denominador": "Total de vehículos (155777); en los perfiles, vehículos del combustible o departamento indicado",
+  "indicadores": {
+   "combinaciones_distintas": 327,
+   "combinacion_principal": {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "BOGOTA D.C.",
+    "vehiculos": 34520,
+    "pct": 22.16
+   },
+   "pct_diez_combinaciones_principales": 64.91
+  },
+  "combinaciones_top10": [
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "BOGOTA D.C.",
+    "vehiculos": 34520,
+    "grupos": 64,
+    "pct": 22.16
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "ANTIOQUIA",
+    "vehiculos": 15033,
+    "grupos": 193,
+    "pct": 9.65
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "departamento": "BOGOTA D.C.",
+    "vehiculos": 12667,
+    "grupos": 54,
+    "pct": 8.13
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "CUNDINAMARCA",
+    "vehiculos": 8001,
+    "grupos": 259,
+    "pct": 5.14
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "departamento": "ANTIOQUIA",
+    "vehiculos": 6639,
+    "grupos": 164,
+    "pct": 4.26
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "VALLE DEL CAUCA",
+    "vehiculos": 5908,
+    "grupos": 102,
+    "pct": 3.79
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CAMIONETA",
+    "departamento": "BOGOTA D.C.",
+    "vehiculos": 5562,
+    "grupos": 66,
+    "pct": 3.57
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "CAMIONETA",
+    "departamento": "NORTE DE SANTANDER",
+    "vehiculos": 4409,
+    "grupos": 74,
+    "pct": 2.83
+   },
+   {
+    "combustible": "GASO ELEC",
+    "clase": "AUTOMOVIL",
+    "departamento": "CUNDINAMARCA",
+    "vehiculos": 4402,
+    "grupos": 219,
+    "pct": 2.83
+   },
+   {
+    "combustible": "ELECTRICO",
+    "clase": "CICLOMOTOR",
+    "departamento": "CUNDINAMARCA",
+    "vehiculos": 3973,
+    "grupos": 184,
+    "pct": 2.55
+   }
+  ],
+  "perfil_de_cada_combustible_clase_top3": {
+   "DIES ELEC": {
+    "vehiculos": 1489,
+    "top": [
+     {
+      "categoria": "CAMIONETA",
+      "vehiculos": 1223,
+      "pct": 82.14,
+      "grupos": 185
+     },
+     {
+      "categoria": "BUS",
+      "vehiculos": 121,
+      "pct": 8.13,
+      "grupos": 7
+     },
+     {
+      "categoria": "CAMION",
+      "vehiculos": 107,
+      "pct": 7.19,
+      "grupos": 67
+     }
+    ]
+   },
+   "ELECTRICO": {
+    "vehiculos": 36969,
+    "top": [
+     {
+      "categoria": "CICLOMOTOR",
+      "vehiculos": 14440,
+      "pct": 39.06,
+      "grupos": 1561
+     },
+     {
+      "categoria": "CAMIONETA",
+      "vehiculos": 9835,
+      "pct": 26.6,
+      "grupos": 598
+     },
+     {
+      "categoria": "AUTOMOVIL",
+      "vehiculos": 6908,
+      "pct": 18.69,
+      "grupos": 543
+     }
+    ]
+   },
+   "GASO ELEC": {
+    "vehiculos": 117315,
+    "top": [
+     {
+      "categoria": "CAMIONETA",
+      "vehiculos": 79651,
+      "pct": 67.89,
+      "grupos": 1397
+     },
+     {
+      "categoria": "AUTOMOVIL",
+      "vehiculos": 29247,
+      "pct": 24.93,
+      "grupos": 1085
+     },
+     {
+      "categoria": "CAMPERO",
+      "vehiculos": 8412,
+      "pct": 7.17,
+      "grupos": 424
+     }
+    ]
+   },
+   "HIDROGENO": {
+    "vehiculos": 4,
+    "top": [
+     {
+      "categoria": "AUTOMOVIL",
+      "vehiculos": 1,
+      "pct": 25.0,
+      "grupos": 1
+     },
+     {
+      "categoria": "CAMPERO",
+      "vehiculos": 1,
+      "pct": 25.0,
+      "grupos": 1
+     },
+     {
+      "categoria": "CICLOMOTOR",
+      "vehiculos": 1,
+      "pct": 25.0,
+      "grupos": 1
+     }
+    ]
+   }
+  },
+  "perfil_top5_departamentos": {
+   "BOGOTA D.C.": {
+    "vehiculos": 63610,
+    "pct_electrico_bev": 18.87,
+    "clase_principal": {
+     "categoria": "CAMIONETA",
+     "vehiculos": 40501,
+     "pct": 63.67,
+     "grupos": 140
+    }
+   },
+   "ANTIOQUIA": {
+    "vehiculos": 31566,
+    "pct_electrico_bev": 24.31,
+    "clase_principal": {
+     "categoria": "CAMIONETA",
+     "vehiculos": 17309,
+     "pct": 54.83,
+     "grupos": 385
+    }
+   },
+   "CUNDINAMARCA": {
+    "vehiculos": 19598,
+    "pct_electrico_bev": 33.42,
+    "clase_principal": {
+     "categoria": "CAMIONETA",
+     "vehiculos": 9089,
+     "pct": 46.38,
+     "grupos": 429
+    }
+   },
+   "VALLE DEL CAUCA": {
+    "vehiculos": 11312,
+    "pct_electrico_bev": 27.03,
+    "clase_principal": {
+     "categoria": "CAMIONETA",
+     "vehiculos": 6566,
+     "pct": 58.04,
+     "grupos": 175
+    }
+   },
+   "NORTE DE SANTANDER": {
+    "vehiculos": 6505,
+    "pct_electrico_bev": 4.46,
+    "clase_principal": {
+     "categoria": "CAMIONETA",
+     "vehiculos": 4529,
+     "pct": 69.62,
+     "grupos": 105
+    }
+   }
+  },
+  "casos_inusuales": {
+   "grupos_mas_grandes_top10": [
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2024,
+     "cantidad": 8071
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2024,
+     "cantidad": 4862
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2023,
+     "cantidad": 4307
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2022,
+     "cantidad": 3678
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2023,
+     "cantidad": 3412
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2021,
+     "cantidad": 3079
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2022,
+     "cantidad": 2945
+    },
+    {
+     "combustible": "ELECTRICO",
+     "clase": "CAMIONETA",
+     "departamento": "BOGOTA D.C.",
+     "municipio": "BOGOTA",
+     "anio_registro": 2024,
+     "cantidad": 1978
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "ANTIOQUIA",
+     "municipio": "MEDELLIN",
+     "anio_registro": 2024,
+     "cantidad": 1972
+    },
+    {
+     "combustible": "GASO ELEC",
+     "clase": "CAMIONETA",
+     "departamento": "VALLE DEL CAUCA",
+     "municipio": "CALI",
+     "anio_registro": 2024,
+     "cantidad": 1772
+    }
+   ],
+   "pct_vehiculos_en_top10_grupos": 23.16,
+   "hidrogeno": {
+    "vehiculos": 4,
+    "grupos": 4,
+    "territorios": [
+     "BOGOTA (BOGOTA D.C.)",
+     "IBAGUE (TOLIMA)",
+     "JAMUNDI (VALLE DEL CAUCA)",
+     "ZIPAQUIRA (CUNDINAMARCA)"
+    ]
+   },
+   "clases_con_menos_vehiculos": [
+    {
+     "categoria": "TRACTOCAMION",
+     "vehiculos": 4,
+     "pct": 0.0,
+     "grupos": 4
+    },
+    {
+     "categoria": "BUSETA",
+     "vehiculos": 2,
+     "pct": 0.0,
+     "grupos": 2
+    },
+    {
+     "categoria": "CUATRIMOTO",
+     "vehiculos": 2,
+     "pct": 0.0,
+     "grupos": 2
+    },
+    {
+     "categoria": "VOLQUETA",
+     "vehiculos": 2,
+     "pct": 0.0,
+     "grupos": 2
+    }
+   ],
+   "modelo_inusual": {
+    "grupos": 34,
+    "vehiculos": 173
+   }
+  }
+ },
+ "verificaciones": [
+  {
+   "medida": "Total vehículos",
+   "filtro": "sin filtros",
+   "valor_esperado": 155777,
+   "dax_sugerido": "SUM(hechos_vehiculos[cantidad])"
+  },
+  {
+   "medida": "Grupos de registro",
+   "filtro": "sin filtros",
+   "valor_esperado": 6772,
+   "dax_sugerido": "COUNTROWS(hechos_vehiculos)"
+  },
+  {
+   "medida": "Vehículos 2023",
+   "filtro": "anio_registro = 2023",
+   "valor_esperado": 34039,
+   "dax_sugerido": "CALCULATE([Total vehículos], dim_anio[anio_registro] = 2023)"
+  },
+  {
+   "medida": "Vehículos 2024 (último año de la ventana)",
+   "filtro": "anio_registro = 2024",
+   "valor_esperado": 53934,
+   "dax_sugerido": "idem con 2024"
+  },
+  {
+   "medida": "Vehículos eléctricos (BEV)",
+   "filtro": "combustible = ELECTRICO",
+   "valor_esperado": 36969,
+   "dax_sugerido": "CALCULATE([Total vehículos], dim_combustible[combustible] = \"ELECTRICO\")"
+  },
+  {
+   "medida": "% eléctricos sobre el total",
+   "filtro": "sin filtros",
+   "valor_esperado": 23.73,
+   "dax_sugerido": "DIVIDE([Vehículos BEV], [Total vehículos]) * 100"
+  },
+  {
+   "medida": "Vehículos en Antioquia",
+   "filtro": "departamento = ANTIOQUIA",
+   "valor_esperado": 31566,
+   "dax_sugerido": "CALCULATE([Total vehículos], dim_territorio[departamento] = \"ANTIOQUIA\")"
+  },
+  {
+   "medida": "Vehículos Antioquia + híbrido gasolina + 2024",
+   "filtro": "departamento = ANTIOQUIA, combustible = GASO ELEC, anio_registro = 2024",
+   "valor_esperado": 7307,
+   "dax_sugerido": "tres filtros combinados"
+  },
+  {
+   "medida": "% eléctricos dentro de Bogotá D.C.",
+   "filtro": "departamento = BOGOTA D.C. (denominador: vehículos de Bogotá)",
+   "valor_esperado": 18.87,
+   "dax_sugerido": "DIVIDE([Vehículos BEV], [Total vehículos]) * 100 con el filtro territorial"
+  },
+  {
+   "medida": "Vehículos clase CAMIONETA",
+   "filtro": "clase = CAMIONETA",
+   "valor_esperado": 90709,
+   "dax_sugerido": "CALCULATE([Total vehículos], hechos_vehiculos[clase] = \"CAMIONETA\")"
+  },
+  {
+   "medida": "Vehículos en grupos grandes",
+   "filtro": "grupo_grande = Sí",
+   "valor_esperado": 137628,
+   "dax_sugerido": "CALCULATE([Total vehículos], hechos_vehiculos[grupo_grande] = \"Sí\")"
+  },
+  {
+   "medida": "Grupos con modelo inusual",
+   "filtro": "modelo_inusual = Sí",
+   "valor_esperado": 34,
+   "dax_sugerido": "CALCULATE(COUNTROWS(hechos_vehiculos), hechos_vehiculos[modelo_inusual] = \"Sí\")"
+  },
+  {
+   "medida": "Variación % 2024 vs 2023",
+   "filtro": "anio_registro = 2024 (base: 2023)",
+   "valor_esperado": 58.45,
+   "dax_sugerido": "DIVIDE([Vehículos 2024] - [Vehículos 2023], [Vehículos 2023]) * 100"
+  },
+  {
+   "medida": "Territorios distintos",
+   "filtro": "sin filtros",
+   "valor_esperado": 247,
+   "dax_sugerido": "DISTINCTCOUNT(hechos_vehiculos[territorio]) — usar territorio, no municipio"
+  },
+  {
+   "medida": "Municipios distintos por nombre (NO usar)",
+   "filtro": "sin filtros",
+   "valor_esperado": 244,
+   "dax_sugerido": "DISTINCTCOUNT de municipio fusiona homónimos de distintos departamentos"
+  }
+ ],
+ "coherencia_con_etapa2": {
+  "filas": {
+   "esta_etapa": 10748,
+   "etapa2": 10748,
+   "coincide": true
+  },
+  "vehiculos": {
+   "esta_etapa": 332901,
+   "etapa2": 332901,
+   "coincide": true
+  },
+  "grupos_modelo_inusual": {
+   "esta_etapa": 60,
+   "etapa2": 60,
+   "coincide": true
+  },
+  "grupos_grande": {
+   "esta_etapa": 1592,
+   "etapa2": 1592,
+   "coincide": true
+  },
+  "grupos_anio_parcial": {
+   "esta_etapa": 1884,
+   "etapa2": 1884,
+   "coincide": true
+  }
+ }
+}

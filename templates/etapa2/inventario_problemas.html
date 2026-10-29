@@ -1,187 +1,138 @@
 {% extends "etapa2/seccion.html" %}
 
 {% block seccion_contenido %}
-<!-- Resumen Cuantitativo del Inventario -->
+{% set inv = res.inventario %}
+{% set alto = inv | selectattr('impacto', 'equalto', 'Alto') | list | length %}
+{% set medio = inv | selectattr('impacto', 'equalto', 'Medio') | list | length %}
+{% set bajo = inv | selectattr('impacto', 'equalto', 'Bajo') | list | length %}
+
+<!-- Resumen -->
 <div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Problemas Críticos</span>
-      <h3 class="fw-bold text-danger my-1">4</h3>
-      <span class="text-muted small">Nivel Atributo y Relacional</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-secondary bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Problemas inventariados</span>
+      <h3 class="fw-bold text-dark my-1">{{ inv | length }}</h3>
+      <span class="text-muted small">{{ inv | length - 1 }} con hallazgo · 1 sin novedad</span>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Registros con Vacíos</span>
-      <h3 class="fw-bold text-warning my-1">4.821</h3>
-      <span class="text-muted small">Celdas nulas en Potencia</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Impacto alto</span>
+      <h3 class="fw-bold text-danger my-1">{{ alto }}</h3>
+      <span class="text-muted small">Cobertura, ventana y año parcial</span>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Incoherencias Físicas</span>
-      <h3 class="fw-bold text-primary my-1">1.240</h3>
-      <span class="text-muted small">BEV con cilindraje &gt; 0</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Impacto medio</span>
+      <h3 class="fw-bold text-warning my-1">{{ medio }}</h3>
+      <span class="text-muted small">Formato, homónimos, año modelo, atípicos</span>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Desfase Territorial</span>
-      <h3 class="fw-bold text-info my-1">4.354</h3>
-      <span class="text-muted small">Cadenas de texto no normalizadas</span>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Impacto bajo</span>
+      <h3 class="fw-bold text-success my-1">{{ bajo }}</h3>
+      <span class="text-muted small">Carrocería y unicidad</span>
     </div>
   </div>
 </div>
 
-<!-- Tabla Principal: Inventario de Problemas (Oliveira et al.) -->
+<!-- Tabla principal -->
 <div class="card shadow-sm border-0 mb-4 p-4 bg-white">
   <div class="border-bottom pb-3 mb-3">
-    <h4 class="fw-bold text-dark mb-1">Matriz de No Conformidades y Auditoría Técnica</h4>
-    <p class="text-muted small mb-0">Clasificación por granularidad, dimensión de calidad, nivel de impacto y evidencia en el repositorio.</p>
+    <h4 class="fw-bold text-dark mb-1">Inventario de problemas de calidad</h4>
+    <p class="text-muted small mb-0">
+      Variable afectada, descripción, cantidad de registros, dimensión, impacto y evidencia (expresión que reproduce el conteo sobre
+      <code>df</code>, el dataset descargado). Las cifras provienen de <a href="{{ url_for('descargar_datos', archivo='resultados_eda.json') }}" target="_blank">resultados_eda.json</a>.
+    </p>
   </div>
-
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
       <thead class="table-light">
-        <tr>
-          <th>Granularidad (Oliveira et al.)</th>
-          <th>Campo Afectado</th>
-          <th>Descripción de la No Conformidad</th>
-          <th>Registros (%)</th>
-          <th>Dimensión</th>
-          <th>Impacto</th>
-          <th>Evidencia Empírica</th>
-          <th>Estado</th>
-        </tr>
+        <tr><th>#</th><th>Variable / campo</th><th>Descripción del problema</th><th class="text-end">Registros (filas)</th><th class="text-end">Vehículos</th><th>Dimensión</th><th>Impacto</th><th>Evidencia</th><th>Estado</th></tr>
       </thead>
       <tbody>
+        {% for p in inv %}
         <tr>
-          <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
-          <td><code>Potencia</code></td>
-          <td>Valores ausentes (<code>NaN</code>) o capturados en cero absoluto en automotores comerciales.</td>
-          <td>4.821 (8.53%)</td>
-          <td><span class="badge bg-success bg-opacity-10 text-success border border-success">Completitud</span></td>
-          <td><span class="badge bg-danger">Alto</span></td>
-          <td><code>df['Potencia'].isnull().sum() == 4821</code></td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
+          <td class="text-muted">{{ loop.index }}</td>
+          <td><code>{{ p.campo }}</code></td>
+          <td>{{ p.descripcion }}</td>
+          <td class="text-end">{{ p.filas | miles }} <span class="text-muted small">({{ p.pct | pct }})</span></td>
+          <td class="text-end">{{ p.vehiculos | miles if p.vehiculos is not none else '—' }}</td>
+          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">{{ p.dimension }}</span></td>
+          <td>
+            {% if p.impacto == 'Alto' %}<span class="badge bg-danger">Alto</span>
+            {% elif p.impacto == 'Medio' %}<span class="badge bg-warning text-dark">Medio</span>
+            {% else %}<span class="badge bg-success">Bajo</span>{% endif %}
+          </td>
+          <td><code class="small">{{ p.evidencia }}</code></td>
+          <td>
+            {% if p.filas == 0 %}<span class="badge bg-secondary">Sin novedad</span>
+            {% else %}<a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Tratado</a>{% endif %}
+          </td>
         </tr>
-        <tr>
-          <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
-          <td><code>Cilindraje</code></td>
-          <td>Vehículos 100% eléctricos (BEV) registrados con cilindraje mayor a 0 cc (ej. 1.500 cc).</td>
-          <td>1.240 (2.19%)</td>
-          <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Exactitud Lógica</span></td>
-          <td><span class="badge bg-danger">Alto</span></td>
-          <td><code>(Combustible == 'ELECTRICO') &amp; (Cilindraje &gt; 0)</code></td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-secondary">1. Atributo / Tupla</span></td>
-          <td><code>Municipio</code> / <code>Depto</code></td>
-          <td>Variabilidad ortográfica, tildes, caracteres especiales y espacios en blanco redundantes.</td>
-          <td>4.354 (7.70%)</td>
-          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia</span></td>
-          <td><span class="badge bg-warning text-dark">Medio</span></td>
-          <td>Presencia de "BOGOTA D.C.", "BOGOTA", "BOGOTÁ D. C." en la misma columna</td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-info text-dark">2. Relación</span></td>
-          <td><code>ID_Registro</code></td>
-          <td>Existencia potencial de redundancias por acumulación de cortes trimestrales de datos abiertos.</td>
-          <td>0 (0.00%)</td>
-          <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Unicidad</span></td>
-          <td><span class="badge bg-success">Bajo</span></td>
-          <td><code>df.duplicated(subset=['ID_Registro']).sum() == 0</code></td>
-          <td><span class="badge bg-secondary">Sin novedad</span></td>
-        </tr>
-        <tr>
-          <td><span class="badge bg-primary">3. Varias Relaciones</span></td>
-          <td><code>Codigo_Municipio_DANE</code></td>
-          <td>Organismos de tránsito con códigos internos no homologados a la codificación oficial DIVIPOLA.</td>
-          <td>1.890 (3.34%)</td>
-          <td><span class="badge bg-info bg-opacity-10 text-info border border-info">Consistencia Referencial</span></td>
-          <td><span class="badge bg-danger">Alto</span></td>
-          <td>Fallo de emparejamiento (<code>left_join is null</code>) contra tabla DANE</td>
-          <td><a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}" class="badge bg-success text-decoration-none">Corregido</a></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
-  <small class="text-muted d-block mt-2">
-    El estado "Corregido" enlaza al proceso aplicado en la
-    <a href="{{ url_for('etapa2_seccion', slug='plan-tratamiento') }}">Sección 5 · Plan de Tratamiento</a>.
-  </small>
+  <small class="text-muted d-block mt-2">«Tratado» significa que el plan de la Sección 5 lo corrige o lo marca con un indicador; no implica que el dato se haya modificado (ver «Estado» en la Sección 6).</small>
 </div>
 
-<!-- Gráfica: Distribución de Problemas por Nivel de Impacto -->
+<!-- Gráficas -->
 <div class="row g-4 mb-4">
   <div class="col-lg-5">
     <div class="card shadow-sm border-0 p-4 h-100 bg-white">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-pie-chart text-danger me-2"></i>Problemas por Nivel de Impacto
-      </h5>
-      <div style="max-height: 260px;">
-        <canvas id="chartImpacto"></canvas>
-      </div>
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-pie-chart text-danger me-2"></i>Problemas por nivel de impacto</h5>
+      <div style="height: 260px;"><canvas id="chartImpacto"></canvas></div>
     </div>
   </div>
   <div class="col-lg-7">
     <div class="card shadow-sm border-0 p-4 h-100 bg-white">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-bar-chart text-primary me-2"></i>Registros Afectados por Campo
-      </h5>
-      <div style="max-height: 260px;">
-        <canvas id="chartRegistros"></canvas>
-      </div>
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart text-primary me-2"></i>Vehículos afectados por problema</h5>
+      <div style="height: 260px;"><canvas id="chartRegistros"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- Análisis de Causa Raíz -->
+<!-- Causas -->
 <div class="row g-4 mb-4">
-  <div class="col-lg-6">
+  <div class="col-lg-7">
     <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-warning">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-search text-warning me-2"></i>Análisis de Causa Raíz de los Problemas
-      </h5>
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-search text-warning me-2"></i>Análisis de causas probables</h5>
       <ul class="list-unstyled small mb-0">
-        <li class="mb-3 pb-2 border-bottom">
-          <strong class="text-dark">1. Errores de Captura Humana en Ventanilla RUNT:</strong>
-          <p class="text-muted mb-0">Los digitadores de los organismos de tránsito replican formularios tradicionales de combustión fósil, asignando por inercia cilindrajes genéricos a vehículos eléctricos o dejando el campo potencia en blanco por falta de ficha física.</p>
-        </li>
-        <li class="mb-3 pb-2 border-bottom">
-          <strong class="text-dark">2. Ausencia de Validaciones Sintácticas en Origen:</strong>
-          <p class="text-muted mb-0">El sistema transaccional del RUNT históricamente no implementó aserciones lógicas condicionales que bloqueen la digitación de cilindraje cuando el tipo de propulsión seleccionado sea eléctrico puro (BEV).</p>
-        </li>
-        <li class="mb-0">
-          <strong class="text-dark">3. Disparidad Semántica entre Entidades Estatales:</strong>
-          <p class="text-muted mb-0">El Ministerio de Transporte utiliza convenciones abreviadas para municipios que no coinciden sintácticamente con el estándar DIVIPOLA del DANE, impidiendo cruces directos sin normalización previa.</p>
-        </li>
+        <li class="mb-3 pb-2 border-bottom"><strong class="text-dark">Fuente agregada y reducida (falta de variables):</strong>
+          <p class="text-muted mb-0">El portal publica un resumen por grupos con solo 8 variables, probablemente para proteger la identidad de los propietarios y simplificar la publicación. El proyecto planteó variables técnicas (potencia, cilindraje, marca) que esa versión no incluye: se asumieron sin verificar el esquema de la fuente.</p></li>
+        <li class="mb-3 pb-2 border-bottom"><strong class="text-dark">Ventana y año parcial (falta de actualización / desalineación):</strong>
+          <p class="text-muted mb-0">El periodo 2014–2024 se definió al plantear el proyecto, antes de revisar la cobertura real. El dataset se actualiza periódicamente, por lo que el año en curso siempre está incompleto.</p></li>
+        <li class="mb-3 pb-2 border-bottom"><strong class="text-dark">Formatos diferentes entre columnas:</strong>
+          <p class="text-muted mb-0">Cada columna territorial usa una convención de escritura distinta (departamento en Mayúscula Inicial, municipio en MAYÚSCULAS, sin tildes en ambas), señal de que se generan con procesos de normalización separados.</p></li>
+        <li class="mb-3 pb-2 border-bottom"><strong class="text-dark">Ausencia de códigos estándar:</strong>
+          <p class="text-muted mb-0">Sin código DIVIPOLA, municipios con el mismo nombre (Barbosa, La Unión, Ricaurte) solo se distinguen por el departamento.</p></li>
+        <li class="mb-3 pb-2 border-bottom"><strong class="text-dark">Errores de captura y ausencia de validaciones en origen:</strong>
+          <p class="text-muted mb-0">Un año modelo dos años adelantado, una carrocería vacía y variantes de una misma carrocería («Ó» / «ó») indican que el registro no valida el formato ni aplica listas controladas.</p></li>
+        <li class="mb-0"><strong class="text-dark">Naturaleza agregada del dato (atípicos):</strong>
+          <p class="text-muted mb-0">Los grupos con miles de vehículos no son errores: reflejan que pocas combinaciones (p. ej. camioneta híbrida en Bogotá) concentran casi toda la población.</p></li>
       </ul>
     </div>
   </div>
-
-  <div class="col-lg-6">
+  <div class="col-lg-5">
     <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-danger">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-shield-slash text-danger me-2"></i>Consecuencias en la Minería de Datos
-      </h5>
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-slash text-danger me-2"></i>Consecuencias para la minería de datos</h5>
       <div class="d-flex flex-column gap-3 small">
-        <div class="p-3 border rounded bg-light">
-          <strong class="text-dark d-block mb-1">Ruptura en Algoritmos de Segmentación (K-Prototypes / Clustering):</strong>
-          <span class="text-muted">Si no se imputan los 4.821 nulos de potencia o se mantienen cilindrajes térmicos en BEV, las funciones de distancia euclidiana calcularán centroides sesgados, ubicando vehículos eléctricos en clusters de combustión tradicional.</span>
-        </div>
-        <div class="p-3 border rounded bg-light">
-          <strong class="text-dark d-block mb-1">Sobredistorsión de Factores de Emisión (Well-to-Wheel):</strong>
-          <span class="text-muted">El modelo ambiental asignaría consumo de combustible fósil a un automotor 100% eléctrico que no emite gases por tubo de escape, falseando el cálculo final de toneladas de CO₂ evitadas para Bogotá D.C.</span>
-        </div>
+        <div class="p-3 border rounded bg-light"><strong class="text-dark d-block mb-1">Contar filas en lugar de vehículos</strong>
+          <span class="text-muted">Subestimaría el peso de los grupos grandes: el {{ res.perfilamiento.cantidad.pct_filas_atipicas | pct(1) }} de las filas es el {{ res.perfilamiento.cantidad.pct_vehiculos_en_atipicas | pct(1) }} de los vehículos.</span></div>
+        <div class="p-3 border rounded bg-light"><strong class="text-dark d-block mb-1">Comparar un año parcial con años completos</strong>
+          <span class="text-muted">Produciría una falsa caída en {{ res.meta.anio_max }}; debe analizarse como parcial.</span></div>
+        <div class="p-3 border rounded bg-light"><strong class="text-dark d-block mb-1">Agrupar por municipio sin departamento</strong>
+          <span class="text-muted">Fusionaría territorios distintos en tres municipios homónimos.</span></div>
+        <div class="p-3 border rounded bg-light"><strong class="text-dark d-block mb-1">Variables previstas inexistentes</strong>
+          <span class="text-muted">No es posible segmentar por potencia o cilindraje ni estimar la huella de CO<sub>2</sub> con esta fuente sola.</span></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Botones de Navegación -->
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
   <a class="btn btn-outline-secondary" href="{{ url_for('etapa2_seccion', slug='dimensiones-metricas') }}">
     <i class="bi bi-arrow-left me-1"></i> 3. Dimensiones y Métricas
@@ -195,42 +146,22 @@
 {% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+  const INV = {{ res.inventario | tojson }};
+  const cuenta = n => INV.filter(p => p.impacto === n).length;
   new Chart(document.getElementById('chartImpacto'), {
     type: 'doughnut',
-    data: {
-      labels: ['Alto', 'Medio', 'Bajo'],
-      datasets: [{
-        data: [3, 1, 1],
-        backgroundColor: ['#dc3545', '#f2ba1d', '#2d5a43'],
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } }
-    }
+    data: { labels: ['Alto', 'Medio', 'Bajo'], datasets: [{ data: [cuenta('Alto'), cuenta('Medio'), cuenta('Bajo')],
+      backgroundColor: ['#dc3545', '#f2ba1d', '#2d5a43'], borderWidth: 2, borderColor: '#ffffff' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
 
+  const con = INV.filter(p => p.vehiculos !== null && p.vehiculos > 0 && p.vehiculos < {{ res.meta.vehiculos }});
   new Chart(document.getElementById('chartRegistros'), {
     type: 'bar',
-    data: {
-      labels: ['Potencia', 'Municipio/Depto', 'Cod_Municipio_DANE', 'Cilindraje'],
-      datasets: [{
-        label: 'Registros afectados',
-        data: [4821, 4354, 1890, 1240],
-        backgroundColor: '#2d5a43',
-        borderRadius: 6,
-        maxBarThickness: 46
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
-    }
+    data: { labels: con.map(p => '#' + (INV.indexOf(p) + 1) + ' ' + (p.campo.length > 22 ? p.campo.slice(0, 22) + '…' : p.campo)),
+      datasets: [{ label: 'Vehículos afectados', data: con.map(p => p.vehiculos), backgroundColor: '#2d5a43', borderRadius: 5 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: v => v.toLocaleString('es-CO') } } } }
   });
 </script>
 {% endblock %}

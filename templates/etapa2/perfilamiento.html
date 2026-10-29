@@ -1,289 +1,229 @@
 {% extends "etapa2/seccion.html" %}
 
 {% block seccion_contenido %}
-<!-- Resumen General del Perfilamiento -->
+{% set p = res.perfilamiento %}
+{% set c = p.cantidad %}
+
+{% include "_fuente_datos.html" %}
+
+<!-- Resumen general -->
 <div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Volumen Analizado</span>
-      <h3 class="fw-bold text-dark my-1">56.545</h3>
-      <span class="text-muted small">Registros de automotores</span>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 shadow-sm border-start border-4 border-success bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Registros</span>
+      <h3 class="fw-bold text-dark my-1">{{ res.meta.filas | miles }}</h3>
+      <span class="text-muted small">filas (grupos)</span>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Estructura Atributos</span>
-      <h3 class="fw-bold text-primary my-1">18</h3>
-      <span class="text-muted small">Variables evaluadas</span>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 shadow-sm border-start border-4 border-primary bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Vehículos</span>
+      <h3 class="fw-bold text-primary my-1">{{ res.meta.vehiculos | miles }}</h3>
+      <span class="text-muted small">suma de cantidad</span>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Duplicados Exactos</span>
-      <h3 class="fw-bold text-warning my-1">0</h3>
-      <span class="text-muted small">En ID_Registro único</span>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Variables</span>
+      <h3 class="fw-bold text-info my-1">{{ res.meta.columnas }}</h3>
+      <span class="text-muted small">en la fuente</span>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm border-start border-4 border-info bg-white">
-      <span class="text-muted small text-uppercase fw-bold">Ventana Temporal</span>
-      <h3 class="fw-bold text-info my-1">2014 – 2024</h3>
-      <span class="text-muted small">11 periodos anuales</span>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 shadow-sm border-start border-4 border-warning bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Nulos</span>
+      <h3 class="fw-bold text-warning my-1">{{ p.nulos_totales }}</h3>
+      <span class="text-muted small">celda nula en total</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 shadow-sm border-start border-4 border-secondary bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Duplicados</span>
+      <h3 class="fw-bold text-dark my-1">{{ p.duplicados_llave }}</h3>
+      <span class="text-muted small">filas repetidas</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 shadow-sm border-start border-4 border-danger bg-white h-100">
+      <span class="text-muted small text-uppercase fw-bold">Periodo real</span>
+      <h3 class="fw-bold text-dark my-1">{{ res.meta.anio_min }}–{{ res.meta.anio_max }}</h3>
+      <span class="text-muted small">{{ res.meta.anio_max }} parcial</span>
     </div>
   </div>
 </div>
 
-<!-- Tabla 1: Perfilamiento Estructural y Valores Nulos -->
+<!-- Tabla 1: estructura de variables -->
 <div class="card shadow-sm border-0 mb-4 p-4 bg-white">
   <div class="border-bottom pb-3 mb-3">
-    <h4 class="fw-bold text-dark mb-1">Estructura de Variables, Tipos y Estado de Completitud</h4>
-    <p class="text-muted small mb-0">Inventario técnico de los atributos antes y después de la rectificación e imputación por catálogo.</p>
+    <h4 class="fw-bold text-dark mb-1">1. Estructura de las {{ res.meta.columnas }} variables de la fuente</h4>
+    <p class="text-muted small mb-0">Tipo de dato, valores únicos, nulos y rango de cada variable (calculado sobre las {{ res.meta.filas | miles }} filas).</p>
   </div>
-
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
       <thead class="table-light">
         <tr>
-          <th>Variable</th>
-          <th>Tipo Pandas / SQL</th>
-          <th>Valores Únicos</th>
-          <th>Nulos en Origen (N)</th>
-          <th>% Nulos Origen</th>
-          <th>Nulos Post-Tratamiento (_R)</th>
-          <th>Estado</th>
+          <th>Variable</th><th>Tipo en el portal</th><th>Tipo recomendado</th><th class="text-end">Valores únicos</th>
+          <th class="text-end">Nulos</th><th class="text-end">% nulos</th><th class="text-end">Mínimo</th><th class="text-end">Máximo</th><th>Valor más frecuente</th>
         </tr>
       </thead>
       <tbody>
+        {% for v in p.variables %}
         <tr>
-          <td><code>ID_Registro</code></td>
-          <td>int64 / BIGINT</td>
-          <td>56.545</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><code>{{ v.variable }}</code></td>
+          <td>{{ v.tipo_portal }}</td>
+          <td>{{ v.tipo_recomendado }}</td>
+          <td class="text-end">{{ v.unicos | miles }}</td>
+          <td class="text-end">{% if v.nulos %}<span class="badge bg-warning text-dark">{{ v.nulos }}</span>{% else %}0{% endif %}</td>
+          <td class="text-end">{{ v.pct_nulos | pct(4) }}</td>
+          <td class="text-end">{{ v.minimo if v.minimo is not none else '—' }}</td>
+          <td class="text-end">{% if v.maximo is none %}—{% elif v.variable in ['modelo', 'a_o_registro'] %}{{ v.maximo }}{% else %}{{ v.maximo | miles }}{% endif %}</td>
+          <td>{{ v.moda }} <span class="text-muted small">({{ v.moda_vehiculos | miles }} {{ v.moda_unidad }})</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <small class="text-muted d-block mt-2">
+    El portal publica casi todas las variables como texto (<code>text</code>); para operar con <code>modelo</code>, <code>a_o_registro</code> y
+    <code>cantidad</code> se convierten a entero (ver Sección 5). <strong>Duplicados:</strong> {{ p.duplicados_exactos }} filas exactas repetidas y
+    {{ p.duplicados_llave }} repetidas por la combinación de las 7 variables categóricas.
+  </small>
+</div>
+
+<!-- Tabla 2: estadísticos de cantidad + gráfica -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calculator text-primary me-2"></i>2. Estadísticos de <code>cantidad</code></h5>
+      <table class="table table-sm table-bordered align-middle mb-2">
+        <tbody>
+          <tr><th class="table-light">Mínimo</th><td class="text-end">{{ c.minimo }}</td></tr>
+          <tr><th class="table-light">Primer cuartil (Q1)</th><td class="text-end">{{ c.q1 | dec(0) }}</td></tr>
+          <tr><th class="table-light">Mediana</th><td class="text-end">{{ c.mediana | dec(0) }}</td></tr>
+          <tr><th class="table-light">Media</th><td class="text-end">{{ c.media | dec(2) }}</td></tr>
+          <tr><th class="table-light">Tercer cuartil (Q3)</th><td class="text-end">{{ c.q3 | dec(0) }}</td></tr>
+          <tr><th class="table-light">Máximo</th><td class="text-end">{{ c.maximo | miles }}</td></tr>
+          <tr><th class="table-light">Desviación estándar</th><td class="text-end">{{ c.desv | dec(2) }}</td></tr>
+          <tr><th class="table-light">Rango intercuartílico (IQR)</th><td class="text-end">{{ c.iqr | dec(0) }}</td></tr>
+          <tr><th class="table-light">Límite atípicos (Q3 + 1,5·IQR)</th><td class="text-end">{{ c.limite_superior | dec(0) }}</td></tr>
+        </tbody>
+      </table>
+      <small class="text-muted">Los demás estadísticos (mínimo, máximo, promedio) de <code>modelo</code> y <code>a_o_registro</code> están en la tabla anterior.</small>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
+      <h5 class="fw-bold text-dark mb-1"><i class="bi bi-bar-chart-line text-danger me-2"></i>3. Distribución de los tamaños de grupo</h5>
+      <p class="text-muted small mb-2">Muchísimos grupos pequeños y pocos enormes: {{ c.pct_filas_cantidad_1 | pct(1) }} de las filas tiene 1 vehículo.</p>
+      <div style="height: 270px;"><canvas id="chartHist"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- Atípicos e inconsistencias -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <h5 class="fw-bold text-dark mb-1"><i class="bi bi-exclamation-triangle text-warning me-2"></i>4. Valores atípicos e inconsistencias detectados</h5>
+  <p class="text-muted small mb-3">Cada hallazgo se mide sobre los datos reales; el tratamiento aplicado está en la Sección 5.</p>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light"><tr><th>Hallazgo</th><th class="text-end">Filas</th><th class="text-end">Vehículos</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Atípicos en <code>cantidad</code></strong> (regla IQR)</td>
+          <td class="text-end">{{ c.filas_atipicas | miles }}</td><td class="text-end">{{ c.vehiculos_en_atipicas | miles }}</td>
+          <td>{{ c.pct_filas_atipicas | pct }} de las filas concentra el <strong>{{ c.pct_vehiculos_en_atipicas | pct }}</strong> de los vehículos. Son grupos reales, no errores (p. ej. el mayor tiene {{ c.maximo | miles }}).</td>
         </tr>
         <tr>
-          <td><code>Fecha_Matricula</code></td>
-          <td>datetime64[ns] / DATE</td>
-          <td>3.218</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>Año modelo</strong> más de 1 año posterior al de registro</td>
+          <td class="text-end">{{ p.modelo_mayor_anio_mas1.filas }}</td><td class="text-end">{{ p.modelo_mayor_anio_mas1.vehiculos | miles }}</td>
+          <td>Ejemplo: modelo {{ p.ejemplos_modelo_inusual[0].modelo }} registrado en {{ p.ejemplos_modelo_inusual[0].anio }} ({{ p.ejemplos_modelo_inusual[0].cantidad }} vehículos en {{ p.ejemplos_modelo_inusual[0].municipio | title }}). Un año modelo adelantado 1 año es habitual ({{ p.modelo_mayor_anio.filas | miles }} filas).</td>
         </tr>
         <tr>
-          <td><code>Año_Registro</code></td>
-          <td>int64 / SMALLINT</td>
-          <td>11</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>Municipios homónimos</strong></td>
+          <td class="text-end">{{ p.filas_homonimas }}</td><td class="text-end">—</td>
+          <td>{% for h in p.homonimos %}{{ h.municipio }} ({{ h.departamentos | join(' / ') }}){{ '; ' if not loop.last }}{% endfor %}: el municipio solo no identifica el territorio.</td>
         </tr>
         <tr>
-          <td><code>Combustible</code></td>
-          <td>object / VARCHAR(20)</td>
-          <td>5</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>Carrocería nula</strong></td>
+          <td class="text-end">{{ p.carroceria_nula.filas }}</td><td class="text-end">{{ p.carroceria_nula.vehiculos }}</td>
+          <td>Único valor vacío de todo el dataset (triciclo eléctrico en Funza).</td>
         </tr>
         <tr>
-          <td><code>Clase</code></td>
-          <td>object / VARCHAR(20)</td>
-          <td>6</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>Carrocería</strong> con tildes o signos</td>
+          <td class="text-end">{{ p.filas_carroceria_especial }}</td><td class="text-end">—</td>
+          <td>{{ p.carroceria_caracteres_especiales }} valores distintos; «REPARTO Ó PALET» y «REPARTO ó PALET» son la misma categoría.</td>
         </tr>
         <tr>
-          <td><code>Servicio</code></td>
-          <td>object / VARCHAR(15)</td>
-          <td>3</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>«SIN CARROCERIA»</strong></td>
+          <td class="text-end">{{ p.sin_carroceria.filas | miles }}</td><td class="text-end">{{ p.sin_carroceria.vehiculos | miles }}</td>
+          <td>Categoría explícita ({{ p.sin_carroceria.pct_vehiculos | pct }} de los vehículos): motos y ciclomotores que no declaran carrocería.</td>
         </tr>
         <tr>
-          <td><code>Marca</code></td>
-          <td>object / VARCHAR(50)</td>
-          <td>84</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>Año {{ p.anio_parcial.anio }} parcial</strong></td>
+          <td class="text-end">{{ p.anio_parcial.filas | miles }}</td><td class="text-end">{{ p.anio_parcial.vehiculos | miles }}</td>
+          <td>Corte del portal: {{ res.meta.actualizacion_portal }}; equivale al {{ p.anio_parcial.pct_vehiculos | pct(1) }} de los vehículos.</td>
         </tr>
         <tr>
-          <td><code>Linea</code></td>
-          <td>object / VARCHAR(60)</td>
-          <td>412</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Íntegro</span></td>
+          <td><strong>Ventana declarada</strong> ({{ p.ventana.declarada }}) vs. real ({{ p.ventana.real }})</td>
+          <td class="text-end">{{ p.ventana.filas_fuera | miles }}</td><td class="text-end">{{ p.ventana.vehiculos_fuera | miles }}</td>
+          <td>{{ p.ventana.pct_vehiculos_fuera | pct(1) }} de los vehículos se registró fuera del periodo planteado inicialmente; el año 2014 no tiene datos.</td>
         </tr>
         <tr>
-          <td><code>Potencia</code> / <code>Potencia_R</code></td>
-          <td>float64 / FLOAT</td>
-          <td>196</td>
-          <td>4.821</td>
-          <td>8.53%</td>
-          <td>0</td>
-          <td><span class="badge bg-primary">Imputado (_R)</span></td>
-        </tr>
-        <tr>
-          <td><code>Cilindraje</code> / <code>Cilindraje_R</code></td>
-          <td>float64 / FLOAT</td>
-          <td>78</td>
-          <td>1.240</td>
-          <td>2.19%</td>
-          <td>0</td>
-          <td><span class="badge bg-primary">Rectificado (_R)</span></td>
-        </tr>
-        <tr>
-          <td><code>Capacidad_Pasajeros_R</code></td>
-          <td>int64 / SMALLINT</td>
-          <td>12</td>
-          <td>892</td>
-          <td>1.58%</td>
-          <td>0</td>
-          <td><span class="badge bg-primary">Imputado (_R)</span></td>
-        </tr>
-        <tr>
-          <td><code>Capacidad_Carga_R</code></td>
-          <td>float64 / FLOAT</td>
-          <td>145</td>
-          <td>2.105</td>
-          <td>3.72%</td>
-          <td>0</td>
-          <td><span class="badge bg-primary">Imputado (_R)</span></td>
-        </tr>
-        <tr>
-          <td><code>Codigo_Municipio_DANE</code></td>
-          <td>object / VARCHAR(5)</td>
-          <td>168</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Homologado</span></td>
-        </tr>
-        <tr>
-          <td><code>Codigo_Depto_DANE</code></td>
-          <td>object / VARCHAR(2)</td>
-          <td>33</td>
-          <td>0</td>
-          <td>0.00%</td>
-          <td>0</td>
-          <td><span class="badge bg-success">Homologado</span></td>
+          <td><strong>Clases casi inexistentes</strong></td>
+          <td class="text-end">—</td><td class="text-end">—</td>
+          <td>{% for x in p.clases_poco_representadas %}{{ x.categoria }} ({{ x.vehiculos }}){{ ', ' if not loop.last }}{% endfor %}.</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- Gráfica: % de Nulos por Variable (Origen) -->
-<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
-  <h5 class="fw-bold text-dark mb-3">
-    <i class="bi bi-bar-chart-line text-danger me-2"></i>Porcentaje de Valores Nulos por Variable (Antes del Tratamiento)
-  </h5>
-  <div style="max-height: 280px;">
-    <canvas id="chartNulos"></canvas>
+<!-- Variables previstas no disponibles -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-secondary">
+  <h5 class="fw-bold text-dark mb-1"><i class="bi bi-slash-circle text-secondary me-2"></i>5. Variables del diccionario del proyecto que la fuente enlazada no incluye</h5>
+  <p class="text-muted small mb-3">
+    Se conservan documentadas, pero <strong>no se reportan resultados sobre ellas</strong> porque no existen en <code>{{ res.meta.identificador }}</code> y no
+    podrían verificarse. Quedan como variables previstas para una fuente complementaria.
+  </p>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0" style="font-size: 0.86rem;">
+      <thead class="table-light"><tr><th>Variable</th><th>Descripción</th><th>Estado en la fuente</th><th>Tratamiento previsto (si se obtiene)</th></tr></thead>
+      <tbody>
+        {% for v in p.no_disponibles %}
+        <tr>
+          <td><code>{{ v.variable }}</code></td><td>{{ v.descripcion }}</td>
+          <td><span class="badge bg-secondary">No disponible</span></td>
+          <td class="text-muted">{{ v.tratamiento_previsto }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+  <small class="text-muted d-block mt-2">
+    Equivalencias: <code>Año_Registro</code> = <code>a_o_registro</code>, <code>Combustible</code> = <code>combustible</code>, <code>Clase</code> = <code>clase</code>,
+    <code>Municipio</code>/<code>Departamento</code> = <code>municipio</code>/<code>departamento</code>. La fuente aporta además <code>modelo</code>, <code>carroceria</code> y <code>cantidad</code>.
+  </small>
 </div>
 
-<!-- Estadísticos Descriptivos y Detección de Atípicos -->
-<div class="row g-4 mb-4">
-  <div class="col-lg-7">
-    <div class="card shadow-sm border-0 p-4 h-100 bg-white">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-calculator text-primary me-2"></i>Estadísticos Descriptivos de Variables Numéricas (_R)
-      </h5>
-      <div class="table-responsive">
-        <table class="table table-bordered table-sm align-middle mb-0" style="font-size: 0.85rem;">
-          <thead class="table-light">
-            <tr>
-              <th>Métrica</th>
-              <th>Potencia_R (kW)</th>
-              <th>Cilindraje_R (cc)</th>
-              <th>Pasajeros_R</th>
-              <th>Carga_R (kg)</th>
-              <th>CO₂ Evitado (Ton/año)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Mínimo</strong></td>
-              <td>1.20</td>
-              <td>0.00</td>
-              <td>1</td>
-              <td>0.00</td>
-              <td>0.12</td>
-            </tr>
-            <tr>
-              <td><strong>Media</strong></td>
-              <td>124.50</td>
-              <td>1,385.20</td>
-              <td>5.40</td>
-              <td>780.40</td>
-              <td>3.65</td>
-            </tr>
-            <tr>
-              <td><strong>Mediana</strong></td>
-              <td>110.00</td>
-              <td>1,798.00</td>
-              <td>5.00</td>
-              <td>450.00</td>
-              <td>1.85</td>
-            </tr>
-            <tr>
-              <td><strong>Máximo</strong></td>
-              <td>350.00</td>
-              <td>4,969.00</td>
-              <td>160</td>
-              <td>18,000.00</td>
-              <td>32.80</td>
-            </tr>
-            <tr>
-              <td><strong>Desv. Estándar</strong></td>
-              <td>68.30</td>
-              <td>845.10</td>
-              <td>8.20</td>
-              <td>1,450.30</td>
-              <td>4.90</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <small class="text-muted mt-2 d-block">Nota: Los valores de Cilindraje_R = 0 corresponden a vehículos puramente eléctricos (BEV).</small>
-    </div>
-  </div>
+<details class="card shadow-sm border-0 mb-4 p-3 bg-white">
+  <summary class="fw-bold text-dark"><i class="bi bi-code-slash me-2 text-primary"></i>Código utilizado (de dónde salen estas cifras)</summary>
+<pre class="bg-dark text-light p-3 rounded-3 mt-3 mb-2 small"><code>import pandas as pd
 
-  <div class="col-lg-5">
-    <div class="card shadow-sm border-0 p-4 h-100 bg-white border-start border-4 border-warning">
-      <h5 class="fw-bold text-dark mb-3">
-        <i class="bi bi-exclamation-triangle text-warning me-2"></i>Detección y Tratamiento de Atípicos (Outliers)
-      </h5>
-      <ul class="list-unstyled small mb-0">
-        <li class="mb-3">
-          <strong class="text-dark">1. Potencias Fraccionarias (< 1 kW):</strong>
-          <p class="text-muted mb-0">Se detectaron registros con valores como 0.2 kW en automóviles comerciales por error tipográfico al capturar kW en vez de MW o HP. Se reasignó la mediana técnica por marca y modelo.</p>
-        </li>
-        <li class="mb-3">
-          <strong class="text-dark">2. Cilindrajes > 6.000 cc:</strong>
-          <p class="text-muted mb-0">Casos atípicos en camionetas ligeras con valores de 8.000 cc debidos a la concatenación involuntaria de códigos de serie con cilindraje. Fueron truncados y rectificados.</p>
-        </li>
-        <li class="mb-0">
-          <strong class="text-dark">3. Capacidad de Pasajeros (> 100):</strong>
-          <p class="text-muted mb-0">Valores validados como físicamente legítimos al corresponder a los buses articulados y biarticulados del sistema masivo TransMilenio (SITP) de Bogotá D.C.</p>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
+df = pd.read_csv("data/raw/vehiculos_electricos_hibridos_runt.csv",
+                 dtype=str, keep_default_na=False, na_values=[""])
+df["cantidad"] = df["cantidad"].astype(int)
+
+len(df), df["cantidad"].sum()             # {{ res.meta.filas | miles }} filas, {{ res.meta.vehiculos | miles }} vehículos
+df.nunique()                              # valores únicos por variable
+df.isna().sum()                           # nulos por variable
+df.duplicated().sum()                     # duplicados exactos: {{ p.duplicados_exactos }}
+df["cantidad"].describe()                 # estadísticos
+
+q1, q3 = df["cantidad"].quantile([.25, .75])
+atipicos = df[df["cantidad"] &gt; q3 + 1.5 * (q3 - q1)]     # {{ c.filas_atipicas | miles }} filas</code></pre>
+  <small class="text-muted">Script completo y reproducible: <a href="{{ url_for('ver_codigo', archivo='calidad_etapa2.py') }}" target="_blank">calidad_etapa2.py</a> ·
+  resultados calculados: <a href="{{ url_for('descargar_datos', archivo='resultados_eda.json') }}" target="_blank">resultados_eda.json</a>.</small>
+</details>
 
 <!-- Botones de Navegación -->
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
@@ -299,27 +239,17 @@
 {% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-  new Chart(document.getElementById('chartNulos'), {
+  const H = {{ res.perfilamiento.histograma_cantidad | tojson }};
+  const fmt = n => n.toLocaleString('es-CO');
+  new Chart(document.getElementById('chartHist'), {
     type: 'bar',
-    data: {
-      labels: ['Potencia', 'Capacidad_Carga', 'Cilindraje', 'Capacidad_Pasajeros'],
-      datasets: [{
-        label: '% de nulos en origen',
-        data: [8.53, 3.72, 2.19, 1.58],
-        backgroundColor: '#f2ba1d',
-        borderRadius: 6,
-        maxBarThickness: 46
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { beginAtZero: true, ticks: { callback: v => v + '%' }, title: { display: true, text: '% de registros nulos' } }
-      }
-    }
+    data: { labels: H.map(x => x.rango),
+      datasets: [
+        { label: 'Filas (grupos)', data: H.map(x => x.filas), backgroundColor: '#f2ba1d', borderRadius: 4 },
+        { label: 'Vehículos', data: H.map(x => x.vehiculos), backgroundColor: '#2d5a43', borderRadius: 4 }
+      ] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { ticks: { callback: v => fmt(v) } }, x: { title: { display: true, text: 'Vehículos por grupo (cantidad)' } } } }
   });
 </script>
 {% endblock %}
