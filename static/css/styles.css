@@ -263,3 +263,68 @@ h1, h2, h3, h4, h5, h6 {
   border-top: 1px solid var(--border-subtle);
   color: var(--text-muted);
 }
+/* ==========================================================================
+   CONOCIMIENTO EVIDENTE · informe de Power BI incrustado
+   ========================================================================== */
+
+/* El informe se ve mejor a todo el ancho: sale del contenedor central de Bootstrap */
+.informe-ancho {
+  position: relative;
+  left: 50%;
+  width: min(1900px, calc(100vw - 2rem));
+  transform: translateX(-50%);
+}
+
+.informe-marco {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-default);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.informe-marco iframe {
+  display: block;
+  width: 100%;
+  height: 88vh;
+  min-height: 640px;
+  border: 0;
+}
+
+.informe-marco:fullscreen iframe {
+  height: calc(100vh - 3.5rem);
+}
+
+.informe-marco:fullscreen {
+  background: var(--bg-surface);
+}
+
+.btn-pagina-informe {
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 2rem;
+  padding: 0.3rem 0.9rem;
+}
+
+.btn-pagina-informe:hover,
+.btn-pagina-informe.active {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.pregunta-num {
+  width: 2.4rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-primary-dark);
+  border: 1px solid rgba(242, 186, 29, 0.5);
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

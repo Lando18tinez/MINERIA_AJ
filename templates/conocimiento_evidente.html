@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Conocimiento evidente · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Conocimiento evidente</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de sección -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-bar-chart-line-fill text-warning me-1"></i>Descubrimiento de conocimiento evidente
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-1">Conocimiento evidente</h1>
+  <p class="text-muted mb-0">
+    Análisis exploratorio del dataset del proyecto mediante indicadores, comparaciones y visualizaciones, presentado en
+    tableros interactivos de Power BI.
+  </p>
+</div>
+
+<!-- Propósito de la etapa -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <h4 class="fw-bold text-dark mb-2"><i class="bi bi-bullseye text-warning me-2"></i>Propósito de la etapa</h4>
+  <p class="mb-2">
+    Identificar <strong>conocimientos evidentes</strong> sobre los vehículos eléctricos e híbridos registrados en Colombia:
+    qué hay, dónde, cuándo y con qué combinaciones de características. Cada conocimiento se sustenta en un indicador, una
+    visualización o una cifra verificable, y se documenta con la pregunta, las variables, el procedimiento, la evidencia,
+    el hallazgo, la interpretación, la utilidad y la limitación.
+  </p>
+  <p class="text-muted small mb-0">
+    Se usa <strong>el mismo tema, población y dataset de las etapas anteriores</strong>
+    ({{ ce.meta.fuente }}); no se seleccionó un dataset nuevo. El análisis parte de los datos resultantes del tratamiento
+    de calidad de la Etapa 2.
+  </p>
+</div>
+
+<!-- Datos analizados -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-primary">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-database-check text-primary me-2"></i>Datos analizados</h4>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <dl class="row small mb-0">
+        <dt class="col-sm-4">Fuente</dt>
+        <dd class="col-sm-8">
+          {{ ce.meta.fuente }} · <code>{{ ce.meta.identificador }}</code> ·
+          <a href="{{ ce.meta.url_portal }}" target="_blank" rel="noopener noreferrer">portal datos.gov.co
+            <i class="bi bi-box-arrow-up-right"></i></a>
+        </dd>
+
+        <dt class="col-sm-4">Periodo analizado</dt>
+        <dd class="col-sm-8"><strong>{{ ce.meta.periodo.desde }}–{{ ce.meta.periodo.hasta }}</strong> (año de registro)</dd>
+
+        <dt class="col-sm-4">Descarga</dt>
+        <dd class="col-sm-8">
+          {{ ce.meta.fecha_descarga }} · última actualización del portal: {{ ce.meta.actualizacion_portal }}
+        </dd>
+
+        <dt class="col-sm-4">Registros disponibles</dt>
+        <dd class="col-sm-8">
+          <strong>{{ ce.preparacion.registros_analisis | miles }}</strong> grupos de registro que suman
+          <strong>{{ ce.preparacion.vehiculos | miles }}</strong> vehículos. Quedan fuera
+          {{ ce.meta.fuera_de_la_ventana.vehiculos | miles }} vehículos de
+          {{ ce.meta.fuera_de_la_ventana.anios }}: {{ ce.meta.fuera_de_la_ventana.motivo }}
+        </dd>
+
+        <dt class="col-sm-4">Unidad de análisis</dt>
+        <dd class="col-sm-8">{{ ce.meta.unidad_analisis }}</dd>
+      </dl>
+    </div>
+
+    <div class="col-lg-6">
+      <h6 class="fw-bold text-dark">Tratamientos aplicados</h6>
+      <ul class="small ps-3 mb-3">
+        {% for t in ce.preparacion.tratamientos %}<li>{{ t }}</li>{% endfor %}
+      </ul>
+      <h6 class="fw-bold text-dark">Problemas de calidad que aún pueden afectar los resultados</h6>
+      <ul class="small ps-3 mb-0">
+        {% for p in ce.preparacion.problemas_pendientes %}<li>{{ p }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Las cuatro preguntas -->
+<div class="d-flex align-items-center justify-content-between mb-3 mt-5">
+  <div>
+    <h2 class="h4 fw-bold mb-1 text-dark">
+      <i class="bi bi-question-circle-fill text-success me-2"></i>Las cuatro preguntas de análisis
+    </h2>
+    <p class="text-muted small mb-0">Cada pregunta se desarrolla en una página del informe de Power BI.</p>
+  </div>
+  <span class="badge bg-dark px-3 py-2 text-uppercase">4 tableros</span>
+</div>
+
+<div class="row row-cols-1 row-cols-lg-2 g-4 mb-5">
+  {% for q in preguntas %}
+    <div class="col">
+      <div class="content-card card h-100 border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="pregunta-num">{{ q.num }}</span>
+            <div>
+              <div class="small text-muted text-uppercase fw-bold">{{ q.dimension }}</div>
+              <i class="bi {{ q.icono }} text-success"></i>
+            </div>
+          </div>
+          <h5 class="card-title fw-bold text-dark fs-6 mb-2">{{ q.pregunta }}</h5>
+          <p class="small text-muted mb-2"><strong>Variables:</strong> {{ q.variables }}.</p>
+          <ul class="small ps-3 mb-3">
+            {% for h in q.hallazgos %}<li>{{ h }}</li>{% endfor %}
+          </ul>
+          <div class="mt-auto pt-3 border-top">
+            {% if powerbi_url %}
+              <button type="button" class="btn btn-sm btn-outline-forest w-100" data-pagina="{{ q.pagina }}">
+                Ver el tablero {{ q.num }} <i class="bi bi-arrow-down-circle ms-1"></i>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Informe de Power BI -->
+<div id="informe" class="mb-3">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+    <div>
+      <h2 class="h4 fw-bold mb-1 text-dark">
+        <i class="bi bi-bar-chart-line-fill text-success me-2"></i>Informe interactivo de Power BI
+      </h2>
+      <p class="text-muted small mb-0">
+        Usa los segmentadores de cada página para filtrar. Desplázate hacia abajo dentro del informe para leer las
+        interpretaciones y los conocimientos de cada tablero.
+      </p>
+    </div>
+    {% if powerbi_url %}
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-pantalla-completa">
+          <i class="bi bi-arrows-fullscreen me-1"></i>Pantalla completa
+        </button>
+        <a class="btn btn-sm btn-energy" href="{{ powerbi_url }}" target="_blank" rel="noopener noreferrer">
+          <i class="bi bi-box-arrow-up-right me-1"></i>Abrir en pestaña nueva
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if powerbi_url %}
+  <div class="informe-ancho mb-4">
+    <div class="d-flex flex-wrap gap-2 mb-2" id="paginas-informe" role="group" aria-label="Páginas del informe">
+      <button type="button" class="btn-pagina-informe active" data-pagina="">Inicio del informe</button>
+      {% for q in preguntas %}
+        <button type="button" class="btn-pagina-informe" data-pagina="{{ q.pagina }}">
+          {{ q.num }}. {{ q.dimension.replace('Dimensión ', '').capitalize() }}
+        </button>
+      {% endfor %}
+    </div>
+    <div class="informe-marco" id="informe-marco">
+      <iframe id="informe-iframe"
+              src="{{ powerbi_url }}"
+              title="Informe de Power BI: conocimiento evidente de vehículos eléctricos e híbridos"
+              allowfullscreen loading="lazy"></iframe>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+    El informe de Power BI aún no está publicado. Cuando se publique, su enlace se configura en
+    <code>POWERBI_URL</code> (<code>app.py</code>) y aparecerá aquí incrustado.
+  </div>
+{% endif %}
+
+<div class="d-flex justify-content-end align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Volver al inicio
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if powerbi_url %}
+<script>
+  // Cambia la página del informe incrustado con el parámetro pageName de Power BI.
+  (function () {
+    var base = {{ powerbi_url | tojson }};
+    var marco = document.getElementById('informe-iframe');
+    var botonesPagina = document.querySelectorAll('#paginas-informe .btn-pagina-informe');
+
+    function mostrar(pagina) {
+      marco.src = pagina ? base + '&pageName=' + encodeURIComponent(pagina) : base;
+      botonesPagina.forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-pagina') === (pagina || ''));
+      });
+    }
+
+    document.querySelectorAll('[data-pagina]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        mostrar(b.getAttribute('data-pagina'));
+        if (!b.closest('#paginas-informe')) {
+          document.getElementById('informe').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    var pc = document.getElementById('btn-pantalla-completa');
+    if (pc) {
+      pc.addEventListener('click', function () {
+        var m = document.getElementById('informe-marco');
+        if (m.requestFullscreen) { m.requestFullscreen(); }
+        else { window.open(base, '_blank', 'noopener'); }
+      });
+    }
+  })();
+</script>
+{% endif %}
+{% endblock %}

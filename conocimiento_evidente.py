@@ -8,12 +8,14 @@ Fuente (única, la misma de las etapas anteriores): datos.gov.co · ntxy-q9ix
 Qué hace:
     1. Lee el CSV original y aplica el MISMO tratamiento de calidad de la Etapa 2
        (calidad_etapa2.py): nulo de carrocería -> «SIN DATO», texto canónico,
-       marcas modelo_inusual / grupo_grande / anio_parcial. No elimina filas.
+       marcas modelo_inusual / grupo_grande. No elimina filas por calidad.
+       Luego limita el análisis a la ventana del proyecto, 2015-2024 (ANIO_INICIO / ANIO_FIN);
+       2025 y 2026 quedan fuera (2026 además es un año incompleto).
     2. Escribe el modelo en estrella que se importa en Power BI (data/powerbi/):
            hechos_vehiculos.csv   una fila por grupo de vehículos (tabla de hechos)
            dim_territorio.csv     territorio (municipio + departamento), llave única
            dim_combustible.csv    código de combustible y etiqueta legible
-           dim_anio.csv           año de registro y si el año es parcial
+           dim_anio.csv           años de registro de la ventana
     3. Calcula las cifras de referencia de las 4 preguntas y las escribe en
        data/processed/resultados_conocimiento_evidente.json. Sirven para comprobar que
        las medidas DAX de Power BI dan el mismo resultado (ver bloque «verificaciones»).
@@ -45,6 +47,9 @@ RESULTADOS_ETAPA2 = RAIZ / "data" / "processed" / "resultados_eda.json"
 CARPETA_POWERBI = RAIZ / "data" / "powerbi"
 SALIDA = RAIZ / "data" / "processed" / "resultados_conocimiento_evidente.json"
 
+# Ventana de análisis del proyecto (alcance definido desde la Etapa 1).
+ANIO_INICIO, ANIO_FIN = 2015, 2024
+
 # Mismo catálogo de etiquetas que calidad_etapa2.py (homologación de combustible).
 ETIQUETA_COMBUSTIBLE = {
     "ELECTRICO": "Eléctrico (BEV)",
@@ -57,6 +62,11 @@ ETIQUETA_COMBUSTIBLE = {
 # ----------------------------------------------------------------------------- utilidades
 def pct(a, b, nd=2):
     return round(float(a) / float(b) * 100, nd) if b else None
+
+
+def miles(n):
+    """Entero con punto de miles (es-CO): 3976 -> 3.976."""
+    return f"{int(n):,}".replace(",", ".")
 
 
 def sin_tildes(texto):
@@ -121,10 +131,11 @@ df = pd.read_csv(CSV, dtype=str, keep_default_na=False, na_values=[""])
 COLS = list(df.columns)
 for c in ("cantidad", "modelo", "a_o_registro"):
     df[c] = df[c].astype(int)
-FILAS, VEH = len(df), int(df["cantidad"].sum())
-ANIO_MIN, ANIO_MAX = int(df["a_o_registro"].min()), int(df["a_o_registro"].max())
+FILAS_FUENTE, VEH_FUENTE = len(df), int(df["cantidad"].sum())
+ANIO_FUENTE_MAX = int(df["a_o_registro"].max())
+ANIO_MIN, ANIO_MAX = ANIO_INICIO, ANIO_FIN
 
-# Misma regla de atípicos que Etapa 2 (Q3 + 1,5·IQR sobre `cantidad`).
+# Misma regla de atípicos que Etapa 2 (Q3 + 1,5·IQR sobre `cantidad`, dataset completo).
 q1, q3 = df["cantidad"].quantile([0.25, 0.75])
 LIMITE_ATIPICO = float(q3 + 1.5 * (q3 - q1))
 
@@ -135,8 +146,12 @@ for col in ("municipio", "departamento", "carroceria", "clase"):
 t["territorio"] = t["municipio"] + " (" + t["departamento"] + ")"
 t["modelo_inusual"] = t["modelo"] > t["a_o_registro"] + 1
 t["grupo_grande"] = t["cantidad"] > LIMITE_ATIPICO
-t["anio_parcial"] = t["a_o_registro"] == ANIO_MAX
 t = t.rename(columns={"a_o_registro": "anio_registro"})
+
+# Dataset completo (para comprobar contra la Etapa 2) y ventana de análisis 2015-2024.
+t_fuente = t
+t = t[t["anio_registro"].between(ANIO_INICIO, ANIO_FIN)].copy()
+FILAS, VEH = len(t), int(t["cantidad"].sum())
 
 corte = datetime.fromtimestamp(fuente["actualizacion_portal_epoch"], tz=timezone.utc).date()
 descarga = date.fromisoformat(fuente["fecha_descarga"])
@@ -153,7 +168,6 @@ dim_combustible = pd.DataFrame(
     [{"combustible": k, "combustible_etiqueta": v} for k, v in ETIQUETA_COMBUSTIBLE.items()]
 )
 dim_anio = pd.DataFrame({"anio_registro": sorted(t["anio_registro"].unique())})
-dim_anio["estado_anio"] = np.where(dim_anio["anio_registro"] == ANIO_MAX, "Parcial", "Completo")
 
 # El modelo no debe duplicar ni perder vehículos al unir hechos con cada dimensión.
 verificar(dim_territorio["territorio"].is_unique, "dim_territorio.territorio no es una llave única")
@@ -186,7 +200,16 @@ res = {
         "url_portal": fuente["url_portal"],
         "fecha_descarga": fuente["fecha_descarga"],
         "actualizacion_portal": corte.isoformat(),
-        "periodo": {"desde": ANIO_MIN, "hasta": ANIO_MAX, "anio_parcial": ANIO_MAX},
+        "periodo": {"desde": ANIO_MIN, "hasta": ANIO_MAX},
+        "fuera_de_la_ventana": {
+            "anios": f"{ANIO_MAX + 1}-{ANIO_FUENTE_MAX}",
+            "grupos": FILAS_FUENTE - FILAS,
+            "vehiculos": VEH_FUENTE - VEH,
+            "motivo": (
+                f"El alcance del proyecto es {ANIO_MIN}-{ANIO_MAX}. Además, {ANIO_FUENTE_MAX} es un año "
+                f"incompleto (la fuente se actualizó el {corte.strftime('%d/%m/%Y')}) y no trae mes."
+            ),
+        },
         "unidad_analisis": (
             "Cada fila es un grupo de vehículos eléctricos o híbridos matriculados con las mismas "
             "características (combustible, modelo, año de registro, clase, carrocería y municipio); "
@@ -198,10 +221,12 @@ res = {
 
 # --- Preparación: qué se hizo, cuántos registros quedan y qué problemas siguen
 res["preparacion"] = {
-    "registros_origen": FILAS,
+    "registros_fuente": FILAS_FUENTE,
+    "vehiculos_fuente": VEH_FUENTE,
     "registros_analisis": len(hechos),
-    "filas_eliminadas": FILAS - len(hechos),
     "vehiculos": VEH,
+    "excluidos_por_ventana": {"grupos": FILAS_FUENTE - FILAS, "vehiculos": VEH_FUENTE - VEH},
+    "filas_eliminadas_por_calidad": 0,
     "tratamientos": [
         "Sin duplicados por la llave de 7 variables (ninguna fila eliminada).",
         "Un nulo de carrocería (triciclo eléctrico en Funza) reemplazado por «SIN DATO».",
@@ -210,11 +235,11 @@ res["preparacion"] = {
         "Llave territorial «MUNICIPIO (DEPARTAMENTO)»: 3 nombres de municipio existen en más de un departamento.",
         "Combustible homologado a etiquetas legibles (catálogo 1 a 1).",
         f"Se MARCAN, sin eliminar, {int(t['modelo_inusual'].sum())} grupos con modelo > año de registro + 1 (modelo_inusual).",
-        f"Se MARCAN, sin eliminar, {int(t['grupo_grande'].sum())} grupos con cantidad > {LIMITE_ATIPICO:.0f} según IQR (grupo_grande).",
-        f"El año {ANIO_MAX} se marca como parcial (anio_parcial).",
+        f"Se MARCAN, sin eliminar, {int(t['grupo_grande'].sum())} grupos con cantidad > {LIMITE_ATIPICO:.0f} según IQR (grupo_grande; umbral de la Etapa 2).",
+        f"Ventana de análisis {ANIO_MIN}-{ANIO_MAX} (alcance del proyecto): se excluyen {miles(FILAS_FUENTE - FILAS)} grupos y {miles(VEH_FUENTE - VEH)} vehículos registrados en {ANIO_MAX + 1}-{ANIO_FUENTE_MAX}.",
     ],
     "problemas_pendientes": [
-        f"{ANIO_MAX} es un año incompleto (la fuente se actualizó el {corte.strftime('%d/%m/%Y')}) y el dataset no trae mes: no se pueden comparar periodos equivalentes.",
+        "El dataset no trae mes ni fecha: la unidad temporal mínima es el año de registro.",
         "La fuente no distingue HEV de PHEV: «Híbrido gasolina-eléctrico» agrupa ambos.",
         "Sin placa ni identificador: no se pueden contar vehículos únicos ni parque activo.",
         "Sin población, ingresos ni puntos de carga: no se pueden calcular tasas per cápita ni explicar causas.",
@@ -224,7 +249,6 @@ res["preparacion"] = {
     "marcas": {
         "modelo_inusual": {"grupos": int(t["modelo_inusual"].sum()), "vehiculos": int(t.loc[t["modelo_inusual"], "cantidad"].sum())},
         "grupo_grande": {"grupos": int(t["grupo_grande"].sum()), "vehiculos": int(t.loc[t["grupo_grande"], "cantidad"].sum()), "limite_cantidad": LIMITE_ATIPICO},
-        "anio_parcial": {"grupos": int(t["anio_parcial"].sum()), "vehiculos": int(t.loc[t["anio_parcial"], "cantidad"].sum())},
     },
     "modelo_estrella": {
         "hechos_vehiculos": {"filas": len(hechos), "columnas": list(hechos.columns)},
@@ -243,20 +267,21 @@ res["preparacion"] = {
 por_comb = distribucion(t, "combustible", etiquetas=ETIQUETA_COMBUSTIBLE)
 por_clase = distribucion(t, "clase")
 res["p1_composicion"] = {
-    "pregunta": "¿Cómo se compone el parque de vehículos eléctricos e híbridos matriculados según combustible y clase de vehículo?",
-    "variables": ["combustible", "clase", "carroceria", "cantidad"],
+    "pregunta": f"¿Cómo se compone la población de vehículos eléctricos e híbridos registrados en Colombia entre {ANIO_MIN} y {ANIO_MAX}, según su combustible, clase, carrocería y año del modelo?",
+    "variables": ["combustible", "clase", "carroceria", "modelo", "cantidad"],
     "denominador": "Total de vehículos (suma de cantidad) = %d" % VEH,
     "indicadores": {
         "total_vehiculos": VEH,
         "grupos_de_registro": FILAS,
         "pct_electrico_bev": next(f["pct"] for f in por_comb if f["categoria"] == "ELECTRICO"),
         "clase_predominante": {"categoria": por_clase[0]["categoria"], "pct": por_clase[0]["pct"]},
-        "pct_tres_clases_principales": round(sum(f["pct"] for f in por_clase[:3]), 2),
+        "pct_tres_clases_principales": pct(sum(f["vehiculos"] for f in por_clase[:3]), VEH),
     },
     "por_combustible": por_comb,
     "por_clase": por_clase,
     "clases_minoritarias_menor_1pct": [f["categoria"] for f in por_clase if f["pct"] < 1],
     "por_carroceria_top10": distribucion(t, "carroceria", tope=10),
+    "por_anio_modelo": sorted(distribucion(t, "modelo"), key=lambda f: f["categoria"]),
     "composicion_de_cada_combustible_por_clase_top3": composicion(t, "combustible", "clase", 3),
     "concentracion_grupos_grandes": {
         "grupos": int(t["grupo_grande"].sum()),
@@ -277,8 +302,8 @@ res["p2_territorial"] = {
         "territorios_con_registros": int(t["territorio"].nunique()),
         "municipios_por_nombre": int(t["municipio"].nunique()),
         "departamento_lider": {"categoria": por_depto[0]["categoria"], "pct": por_depto[0]["pct"]},
-        "pct_tres_primeros_departamentos": round(sum(f["pct"] for f in por_depto[:3]), 2),
-        "pct_diez_primeros_territorios": round(sum(f["pct"] for f in por_terr[:10]), 2),
+        "pct_tres_primeros_departamentos": pct(sum(f["vehiculos"] for f in por_depto[:3]), VEH),
+        "pct_diez_primeros_territorios": pct(sum(f["vehiculos"] for f in por_terr[:10]), VEH),
     },
     "por_departamento": por_depto,
     "territorios_top10": por_terr[:10],
@@ -302,24 +327,20 @@ cobertura = t.groupby("anio_registro").agg(
 )
 serie = []
 for anio, vehiculos in anual.items():
-    parcial = anio == ANIO_MAX
     previo = anual.get(anio - 1)
-    comparable = previo is not None and not parcial
     serie.append(
         {
             "anio": int(anio),
             "vehiculos": int(vehiculos),
             "pct_del_total": pct(vehiculos, VEH),
-            "parcial": bool(parcial),
-            "var_abs": int(vehiculos - previo) if comparable else None,
-            "var_pct": pct(vehiculos - previo, previo) if comparable else None,
+            "var_abs": int(vehiculos - previo) if previo is not None else None,
+            "var_pct": pct(vehiculos - previo, previo) if previo is not None else None,
             "pct_electrico_bev": pct(bev_anual.get(anio, 0), vehiculos),
             "departamentos": int(cobertura.loc[anio, "departamentos"]),
             "territorios": int(cobertura.loc[anio, "territorios"]),
             "clases": int(cobertura.loc[anio, "clases"]),
         }
     )
-completos = anual[anual.index < ANIO_MAX]
 por_anio_comb = (
     t.pivot_table(index="anio_registro", columns="combustible", values="cantidad", aggfunc="sum", fill_value=0)
     .astype(int)
@@ -327,28 +348,23 @@ por_anio_comb = (
     .to_dict("records")
 )
 res["p3_temporal"] = {
-    "pregunta": f"¿Cómo evolucionó el registro anual de vehículos eléctricos e híbridos entre {ANIO_MIN} y {ANIO_MAX - 1}, y qué se puede decir de {ANIO_MAX}?",
+    "pregunta": f"¿Cómo evolucionó el registro anual de vehículos eléctricos e híbridos en Colombia entre {ANIO_MIN} y {ANIO_MAX}, y en qué años hubo los mayores cambios?",
     "variables": ["anio_registro", "combustible", "cantidad"],
     "denominador": "Variación porcentual: vehículos del año anterior. Participación: total de vehículos (%d)" % VEH,
     "indicadores": {
-        "anio_maximo_completo": {"anio": int(completos.idxmax()), "vehiculos": int(completos.max())},
-        "anio_minimo": {"anio": int(completos.idxmin()), "vehiculos": int(completos.min())},
-        "veces_2025_vs_2019": round(float(anual[ANIO_MAX - 1] / anual[2019]), 2),
-        "var_pct_ultimo_anio_completo": next(s["var_pct"] for s in serie if s["anio"] == ANIO_MAX - 1),
-        "vehiculos_anio_parcial": int(anual[ANIO_MAX]),
+        "anio_maximo": {"anio": int(anual.idxmax()), "vehiculos": int(anual.max())},
+        "anio_minimo": {"anio": int(anual.idxmin()), "vehiculos": int(anual.min())},
+        f"veces_{ANIO_MAX}_vs_2019": round(float(anual[ANIO_MAX] / anual[2019]), 2),
+        "var_pct_ultimo_anio": next(s["var_pct"] for s in serie if s["anio"] == ANIO_MAX),
+        "anio_mayor_variacion_pct": max((s for s in serie if s["var_pct"] is not None), key=lambda s: s["var_pct"])["anio"],
     },
     "serie_anual": serie,
     "por_anio_y_combustible": por_anio_comb,
-    "anio_parcial": {
-        "anio": ANIO_MAX,
-        "vehiculos": int(anual[ANIO_MAX]),
-        "pct_de_vehiculos_del_ultimo_anio_completo": pct(anual[ANIO_MAX], anual[ANIO_MAX - 1]),
-        "corte_fuente": corte.isoformat(),
-        "nota": (
-            "Sin columna de mes no se pueden comparar periodos equivalentes. Cualquier lectura de "
-            f"{ANIO_MAX} frente a {ANIO_MAX - 1} es una hipótesis, no una conclusión."
-        ),
-    },
+    "nota_periodos": (
+        f"Los {ANIO_MAX - ANIO_MIN + 1} años de la ventana son comparables entre sí. La fuente no trae mes, "
+        f"así que no hay periodos más finos que el año. {ANIO_MAX + 1} y {ANIO_FUENTE_MAX} quedan fuera "
+        f"({ANIO_FUENTE_MAX} es parcial)."
+    ),
 }
 
 # --- P4 · Multivariado (combustible × clase × departamento)
@@ -421,8 +437,7 @@ verificaciones = [
     ("Total vehículos", "sin filtros", VEH, "SUM(hechos_vehiculos[cantidad])"),
     ("Grupos de registro", "sin filtros", FILAS, "COUNTROWS(hechos_vehiculos)"),
     ("Vehículos 2023", "anio_registro = 2023", v2023, "CALCULATE([Total vehículos], dim_anio[anio_registro] = 2023)"),
-    ("Vehículos 2025 (último año completo)", "anio_registro = 2025", int(anual[2025]), "idem con 2025"),
-    ("Vehículos 2026 (año parcial)", "anio_registro = 2026", int(anual[2026]), "idem con 2026"),
+    ("Vehículos 2024 (último año de la ventana)", "anio_registro = 2024", int(anual[2024]), "idem con 2024"),
     ("Vehículos eléctricos (BEV)", "combustible = ELECTRICO", int(t.loc[t["combustible"] == "ELECTRICO", "cantidad"].sum()), "CALCULATE([Total vehículos], dim_combustible[combustible] = \"ELECTRICO\")"),
     ("% eléctricos sobre el total", "sin filtros", pct(t.loc[t["combustible"] == "ELECTRICO", "cantidad"].sum(), VEH), "DIVIDE([Vehículos BEV], [Total vehículos]) * 100"),
     ("Vehículos en Antioquia", "departamento = ANTIOQUIA", int(t.loc[t["departamento"] == "ANTIOQUIA", "cantidad"].sum()), "CALCULATE([Total vehículos], dim_territorio[departamento] = \"ANTIOQUIA\")"),
@@ -436,7 +451,7 @@ verificaciones = [
     ("Vehículos clase CAMIONETA", "clase = CAMIONETA", int(t.loc[t["clase"] == "CAMIONETA", "cantidad"].sum()), "CALCULATE([Total vehículos], hechos_vehiculos[clase] = \"CAMIONETA\")"),
     ("Vehículos en grupos grandes", "grupo_grande = Sí", int(t.loc[t["grupo_grande"], "cantidad"].sum()), "CALCULATE([Total vehículos], hechos_vehiculos[grupo_grande] = \"Sí\")"),
     ("Grupos con modelo inusual", "modelo_inusual = Sí", int(t["modelo_inusual"].sum()), "CALCULATE(COUNTROWS(hechos_vehiculos), hechos_vehiculos[modelo_inusual] = \"Sí\")"),
-    ("Variación % 2025 vs 2024", "anio_registro = 2025 (base: 2024)", pct(anual[2025] - anual[2024], anual[2024]), "DIVIDE([Vehículos 2025] - [Vehículos 2024], [Vehículos 2024]) * 100"),
+    ("Variación % 2024 vs 2023", "anio_registro = 2024 (base: 2023)", pct(anual[2024] - anual[2023], anual[2023]), "DIVIDE([Vehículos 2024] - [Vehículos 2023], [Vehículos 2023]) * 100"),
     ("Territorios distintos", "sin filtros", int(t["territorio"].nunique()), "DISTINCTCOUNT(hechos_vehiculos[territorio]) — usar territorio, no municipio"),
     ("Municipios distintos por nombre (NO usar)", "sin filtros", int(t["municipio"].nunique()), "DISTINCTCOUNT de municipio fusiona homónimos de distintos departamentos"),
 ]
@@ -447,12 +462,13 @@ res["verificaciones"] = [
 # ----------------------------------------------------------------------------- 4. coherencia con la Etapa 2
 eda = json.loads(RESULTADOS_ETAPA2.read_text(encoding="utf-8"))
 acciones = {(a["proceso"], a["variable"]): a["filas"] for a in eda["tratamiento"]["acciones"]}
+# Se compara el dataset COMPLETO de la fuente (la Etapa 2 no aplicó la ventana 2015-2024).
 coherencia = {
-    "filas": (FILAS, eda["meta"]["filas"]),
-    "vehiculos": (VEH, eda["meta"]["vehiculos"]),
-    "grupos_modelo_inusual": (int(t["modelo_inusual"].sum()), acciones[("Validación de rangos", "modelo")]),
-    "grupos_grande": (int(t["grupo_grande"].sum()), acciones[("Tratamiento de atípicos", "cantidad")]),
-    "grupos_anio_parcial": (int(t["anio_parcial"].sum()), acciones[("Validación de actualidad", "a_o_registro")]),
+    "filas": (FILAS_FUENTE, eda["meta"]["filas"]),
+    "vehiculos": (VEH_FUENTE, eda["meta"]["vehiculos"]),
+    "grupos_modelo_inusual": (int(t_fuente["modelo_inusual"].sum()), acciones[("Validación de rangos", "modelo")]),
+    "grupos_grande": (int(t_fuente["grupo_grande"].sum()), acciones[("Tratamiento de atípicos", "cantidad")]),
+    "grupos_anio_parcial": (int((t_fuente["anio_registro"] == ANIO_FUENTE_MAX).sum()), acciones[("Validación de actualidad", "a_o_registro")]),
 }
 for nombre, (calculado, etapa2) in coherencia.items():
     verificar(calculado == etapa2, f"{nombre}: aquí {calculado} y en resultados_eda.json {etapa2}")

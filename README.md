@@ -1,6 +1,6 @@
 # Transición hacia la Movilidad Sostenible en Bogotá
 
-Proyecto de **Minería de Datos** que analiza la adopción de vehículos híbridos y eléctricos en Bogotá D.C. y Colombia (2014–2024), y cuantifica su impacto en la reducción de la huella de carbono del transporte. La aplicación web (Flask) documenta todo el proceso metodológico por etapas: comprensión del negocio y los datos, y auditoría/remediación de la calidad de los datos.
+Proyecto de **Minería de Datos** que analiza la adopción de vehículos híbridos y eléctricos en Bogotá D.C. y Colombia (2014–2024), y cuantifica su impacto en la reducción de la huella de carbono del transporte. La aplicación web (Flask) documenta todo el proceso metodológico por etapas: comprensión del negocio y los datos, auditoría/remediación de la calidad, preparación (ETL) y descubrimiento de **conocimiento evidente** en tableros de Power BI.
 
 ## Equipo
 
@@ -11,7 +11,7 @@ Proyecto de **Minería de Datos** que analiza la adopción de vehículos híbrid
 
 ## Contenido de la aplicación
 
-La barra de navegación tiene dos menús desplegables, uno por etapa del proyecto.
+La barra de navegación tiene un menú desplegable por etapa (1 a 3) y la opción **Conocimiento evidente**, que abre los tableros de Power BI.
 
 ### Etapa 1 · Comprensión del negocio y de los datos
 
@@ -43,6 +43,16 @@ La barra de navegación tiene dos menús desplegables, uno por etapa del proyect
 |---|---|---|
 | 1 | ETL: Extracción, Transformación y Carga (PDF embebido + enlace al video) | `/etapa3/etl` |
 
+### Conocimiento evidente · Tableros de Power BI
+
+| Ruta | Contenido |
+|---|---|
+| `/conocimiento-evidente` | Propósito de la etapa, datos analizados (fuente, periodo 2015–2024, registros, tratamientos y problemas pendientes), las 4 preguntas de análisis, el informe de Power BI incrustado y cómo acceder a él |
+
+El informe (4 páginas: poblacional, territorial, temporal y multivariada) se publicó con **«Publicar en la Web»**, de acceso público y sin inicio de sesión. Su URL está en `POWERBI_URL` (`app.py`); para
+cambiarla basta editar esa constante (con `""` la página muestra un aviso en lugar del informe). Cada pregunta tiene un botón que abre su página del informe mediante el parámetro `pageName`, y el recuadro
+incluye un botón de pantalla completa y un enlace de respaldo «Abrir en pestaña nueva».
+
 Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 
 ### Evidencia: datos y código
@@ -53,6 +63,9 @@ Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 | `/datos/FUENTE.json` | Procedencia: identificador, URL, fecha de descarga |
 | `/datos/resultados_eda.json` | Todos los resultados calculados que muestra la app |
 | `/codigo/calidad_etapa2.py` | Script que genera esos resultados |
+| `/datos/hechos_vehiculos.csv`, `dim_territorio.csv`, `dim_combustible.csv`, `dim_anio.csv` | Modelo en estrella (2015–2024) que se importa en Power BI |
+| `/datos/resultados_conocimiento_evidente.json` | Cifras de referencia de los 4 tableros (para verificar las medidas DAX) |
+| `/codigo/conocimiento_evidente.py` | Script que genera el modelo en estrella y esas cifras |
 
 ## Tecnologías
 
@@ -60,6 +73,7 @@ Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 - **Bootstrap 5.3.3** + **Bootstrap Icons** — interfaz, vía CDN.
 - **Google Fonts (Plus Jakarta Sans)** — tipografía.
 - **[Chart.js 4](https://www.chartjs.org/)** — gráficas de perfilamiento, dimensiones de calidad, inventario de problemas y plan de tratamiento (Etapa 2), vía CDN.
+- **Microsoft Power BI** — tableros interactivos de «Conocimiento evidente», incrustados con `<iframe>` (Publicar en la Web).
 - **Gunicorn** — servidor WSGI para despliegue en producción.
 
 ## Estructura del proyecto
@@ -68,10 +82,12 @@ Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 MINERIA_AJ-1/
 ├── app.py                        # Rutas, datos de las secciones y contexto Jinja2
 ├── calidad_etapa2.py                 # Perfilamiento, calidad y tratamiento (pandas) -> data/processed/resultados_eda.json
+├── conocimiento_evidente.py      # Modelo en estrella 2015–2024 para Power BI + cifras de referencia
 ├── requirements-dev.txt          # Dependencias para regenerar los resultados (pandas, numpy)
 ├── data/
 │   ├── raw/                      # CSV descargado de datos.gov.co (ntxy-q9ix) + FUENTE.json (procedencia)
-│   └── processed/                # resultados_eda.json (lo único que lee la app)
+│   ├── processed/                # resultados_eda.json y resultados_conocimiento_evidente.json (lo que lee la app)
+│   └── powerbi/                  # Tablas CSV del modelo de Power BI + LEEME.md (relaciones y valores esperados)
 ├── auditoria_calidad_etapa2.py   # (obsoleto) borrador previo: apuntaba a un dataset de 18 variables que la fuente no contiene
 ├── requirements.txt
 ├── static/
@@ -81,6 +97,7 @@ MINERIA_AJ-1/
     ├── base.html                 # Layout base: navbar, footer, bloques Jinja2
     ├── index.html                # Portada
     ├── participantes.html
+    ├── conocimiento_evidente.html # Sección «Conocimiento evidente» (informe de Power BI incrustado)
     ├── etapa1/                   # Plantillas de la Etapa 1 (una por sección + seccion.html genérica)
     └── etapa2/                   # Plantillas de la Etapa 2 (una por sección + seccion.html genérica)
 ```
@@ -109,6 +126,12 @@ pip install -r requirements-dev.txt
 python calidad_etapa2.py
 ```
 
+Las cifras y el modelo de datos de **Conocimiento evidente** salen de `conocimiento_evidente.py` (mismo tratamiento de la Etapa 2, ventana 2015–2024):
+
+```bash
+python conocimiento_evidente.py   # escribe data/powerbi/*.csv y data/processed/resultados_conocimiento_evidente.json
+```
+
 El CSV se descargó de `https://www.datos.gov.co/resource/ntxy-q9ix.csv?$limit=50000&$order=:id` (ver `data/raw/FUENTE.json`).
 Es un dataset **agregado**: cada fila es un grupo de vehículos y `cantidad` indica cuántos son, por eso los porcentajes se ponderan por `cantidad`.
 
@@ -134,7 +157,8 @@ como *no disponibles* en la Etapa 2, sin reportar resultados sobre ellas.
 
 ## Estado del proyecto
 
-- ✅ Etapas 1 a 4 implementadas en la aplicación (contenido, tablas y gráficas).
+- ✅ Etapas 1 a 3 implementadas en la aplicación (contenido, tablas y gráficas).
+- ✅ **Conocimiento evidente**: 4 tableros de Power BI (12 indicadores, 8 segmentadores, 12 conocimientos documentados) publicados e incrustados en `/conocimiento-evidente`.
 - ✅ Etapa 2 corregida: perfilamiento y métricas recalculados sobre el dataset real, con datos, código y resultados descargables.
 - ⚠️ Pendiente: alinear el texto de la Etapa 1 (dataset, diccionario, calidad inicial) con el esquema real de la fuente.
 - ⏳ Despliegue en producción (Render) pendiente de configurar.
