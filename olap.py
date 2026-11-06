@@ -26,6 +26,17 @@ NIVELES_VEHICULO = {
     "carroceria": {"columnas": ("v.clase", "v.carroceria"), "etiqueta": "Clase · carrocería"},
 }
 
+# Jerarquía de la dimensión territorio (superior -> inferior). En «municipio» el miembro es la llave
+# «territorio» («MUNICIPIO (DEPARTAMENTO)»), porque hay municipios homónimos en distintos departamentos.
+ORDEN_NIVELES_TERRITORIO = ("departamento", "municipio")
+NIVELES_TERRITORIO = {
+    "departamento": {"columnas": ("r.departamento",), "etiqueta": "Departamento"},
+    "municipio": {"columnas": ("r.territorio",), "etiqueta": "Municipio"},
+}
+
+# Todos los niveles que se pueden usar como filas del cubo.
+NIVELES = {**NIVELES_VEHICULO, **NIVELES_TERRITORIO}
+
 # Filtros permitidos: nombre -> (columna SQL, dimensión a la que pertenece, etiqueta).
 FILTROS = {
     "familia": ("c.familia", "combustible", "Familia de combustible"),
@@ -33,6 +44,8 @@ FILTROS = {
     "anio": ("t.anio", "tiempo", "Año de registro"),
     "categoria": ("v.categoria", "vehiculo", "Categoría"),
     "clase": ("v.clase", "vehiculo", "Clase"),
+    "departamento": ("r.departamento", "territorio", "Departamento"),
+    "municipio": ("r.territorio", "territorio", "Municipio"),
 }
 
 _FROM = """
@@ -40,6 +53,7 @@ FROM hechos_registros h
 JOIN dim_tiempo      t ON t.id_tiempo      = h.id_tiempo
 JOIN dim_combustible c ON c.id_combustible = h.id_combustible
 JOIN dim_vehiculo    v ON v.id_vehiculo    = h.id_vehiculo
+JOIN dim_territorio  r ON r.id_territorio  = h.id_territorio
 """
 
 
@@ -62,7 +76,17 @@ def valores_permitidos(con):
             "SELECT DISTINCT clase FROM dim_vehiculo WHERE categoria = ? ORDER BY clase", (cat,))]
         clases_por_categoria.append((cat, clases))
 
+    departamentos = columna("SELECT DISTINCT departamento FROM dim_territorio ORDER BY departamento")
+    municipios_por_departamento = []
+    for dep in departamentos:
+        municipios = [fila[0] for fila in con.execute(
+            "SELECT territorio FROM dim_territorio WHERE departamento = ? ORDER BY territorio", (dep,))]
+        municipios_por_departamento.append((dep, municipios))
+
     return {
+        "departamento": departamentos,
+        "municipio": columna("SELECT territorio FROM dim_territorio ORDER BY territorio"),
+        "municipios_por_departamento": municipios_por_departamento,
         "familia": columna("SELECT DISTINCT familia FROM dim_combustible ORDER BY familia"),
         "periodo": columna("SELECT DISTINCT periodo FROM dim_tiempo ORDER BY periodo"),
         "anio": columna("SELECT anio FROM dim_tiempo ORDER BY anio"),
@@ -93,7 +117,7 @@ def _where(filtros, excluir=None):
 
 
 def _miembro(fila, nivel):
-    """Etiqueta legible de un miembro del nivel de vehículo."""
+    """Etiqueta legible de un miembro del nivel."""
     return " · ".join(fila) if nivel == "carroceria" else fila[0]
 
 
@@ -102,6 +126,27 @@ def total(con, filtros):
     where, params = _where(filtros)
     vehiculos, grupos = con.execute(f"SELECT COALESCE(SUM(h.cantidad), 0), COUNT(*) {_FROM}{where}", params).fetchone()
     return vehiculos, grupos
+
+
+def territorios_distintos(con, filtros):
+    """Territorios con al menos un registro en la selección: COUNT(DISTINCT id_territorio). No es aditiva."""
+    where, params = _where(filtros)
+    return con.execute(f"SELECT COUNT(DISTINCT h.id_territorio) {_FROM}{where}", params).fetchone()[0]
+
+
+def variacion(anterior, actual, base_minima=30):
+    """Variación de «anterior» a «actual».
+
+    Si «anterior» es 0 la variación porcentual no está definida (pct = None). Si es menor que
+    «base_minima» se marca como base pequeña: el porcentaje existe, pero es poco estable.
+    """
+    return {
+        "anterior": anterior,
+        "actual": actual,
+        "absoluta": actual - anterior,
+        "pct": (actual - anterior) / anterior * 100 if anterior else None,
+        "base_pequena": 0 < anterior < base_minima,
+    }
 
 
 def serie_anual(con, filtros, anios, excluir=None):
@@ -126,8 +171,7 @@ def por_territorio(con, filtros, limite=5):
         raise ValueError("El límite debe ser un entero entre 1 y 50.")
     where, params = _where(filtros)
     filas = con.execute(
-        f"SELECT r.territorio, r.departamento, SUM(h.cantidad) AS veh {_FROM}"
-        f"JOIN dim_territorio r ON r.id_territorio = h.id_territorio{where} "
+        f"SELECT r.territorio, r.departamento, SUM(h.cantidad) AS veh {_FROM}{where} "
         "GROUP BY r.id_territorio ORDER BY veh DESC, r.territorio LIMIT ?",
         params + [limite],
     ).fetchall()
@@ -135,10 +179,10 @@ def por_territorio(con, filtros, limite=5):
 
 
 def total_por_nivel(con, filtros, nivel):
-    """Suma de los subtotales de un nivel de vehículo (sirve para comprobar que el roll-up conserva el total)."""
-    if nivel not in NIVELES_VEHICULO:
+    """Suma de los subtotales de un nivel (sirve para comprobar que el roll-up conserva el total)."""
+    if nivel not in NIVELES:
         raise ValueError(f"Nivel no permitido: {nivel}")
-    cols = ", ".join(NIVELES_VEHICULO[nivel]["columnas"])
+    cols = ", ".join(NIVELES[nivel]["columnas"])
     where, params = _where(filtros)
     fila = con.execute(
         f"SELECT COALESCE(SUM(sub), 0), COUNT(*) FROM (SELECT SUM(h.cantidad) AS sub {_FROM}{where} GROUP BY {cols})",
@@ -148,15 +192,15 @@ def total_por_nivel(con, filtros, nivel):
 
 
 def consultar(con, filtros, nivel, anios):
-    """Cubo vehículo × año para la selección.
+    """Cubo nivel × año para la selección (el nivel puede ser de vehículo o de territorio).
 
     filtros: {nombre: [valores]} ya validados.
-    nivel:   nivel de la jerarquía de vehículo usado como filas.
+    nivel:   nivel de NIVELES usado como filas.
     anios:   años de registro que se muestran (columnas de la matriz y eje de la tendencia).
     """
-    if nivel not in NIVELES_VEHICULO:
+    if nivel not in NIVELES:
         raise ValueError(f"Nivel no permitido: {nivel}")
-    cols = NIVELES_VEHICULO[nivel]["columnas"]
+    cols = NIVELES[nivel]["columnas"]
     lista_cols = ", ".join(cols)
     where, params = _where(filtros)
 
@@ -188,10 +232,10 @@ def consultar(con, filtros, nivel, anios):
         celdas[(tuple(fila[:-2]), fila[-2])] = fila[-1]
 
     # Variación entre el primer y el último año seleccionados.
-    variacion = None
+    extremos = None
     if len(anios) >= 2:
         inicial, final = por_anio.get(anios[0], 0), por_anio.get(anios[-1], 0)
-        variacion = {
+        extremos = {
             "anio_inicial": anios[0],
             "anio_final": anios[-1],
             "inicial": inicial,
@@ -207,5 +251,6 @@ def consultar(con, filtros, nivel, anios):
         "composicion": composicion,
         "lider": composicion[0] if composicion else None,
         "celdas": celdas,
-        "variacion": variacion,
+        "variacion": extremos,
+        "territorios": territorios_distintos(con, filtros),
     }

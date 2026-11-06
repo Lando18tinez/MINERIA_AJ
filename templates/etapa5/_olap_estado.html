@@ -1,0 +1,51 @@
+{# Estado de la consulta OLAP (nivel, operación, filtros activos y denominadores). Siempre visible.
+   Variables: estado, orden_niveles, niveles, operacion, activos, cubo, vista y, opcional, denominadores_extra
+   (lista de pares «etiqueta, texto» con otros denominadores de la vista). #}
+{% for a in avisos %}
+  <div class="alert alert-warning py-2 small"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ a }}</div>
+{% endfor %}
+
+<!-- Estado de la consulta: siempre visible -->
+<div class="card border-0 shadow-sm mb-4 p-3 bg-white" id="estado">
+  <div class="row g-3 small align-items-start">
+    <div class="col-md-3">
+      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Nivel de {{ {'vehiculo': 'vehículo', 'territorio': 'territorio'}[vista.dimension] }}</div>
+      <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
+        {% for n in orden_niveles %}
+          <span class="olap-nivel{{ ' olap-nivel--activo' if n == estado.nivel }}">{{ niveles[n].etiqueta }}</span>
+          {% if not loop.last %}<i class="bi bi-chevron-right text-muted"></i>{% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Operación actual</div>
+      <div class="mt-1"><strong>{{ operacion[0] }}</strong>{% if estado.pivot %} + <strong>Pivot</strong>{% endif %}</div>
+      <div class="text-muted">{{ operacion[1] }}</div>
+    </div>
+    <div class="col-md-6">
+      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Filtros activos</div>
+      <div class="d-flex flex-wrap gap-1 mt-1">
+        {% for etiqueta, valor, url_quitar in activos %}
+          <span class="olap-filtro">
+            {{ etiqueta }} = <strong>{{ valor }}</strong>
+            {% if url_quitar %}
+              <a href="{{ url_quitar }}" class="olap-filtro__quitar" title="Quitar este filtro"
+                 aria-label="Quitar el filtro {{ etiqueta }}"><i class="bi bi-x-lg"></i></a>
+            {% endif %}
+          </span>
+        {% endfor %}
+      </div>
+      <div class="mt-2">
+        <span class="text-muted">Denominador de los porcentajes:</span>
+        {% if cubo %}
+          <strong>{{ cubo.vehiculos | miles }}</strong> vehículos de la selección actual (todos los filtros activos).
+        {% else %}
+          sin vehículos en la selección.
+        {% endif %}
+      </div>
+      {% for etiqueta, texto in denominadores_extra | default([]) %}
+        <div class="mt-1"><span class="text-muted">{{ etiqueta }}:</span> {{ texto }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

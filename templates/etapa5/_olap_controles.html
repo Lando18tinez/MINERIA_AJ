@@ -1,0 +1,134 @@
+{# Controles OLAP comunes: drill-down, roll-up, pivot, slice y dice.
+   Variables del contexto que arma _olap_contexto() en app.py. #}
+<!-- Controles OLAP -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-4">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-arrows-move text-success me-1"></i>Navegar la jerarquía</h6>
+        <div class="d-grid gap-2">
+          {% if url_drill %}
+            <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_drill }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i><strong>Drill-down</strong> a {{ niveles[nivel_siguiente].etiqueta | lower }}
+            </a>
+          {% else %}
+            <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: ya está en el nivel más detallado
+            </span>
+          {% endif %}
+          {% if url_rollup %}
+            <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_rollup }}">
+              <i class="bi bi-arrow-up-left-circle me-1"></i><strong>Roll-up</strong> a {{ niveles[nivel_anterior].etiqueta | lower }}
+            </a>
+          {% else %}
+            <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
+              <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: ya está en el nivel más agregado
+            </span>
+          {% endif %}
+          <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_pivot }}">
+            <i class="bi bi-arrow-left-right me-1"></i><strong>Pivot</strong>:
+            {% if estado.pivot %}filas = {{ vista.eje_texto }}, columnas = año{% else %}filas = año, columnas = {{ vista.eje_texto }}{% endif %}
+          </a>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          También puede hacer drill-down sobre {{ vista.miembro_texto }} con el enlace de su fila en la matriz.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-scissors text-success me-1"></i>Slice</h6>
+        <p class="text-muted small">Un solo valor de una dimensión. Reemplaza los demás filtros de tiempo y {{ {'vehiculo': 'vehículo', 'territorio': 'territorio'}[vista.dimension] }}.</p>
+        <form method="get" action="{{ url_for(endpoint) }}" class="olap-form">
+          {% if estado.familia != familia_inicial %}<input type="hidden" name="familia" value="{{ estado.familia }}">{% endif %}
+          {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
+          {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
+          <label for="slice" class="form-label small fw-semibold">Valor</label>
+          <select id="slice" name="slice" class="form-select form-select-sm mb-2" required>
+            <option value="" selected disabled>Elija un valor…</option>
+            {% for titulo, nombre, valores in slice_grupos %}
+              <optgroup label="{{ titulo }}">
+                {% for v in valores %}<option value="{{ nombre }}:{{ v }}">{{ v }}</option>{% endfor %}
+              </optgroup>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-sm btn-energy w-100">Aplicar slice</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-grid-3x3-gap-fill text-success me-1"></i>Dice y filtros</h6>
+        <p class="text-muted small">Combine filtros en dos o más dimensiones.</p>
+        <form method="get" action="{{ url_for(endpoint) }}" class="olap-form">
+          {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
+          {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
+          {% set sup_nombre, sup_etiqueta, sup_valores = dice_superior %}
+          {% set inf_nombre, inf_etiqueta, inf_grupos = dice_inferior %}
+          <div class="row g-2 small">
+            <div class="col-sm-6">
+              <label for="f-familia" class="form-label fw-semibold mb-1">Familia de combustible</label>
+              <select id="f-familia" name="familia" class="form-select form-select-sm">
+                {% for f in perm.familia %}
+                  <option value="{{ f }}" {{ 'selected' if estado.familia == f }}>{{ f }}</option>
+                {% endfor %}
+                <option value="{{ todas }}" {{ 'selected' if estado.familia == todas }}>Todas</option>
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label for="f-periodo" class="form-label fw-semibold mb-1">Periodo</label>
+              <select id="f-periodo" name="periodo" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                {% for p in perm.periodo %}
+                  <option value="{{ p }}" {{ 'selected' if estado.periodo == p }}>{{ p }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label for="f-{{ sup_nombre }}" class="form-label fw-semibold mb-1">{{ sup_etiqueta }}</label>
+              <select id="f-{{ sup_nombre }}" name="{{ sup_nombre }}" class="form-select form-select-sm">
+                <option value="">{{ 'Todas' if sup_nombre in ('categoria', 'clase') else 'Todos' }}</option>
+                {% for c in sup_valores %}
+                  <option value="{{ c }}" {{ 'selected' if estado[sup_nombre] == c }}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label for="f-{{ inf_nombre }}" class="form-label fw-semibold mb-1">{{ inf_etiqueta }}</label>
+              <select id="f-{{ inf_nombre }}" name="{{ inf_nombre }}" class="form-select form-select-sm">
+                <option value="">{{ 'Todas' if inf_nombre in ('categoria', 'clase') else 'Todos' }}</option>
+                {% for grupo, valores in inf_grupos %}
+                  <optgroup label="{{ grupo }}">
+                    {% for c in valores %}
+                      <option value="{{ c }}" {{ 'selected' if estado[inf_nombre] == c }}>{{ c }}</option>
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <span class="form-label fw-semibold d-block mb-1">Años de registro <span class="text-muted fw-normal">(ninguno marcado = todos)</span></span>
+              <div class="d-flex flex-wrap gap-2">
+                {% for a in perm.anio %}
+                  <label class="olap-anio">
+                    <input type="checkbox" name="anio" value="{{ a }}" {{ 'checked' if a in estado.anio }}> {{ a }}
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-sm btn-energy flex-grow-1">Aplicar filtros</button>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_limpiar }}">Volver al inicio de {{ q.id }}</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

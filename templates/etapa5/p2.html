@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}P2 · Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{# Variación de una celda frente al año anterior: «no definido» si la base es 0; «base pequeña» si es < 30. #}
+{% macro variacion(v) -%}
+  {%- if v is none -%}
+  {%- elif v.pct is none -%}
+    <span class="olap-var olap-var--nd" title="El año anterior tiene 0 vehículos">no definido</span>
+  {%- else -%}
+    <span class="olap-var {{ 'olap-var--sube' if v.pct > 0 else ('olap-var--baja' if v.pct < 0 else '') }}"
+          title="{{ v.anterior | miles }} → {{ v.actual | miles }}">{{ '+' if v.pct > 0 }}{{ v.pct | pct(1) }}</span>
+    {%- if v.base_pequena %}<span class="olap-base-pequena" title="El año anterior tiene menos de {{ base_pequena }} vehículos">base pequeña</span>{% endif -%}
+  {%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('analisis_multidimensional') }}" class="text-decoration-none">Análisis multidimensional</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">P2</li>
+  </ol>
+</nav>
+
+<!-- Encabezado -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Pregunta de análisis {{ q.id }}
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-2">Crecimiento de los vehículos eléctricos por territorio</h1>
+  <p class="lead fs-6 text-dark mb-0">{{ q.pregunta }}</p>
+</div>
+
+<!-- Dimensiones, medidas y jerarquías -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <div class="row g-4 small">
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-layers-fill text-warning me-1"></i>Dimensiones</h6>
+      <ul class="ps-3 mb-0">
+        <li><code>dim_tiempo</code>: año de registro</li>
+        <li><code>dim_territorio</code>: departamento y municipio</li>
+        <li><code>dim_combustible</code>: familia (filtro inicial: Eléctrico)</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-calculator-fill text-warning me-1"></i>Medidas</h6>
+      <ul class="ps-3 mb-0">
+        <li><strong>Vehículos registrados</strong>: <code>SUM(cantidad)</code>, aditiva</li>
+        <li><strong>Territorios distintos</strong>: <code>COUNT(DISTINCT id_territorio)</code>, no aditiva</li>
+        <li><strong>Participación %</strong>: vehículos del territorio / vehículos de la selección × 100, no aditiva</li>
+        <li><strong>Variación %</strong>: (año − año anterior) / año anterior × 100; se recalcula en cada nivel</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-diagram-2-fill text-warning me-1"></i>Jerarquías</h6>
+      <ul class="ps-3 mb-0">
+        <li>Tiempo: <code>periodo</code> → <code>anio</code></li>
+        <li>Territorio: <code>departamento</code> → <code>municipio</code> (llave <code>territorio</code>)</li>
+        <li>Combustible: <code>familia</code> → <code>combustible</code></li>
+      </ul>
+    </div>
+  </div>
+  <p class="text-muted small mt-3 mb-0">
+    Todas las cifras se recalculan en cada consulta desde <code>hechos_registros</code> en
+    <code>data/modelo/modelo_estrella.db</code> (solo lectura). El municipio se identifica con la llave
+    «MUNICIPIO (DEPARTAMENTO)», porque hay municipios con el mismo nombre en departamentos distintos.
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}</div>
+{% else %}
+
+{% set denominadores_extra = [
+     ('Denominador de la variación %',
+      'vehículos del año anterior de la selección en el mismo territorio (la columna anterior de la matriz). '
+      ~ 'Con 0 vehículos la variación es «no definido»; con menos de ' ~ base_pequena ~ ' se marca «base pequeña».')] %}
+{% include "etapa5/_olap_estado.html" %}
+
+{% include "etapa5/_olap_controles.html" %}
+
+{% if not cubo or cubo.vehiculos == 0 %}
+  {% include "etapa5/_olap_sin_datos.html" %}
+{% else %}
+
+<!-- Indicadores -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Vehículos registrados</div>
+      <div class="estrella-cifra__valor">{{ cubo.vehiculos | miles }}</div>
+      <div class="small text-muted mt-1">
+        <code>SUM(cantidad)</code> en {{ anios | length }} año{{ 's' if anios | length != 1 }}
+        ({{ anios[0] }}{% if anios | length > 1 %}–{{ anios[-1] }}{% endif %}) · {{ cubo.grupos | miles }} grupos de registro
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Territorios distintos</div>
+      <div class="estrella-cifra__valor">{{ cubo.territorios | miles }}</div>
+      <div class="small text-muted mt-1">
+        <code>COUNT(DISTINCT id_territorio)</code>: municipios con al menos un registro en la selección.
+        {% if estado.nivel == 'departamento' %}Están en {{ cubo.composicion | length }} departamento{{ 's' if cubo.composicion | length != 1 }}.{% endif %}
+        No se suma entre años: un territorio con registros en varios años cuenta una sola vez.
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set l = cubo.lider %}
+      <div class="estrella-cifra__etiqueta">Participación del territorio líder ({{ niveles[estado.nivel].etiqueta | lower }})</div>
+      <div class="estrella-cifra__valor">{{ l.pct | pct(2) }}</div>
+      <div class="small text-muted mt-1">
+        <strong>{{ l.miembro }}</strong>: {{ l.vehiculos | miles }} vehículos.
+        Denominador: {{ cubo.vehiculos | miles }} vehículos de la selección actual.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficas -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Vehículos por año · {{ p2.lineas | length }} territorios con más registros</h6>
+        <p class="text-muted small mb-2">
+          Los {{ top_lineas }} miembros del nivel {{ niveles[estado.nivel].etiqueta | lower }} con más vehículos en la
+          selección actual. Vehículos registrados por año de registro.
+        </p>
+        <div style="height: 320px"><canvas id="grafLineas" aria-label="Vehículos por año de los territorios con más registros" role="img"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        {% if p2.anio_previo %}
+          <h6 class="fw-bold text-dark mb-1">Variación % {{ p2.anio_previo }} → {{ p2.anio_final }}</h6>
+          <p class="text-muted small mb-2">
+            Los {{ top_barras }} miembros con más vehículos en la selección. Entre paréntesis, los vehículos de
+            {{ p2.anio_previo }} y {{ p2.anio_final }}; denominador: los de {{ p2.anio_previo }}.
+            <span class="olap-base-pequena">base pequeña</span> = menos de {{ base_pequena }} vehículos en {{ p2.anio_previo }}.
+          </p>
+          {% if p2.barras %}
+            <div style="height: {{ [320, p2.barras | length * 30 + 70] | max }}px">
+              <canvas id="grafVariacion" aria-label="Variación porcentual del último año frente al anterior" role="img"></canvas>
+            </div>
+          {% else %}
+            <p class="small text-muted">Ninguno de estos territorios tiene vehículos en {{ p2.anio_previo }}.</p>
+          {% endif %}
+          {% if p2.sin_definir %}
+            <p class="small text-muted mt-2 mb-0">
+              <strong>No definido</strong> (0 vehículos en {{ p2.anio_previo }}):
+              {% for b in p2.sin_definir %}{{ b.miembro }} (0 → {{ b.actual | miles }}){{ ', ' if not loop.last else '.' }}{% endfor %}
+            </p>
+          {% endif %}
+        {% else %}
+          <h6 class="fw-bold text-dark mb-1">Variación % del último año frente al anterior</h6>
+          <p class="small text-muted mb-0">Se necesitan al menos dos años en la selección para calcular la variación.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Matriz territorio × año -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-2">
+  <div>
+    <h2 class="h5 fw-bold text-dark mb-1"><i class="bi bi-table text-success me-2"></i>Matriz {{ 'año × territorio' if estado.pivot else 'territorio × año' }}</h2>
+    <p class="text-muted small mb-0">
+      Vehículos registrados y, debajo, la variación % frente al año anterior de la selección.
+      Filas: {{ 'año de registro' if estado.pivot else niveles[estado.nivel].etiqueta | lower }} ·
+      columnas: {{ niveles[estado.nivel].etiqueta | lower if estado.pivot else 'año de registro' }}.
+    </p>
+  </div>
+  <a class="btn btn-sm btn-outline-forest" href="{{ url_pivot }}"><i class="bi bi-arrow-left-right me-1"></i>Pivot</a>
+</div>
+<div class="table-responsive mb-2 olap-matriz">
+  <table class="table table-sm table-bordered small align-middle bg-white mb-0">
+    {% if not estado.pivot %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">{{ niveles[estado.nivel].etiqueta }}</th>
+          {% for a in anios %}<th scope="col" class="text-end">{{ a }}</th>{% endfor %}
+          <th scope="col" class="text-end">Total</th>
+          <th scope="col" class="text-end">%</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in cubo.composicion %}
+          {% set drill = url_drill_miembro(fila.llave) %}
+          <tr>
+            <th scope="row" class="fw-semibold">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+            {% for a in anios %}
+              {% set n = cubo.celdas.get((fila.llave, a), 0) %}
+              <td class="text-end">
+                <div class="{{ 'text-muted' if n == 0 }}">{{ n | miles }}</div>
+                {{ variacion(p2.variaciones.get((fila.llave, a))) }}
+              </td>
+            {% endfor %}
+            <td class="text-end fw-bold">{{ fila.vehiculos | miles }}</td>
+            <td class="text-end">{{ fila.pct | dec(2) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for s in cubo.serie %}
+            <td class="text-end">
+              <div>{{ s.vehiculos | miles }}</div>
+              {{ variacion(p2.variacion_total.get(s.anio)) }}
+            </td>
+          {% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+          <td class="text-end">100,00</td>
+        </tr>
+      </tfoot>
+    {% else %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Año</th>
+          {% for fila in cubo.composicion %}
+            {% set drill = url_drill_miembro(fila.llave) %}
+            <th scope="col" class="text-end">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }}</a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+          {% endfor %}
+          <th scope="col" class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in cubo.serie %}
+          <tr>
+            <th scope="row">{{ s.anio }}</th>
+            {% for fila in cubo.composicion %}
+              {% set n = cubo.celdas.get((fila.llave, s.anio), 0) %}
+              <td class="text-end">
+                <div class="{{ 'text-muted' if n == 0 }}">{{ n | miles }}</div>
+                {{ variacion(p2.variaciones.get((fila.llave, s.anio))) }}
+              </td>
+            {% endfor %}
+            <td class="text-end fw-bold">
+              <div>{{ s.vehiculos | miles }}</div>
+              {{ variacion(p2.variacion_total.get(s.anio)) }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.vehiculos | miles }}</td>{% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+        </tr>
+        <tr class="fw-normal">
+          <th scope="row">%</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.pct | dec(2) }}</td>{% endfor %}
+          <td class="text-end">100,00</td>
+        </tr>
+      </tfoot>
+    {% endif %}
+  </table>
+</div>
+<p class="text-muted small mb-4">
+  «%» es la participación de cada territorio; denominador: {{ cubo.vehiculos | miles }} vehículos de la selección
+  actual. La variación % usa como denominador los vehículos del año anterior de la selección en el mismo territorio
+  ({{ 'no hay año anterior en la primera columna' if not estado.pivot else 'no hay año anterior en la primera fila' }}).
+  «No definido»: el año anterior tiene 0 vehículos. «Base pequeña»: el año anterior tiene menos de {{ base_pequena }}.
+</p>
+
+{% include "etapa5/_olap_rollup.html" %}
+{% endif %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_p1') }}">
+    <i class="bi bi-arrow-left me-1"></i> P1
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_multidimensional') }}">
+    <i class="bi bi-boxes me-1"></i> Análisis multidimensional
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "etapa5/_olap_formularios_js.html" %}
+{% if p2 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const anios = {{ anios | tojson }};
+    const lineas = {{ p2.lineas | tojson }};
+    const barras = {{ p2.barras | tojson }};
+    const fmt = n => n.toLocaleString('es-CO');
+    const fmtPct = n => (n > 0 ? '+' : '') + n.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
+    // Paleta del proyecto (verdes y amarillo), con un tono distinto por territorio.
+    const colores = ['#2d5a43', '#f2ba1d', '#447a5b', '#b8860b', '#1b382b'];
+
+    new Chart(document.getElementById('grafLineas'), {
+      type: 'line',
+      data: {
+        labels: anios,
+        datasets: lineas.map((l, i) => ({
+          label: l.miembro, data: l.datos, borderColor: colores[i % colores.length],
+          backgroundColor: colores[i % colores.length], pointRadius: 3, tension: 0, borderWidth: 2
+        }))
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12 } },
+          tooltip: { callbacks: { label: c => c.dataset.label + ': ' + fmt(c.parsed.y) + ' vehículos' } }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => fmt(v) }, title: { display: true, text: 'Vehículos' } },
+          x: { title: { display: true, text: 'Año de registro' } }
+        }
+      }
+    });
+
+    const lienzo = document.getElementById('grafVariacion');
+    if (lienzo) {
+      new Chart(lienzo, {
+        type: 'bar',
+        data: {
+          labels: barras.map(b => b.miembro + ' (' + fmt(b.anterior) + ' → ' + fmt(b.actual) + ')' + (b.base_pequena ? ' · base pequeña' : '')),
+          datasets: [{
+            label: 'Variación %', data: barras.map(b => b.pct), borderRadius: 4,
+            backgroundColor: barras.map(b => b.base_pequena ? '#f2ba1d' : '#2d5a43')
+          }]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => {
+              const b = barras[c.dataIndex];
+              return fmtPct(b.pct) + ' · ' + fmt(b.anterior) + ' → ' + fmt(b.actual) + ' vehículos' + (b.base_pequena ? ' (base pequeña)' : '');
+            } } }
+          },
+          scales: {
+            x: { ticks: { callback: v => v + ' %' }, title: { display: true, text: 'Variación % (denominador: año anterior)' } },
+            y: { ticks: { autoSkip: false } }
+          }
+        }
+      });
+    }
+  })();
+</script>
+{% endif %}
+{% endblock %}

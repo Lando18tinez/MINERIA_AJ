@@ -1,0 +1,10 @@
+<script>
+  // Los campos vacíos de los formularios no se envían, para que la URL quede limpia.
+  document.querySelectorAll('.olap-form').forEach(function (form) {
+    form.addEventListener('submit', function () {
+      form.querySelectorAll('select, input').forEach(function (el) {
+        if (el.value === '') { el.disabled = true; }
+      });
+    });
+  });
+</script>

@@ -61,208 +61,12 @@
   <div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}</div>
 {% else %}
 
-{% for a in avisos %}
-  <div class="alert alert-warning py-2 small"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ a }}</div>
-{% endfor %}
+{% include "etapa5/_olap_estado.html" %}
 
-<!-- Estado de la consulta: siempre visible -->
-<div class="card border-0 shadow-sm mb-4 p-3 bg-white" id="estado">
-  <div class="row g-3 small align-items-start">
-    <div class="col-md-3">
-      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Nivel de vehículo</div>
-      <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
-        {% for n in orden_niveles %}
-          <span class="olap-nivel{{ ' olap-nivel--activo' if n == estado.nivel }}">{{ niveles[n].etiqueta }}</span>
-          {% if not loop.last %}<i class="bi bi-chevron-right text-muted"></i>{% endif %}
-        {% endfor %}
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Operación actual</div>
-      <div class="mt-1"><strong>{{ operacion[0] }}</strong>{% if estado.pivot %} + <strong>Pivot</strong>{% endif %}</div>
-      <div class="text-muted">{{ operacion[1] }}</div>
-    </div>
-    <div class="col-md-6">
-      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Filtros activos</div>
-      <div class="d-flex flex-wrap gap-1 mt-1">
-        {% for etiqueta, valor, url_quitar in activos %}
-          <span class="olap-filtro">
-            {{ etiqueta }} = <strong>{{ valor }}</strong>
-            {% if url_quitar %}
-              <a href="{{ url_quitar }}" class="olap-filtro__quitar" title="Quitar este filtro"
-                 aria-label="Quitar el filtro {{ etiqueta }}"><i class="bi bi-x-lg"></i></a>
-            {% endif %}
-          </span>
-        {% endfor %}
-      </div>
-      <div class="mt-2">
-        <span class="text-muted">Denominador de los porcentajes:</span>
-        {% if cubo %}
-          <strong>{{ cubo.vehiculos | miles }}</strong> vehículos de la selección actual (todos los filtros activos).
-        {% else %}
-          sin vehículos en la selección.
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Controles OLAP -->
-<div class="row g-4 mb-4">
-  <div class="col-lg-4">
-    <div class="content-card card h-100 border">
-      <div class="card-body">
-        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-arrows-move text-success me-1"></i>Navegar la jerarquía</h6>
-        <div class="d-grid gap-2">
-          {% if url_drill %}
-            <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_drill }}">
-              <i class="bi bi-arrow-down-right-circle me-1"></i><strong>Drill-down</strong> a {{ niveles[nivel_siguiente].etiqueta | lower }}
-            </a>
-          {% else %}
-            <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
-              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: ya está en el nivel más detallado
-            </span>
-          {% endif %}
-          {% if url_rollup %}
-            <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_rollup }}">
-              <i class="bi bi-arrow-up-left-circle me-1"></i><strong>Roll-up</strong> a {{ niveles[nivel_anterior].etiqueta | lower }}
-            </a>
-          {% else %}
-            <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
-              <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: ya está en el nivel más agregado
-            </span>
-          {% endif %}
-          <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_pivot }}">
-            <i class="bi bi-arrow-left-right me-1"></i><strong>Pivot</strong>:
-            {% if estado.pivot %}filas = tipo de vehículo, columnas = año{% else %}filas = año, columnas = tipo de vehículo{% endif %}
-          </a>
-        </div>
-        <p class="text-muted small mt-3 mb-0">
-          También puede hacer drill-down sobre un tipo de vehículo con el enlace de su fila en la matriz.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-3">
-    <div class="content-card card h-100 border">
-      <div class="card-body">
-        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-scissors text-success me-1"></i>Slice</h6>
-        <p class="text-muted small">Un solo valor de una dimensión. Reemplaza los demás filtros de tiempo y vehículo.</p>
-        <form method="get" action="{{ url_for('analisis_p1') }}" class="olap-form">
-          {% if estado.familia != 'Eléctrico' %}<input type="hidden" name="familia" value="{{ estado.familia }}">{% endif %}
-          {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
-          {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
-          <label for="slice" class="form-label small fw-semibold">Valor</label>
-          <select id="slice" name="slice" class="form-select form-select-sm mb-2" required>
-            <option value="" selected disabled>Elija un valor…</option>
-            <optgroup label="Tiempo · periodo">
-              {% for p in perm.periodo %}<option value="periodo:{{ p }}">{{ p }}</option>{% endfor %}
-            </optgroup>
-            <optgroup label="Tiempo · año">
-              {% for a in perm.anio %}<option value="anio:{{ a }}">{{ a }}</option>{% endfor %}
-            </optgroup>
-            <optgroup label="Vehículo · categoría">
-              {% for c in perm.categoria %}<option value="categoria:{{ c }}">{{ c }}</option>{% endfor %}
-            </optgroup>
-            <optgroup label="Vehículo · clase">
-              {% for c in perm.clase %}<option value="clase:{{ c }}">{{ c }}</option>{% endfor %}
-            </optgroup>
-          </select>
-          <button type="submit" class="btn btn-sm btn-energy w-100">Aplicar slice</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-5">
-    <div class="content-card card h-100 border">
-      <div class="card-body">
-        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-grid-3x3-gap-fill text-success me-1"></i>Dice y filtros</h6>
-        <p class="text-muted small">Combine filtros en dos o más dimensiones.</p>
-        <form method="get" action="{{ url_for('analisis_p1') }}" class="olap-form">
-          {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
-          {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
-          <div class="row g-2 small">
-            <div class="col-sm-6">
-              <label for="f-familia" class="form-label fw-semibold mb-1">Familia de combustible</label>
-              <select id="f-familia" name="familia" class="form-select form-select-sm">
-                {% for f in perm.familia %}
-                  <option value="{{ f }}" {{ 'selected' if estado.familia == f }}>{{ f }}</option>
-                {% endfor %}
-                <option value="{{ todas }}" {{ 'selected' if estado.familia == todas }}>Todas</option>
-              </select>
-            </div>
-            <div class="col-sm-6">
-              <label for="f-periodo" class="form-label fw-semibold mb-1">Periodo</label>
-              <select id="f-periodo" name="periodo" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                {% for p in perm.periodo %}
-                  <option value="{{ p }}" {{ 'selected' if estado.periodo == p }}>{{ p }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-sm-6">
-              <label for="f-categoria" class="form-label fw-semibold mb-1">Categoría</label>
-              <select id="f-categoria" name="categoria" class="form-select form-select-sm">
-                <option value="">Todas</option>
-                {% for c in perm.categoria %}
-                  <option value="{{ c }}" {{ 'selected' if estado.categoria == c }}>{{ c }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-sm-6">
-              <label for="f-clase" class="form-label fw-semibold mb-1">Clase</label>
-              <select id="f-clase" name="clase" class="form-select form-select-sm">
-                <option value="">Todas</option>
-                {% for cat, clases in perm.clases_por_categoria %}
-                  <optgroup label="{{ cat }}">
-                    {% for c in clases %}
-                      <option value="{{ c }}" {{ 'selected' if estado.clase == c }}>{{ c }}</option>
-                    {% endfor %}
-                  </optgroup>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-12">
-              <span class="form-label fw-semibold d-block mb-1">Años de registro <span class="text-muted fw-normal">(ninguno marcado = todos)</span></span>
-              <div class="d-flex flex-wrap gap-2">
-                {% for a in perm.anio %}
-                  <label class="olap-anio">
-                    <input type="checkbox" name="anio" value="{{ a }}" {{ 'checked' if a in estado.anio }}> {{ a }}
-                  </label>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-sm btn-energy flex-grow-1">Aplicar filtros</button>
-            <a class="btn btn-sm btn-outline-secondary" href="{{ url_limpiar }}">Volver al inicio de P1</a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+{% include "etapa5/_olap_controles.html" %}
 
 {% if not cubo or cubo.vehiculos == 0 %}
-  <!-- Selección sin datos -->
-  <div class="alert alert-info d-flex gap-3 align-items-start">
-    <i class="bi bi-info-circle-fill fs-4"></i>
-    <div>
-      <strong>La selección no tiene vehículos registrados.</strong>
-      <p class="mb-2 small">
-        {% if not anios %}
-          Los años elegidos no pertenecen al periodo elegido, así que no queda ningún año para consultar.
-        {% else %}
-          En el modelo no hay registros que cumplan a la vez todos los filtros activos
-          (por ejemplo, una clase que no pertenece a la categoría elegida o un tipo de vehículo sin registros en esos años).
-        {% endif %}
-      </p>
-      <p class="mb-0 small">Quite alguno de los filtros activos o
-        <a href="{{ url_limpiar }}">vuelva a la selección inicial</a>.</p>
-    </div>
-  </div>
+  {% include "etapa5/_olap_sin_datos.html" %}
 {% else %}
 
 <!-- Indicadores -->
@@ -427,36 +231,7 @@
   vehículos de la selección actual. Los porcentajes no se suman entre selecciones distintas.
 </p>
 
-<!-- Comprobación de roll-up -->
-<div class="card border-0 shadow-sm mb-4 p-3 bg-white">
-  <h6 class="fw-bold text-dark mb-2"><i class="bi bi-check2-square text-success me-1"></i>Comprobación de roll-up</h6>
-  <p class="text-muted small mb-2">
-    Con los mismos filtros, la suma de los subtotales de cada nivel debe ser igual al total de la selección.
-  </p>
-  <div class="table-responsive">
-    <table class="table table-sm small align-middle mb-0">
-      <thead class="table-light">
-        <tr><th>Nivel</th><th class="text-end">Miembros</th><th class="text-end">Suma de subtotales</th><th>Estado</th></tr>
-      </thead>
-      <tbody>
-        {% for n in orden_niveles %}
-          <tr{{ ' class="fw-semibold"' | safe if n == estado.nivel }}>
-            <td>{{ niveles[n].etiqueta }}</td>
-            <td class="text-end">{{ rollup[n].miembros | miles }}</td>
-            <td class="text-end">{{ rollup[n].vehiculos | miles }}</td>
-            <td>
-              {% if rollup[n].vehiculos == cubo.vehiculos %}
-                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Igual al total</span>
-              {% else %}
-                <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (rollup[n].vehiculos - cubo.vehiculos) | miles }}</span>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+{% include "etapa5/_olap_rollup.html" %}
 {% endif %}
 
 {% if kc %}
@@ -710,16 +485,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-  // Los campos vacíos de los formularios no se envían, para que la URL quede limpia.
-  document.querySelectorAll('.olap-form').forEach(function (form) {
-    form.addEventListener('submit', function () {
-      form.querySelectorAll('select, input').forEach(function (el) {
-        if (el.value === '') { el.disabled = true; }
-      });
-    });
-  });
-</script>
+{% include "etapa5/_olap_formularios_js.html" %}
 {% if cubo and cubo.vehiculos %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>

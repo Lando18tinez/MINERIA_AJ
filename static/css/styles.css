@@ -510,3 +510,35 @@ h1, h2, h3, h4, h5, h6 {
 .conocimiento-dl dd {
   margin-bottom: 0.6rem;
 }
+
+/* Vista P2: variación % frente al año anterior en la matriz */
+.olap-var {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.olap-var--sube {
+  color: var(--color-primary);
+}
+
+.olap-var--baja {
+  color: #b02a37;
+}
+
+.olap-var--nd {
+  font-style: italic;
+}
+
+.olap-base-pequena {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  background-color: var(--color-accent-soft);
+  border: 1px dashed var(--color-accent);
+  border-radius: 2rem;
+  padding: 0 0.35rem;
+  white-space: nowrap;
+}
