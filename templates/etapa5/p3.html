@@ -282,6 +282,253 @@
 
 {% include "etapa5/_olap_rollup.html" %}
 {% endif %}
+
+{% if kc %}
+<!-- ======================================================================
+     Interpretación, conocimientos, limitación y decisión de P3
+     ====================================================================== -->
+<div class="mt-5 pt-4 border-top" id="conocimientos">
+  <h2 class="h4 fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretación</h2>
+  <div class="callout-energy mb-5">
+    <p class="mb-0">
+      Entre 2019 y 2024, los registros se concentraron en vehículos livianos, sobre todo camionetas wagon. En casi
+      todas las clases predominan los modelos del mismo año de registro o posteriores, pero entre las clases con más
+      registros, los ciclomotores de 2024 son la excepción.
+    </p>
+  </div>
+
+  <!-- Conocimiento 1 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">1</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Los vehículos livianos pasan a dominar los registros</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Cómo cambió la composición de los registros por tipo de vehículo?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">Tiempo y vehículo; vehículos registrados y participación %.</dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">
+          Todos los combustibles, años 2019 y 2024, nivel categoría; drill-down a clase y a carrocería en CAMIONETA 2024.
+        </dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Matriz de tipo de vehículo por año y enlaces a esas selecciones.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_categorias }}">
+              <i class="bi bi-table me-1"></i>Matriz de categoría × año (2019 y 2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_clases }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: clase × año (2019 y 2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_camioneta }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: carrocerías de CAMIONETA 2024
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          La categoría Liviano pasó de 51,5 % de los registros en 2019 a 95,6 % en 2024. Las camionetas pasaron de
+          1.367 (25,2 %) a 39.121 (72,5 %), y los ciclomotores de 2.266 (41,7 %) a 1.471 (2,7 %). En 2024, 38.425 de
+          las 39.121 camionetas fueron wagon (98,2 %).
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">La población registrada cambió de tipo de vehículo, no solo de tamaño.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Orienta la planeación hacia vehículos livianos, especialmente camionetas.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">Los datos no explican por qué cambió la preferencia de los compradores.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Todas</strong></span>
+        <span class="olap-filtro">Año = <strong>2019, 2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Categoría</strong> → <strong>Clase</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Clase = <strong>CAMIONETA</strong></span>
+        <span class="olap-filtro">Año = <strong>2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Clase · carrocería</strong></span>
+        <div class="text-muted mt-1">
+          Denominador de las participaciones: vehículos registrados del mismo año ({{ kc.totales[2019] | miles }} en 2019 y {{ kc.totales[2024] | miles }} en 2024);
+          para wagon, las 39.121 camionetas de 2024.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conocimiento 2 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">2</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Los ciclomotores de 2024 tienen modelos más antiguos</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Qué tan nuevos son los modelos registrados en cada tipo de vehículo?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">
+          Tiempo, vehículo y año del modelo; vehículos registrados y % con modelo igual o posterior al año de registro.
+        </dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">
+          Todos los combustibles, años 2019 y 2024, nivel clase; comparar el indicador de modelo reciente entre clases.
+        </dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Fila de modelo reciente de la matriz y enlaces a esas selecciones.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k2_clases }}">
+              <i class="bi bi-table me-1"></i>Matriz de clase × año (2019 y 2024)
+            </a>
+            {% for clase, url in k_urls.k2_por_clase %}
+              <a class="btn btn-sm btn-outline-forest" href="{{ url }}">
+                <i class="bi bi-scissors me-1"></i>Solo {{ clase }} (2019 y 2024)
+              </a>
+            {% endfor %}
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table table-sm table-bordered align-middle bg-white mb-1">
+              <caption class="small text-muted">
+                Consulta al modelo (<code>olap.modelo_reciente</code>): todos los combustibles; % de vehículos con
+                <code>anio_modelo ≥ anio</code>. Denominador: vehículos de la clase en ese año de registro. Es la fila
+                «% con modelo ≥ año de registro» de la matriz al filtrar cada clase.
+              </caption>
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Clase</th>
+                  {% for a in [2019, 2024] %}
+                    <th scope="col" class="text-end">Modelo ≥ registro {{ a }}</th>
+                    <th scope="col" class="text-end">Registrados {{ a }}</th>
+                    <th scope="col" class="text-end">% {{ a }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in kc.k2_tabla %}
+                  <tr{{ ' class="fw-semibold"' | safe if loop.first }}>
+                    <th scope="row">{{ f.miembro }}</th>
+                    {% for a in [2019, 2024] %}
+                      <td class="text-end">{{ f[a].recientes | miles }}</td>
+                      <td class="text-end">{{ f[a].vehiculos | miles }}</td>
+                      <td class="text-end">{{ f[a].pct | pct(1) if f[a].pct is not none else '—' }}</td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          En 2024, el 93,2 % de los registros tenía modelo igual o posterior al año de registro (50.250 de 53.934);
+          3.684 tenían modelos anteriores. Las camionetas tuvieron 95,3 % y los automóviles 96,7 %. Los ciclomotores
+          bajaron de 91,9 % en 2019 a 39,6 % en 2024 (582 de 1.471).
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">El promedio general oculta una diferencia fuerte en los ciclomotores.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Indica que los ciclomotores deben analizarse aparte al estudiar la renovación.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">
+          Un modelo anterior puede reflejar inventario o una matrícula tardía; es una hipótesis que los datos no
+          permiten comprobar.
+        </dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Todas</strong></span>
+        <span class="olap-filtro">Año = <strong>2019, 2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Clase</strong></span>
+        <span class="olap-filtro">Clase = <strong>CAMIONETA</strong> / <strong>AUTOMOVIL</strong> / <strong>CICLOMOTOR</strong> (por separado)</span>
+        <div class="text-muted mt-1">
+          Denominador del % con modelo ≥ año de registro: vehículos del mismo año de registro (53.934 en 2024 para el
+          total; 1.471 para los ciclomotores de 2024).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limitación y decisión -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitación del análisis</h3>
+        <p class="small mb-0">
+          El año del modelo y el año de registro no indican la edad real de uso ni si el vehículo sigue circulando.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-signpost-split-fill text-success me-2"></i>Posible decisión</h3>
+        <p class="small mb-0">
+          Enfocar el seguimiento en vehículos livianos y revisar por separado los ciclomotores con modelos anteriores
+          antes de generalizar conclusiones sobre renovación.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comprobación de las cifras del texto -->
+  <details class="card border-0 shadow-sm p-3 bg-white mb-2"{{ ' open' if not kc.todas_ok }}>
+    <summary class="fw-bold text-dark small">
+      <i class="bi bi-check2-square text-success me-1"></i>Comprobación de las cifras citadas:
+      {% if kc.todas_ok %}
+        <span class="text-success">las {{ kc.comprobaciones | length }} coinciden con el modelo</span>
+      {% else %}
+        <span class="text-danger">hay cifras que no coinciden con el modelo</span>
+      {% endif %}
+    </summary>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Conocimiento</th><th>Cifra</th><th class="text-end">En el texto</th><th class="text-end">En el modelo</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for c in kc.comprobaciones %}
+            <tr>
+              <td>{{ c.k }}</td>
+              <td>{{ c.cifra }}</td>
+              <td class="text-end">{{ c.texto | dec(c.decimales) }}</td>
+              <td class="text-end">{{ c.modelo | dec(c.decimales + 2 if c.decimales else 0) }}</td>
+              <td>
+                {% if c.ok %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coincide</span>
+                {% elif c.modelo is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Sin valor en el modelo</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (c.modelo - c.texto) | dec(c.decimales) }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      Cada cifra se recalcula desde <code>hechos_registros</code> al cargar la página y se redondea a los decimales
+      con que se cita en el texto.
+    </p>
+  </details>
+</div>
+{% endif %}
 {% endif %}
 
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">

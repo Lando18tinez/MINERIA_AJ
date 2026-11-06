@@ -1035,6 +1035,91 @@ def analisis_p2():
 # --- Vista P3: distribución por tipo de vehículo y año del modelo -----------
 
 P3_TOP_APILADAS = 7    # tipos de vehículo con serie propia en las barras apiladas (el resto se agrupa en «Otros»)
+P3_K_ANIOS = [2019, 2024]
+P3_K2_CLASES = ["CAMIONETA", "AUTOMOVIL", "CICLOMOTOR"]   # clases citadas en el conocimiento 2
+
+# Cifras citadas en los conocimientos de P3: (conocimiento, cifra, valor del texto, decimales con que se cita).
+# Cada una se compara en cada carga con el valor recalculado desde el modelo (_p3_conocimientos).
+P3_CIFRAS_TEXTO = [
+    (1, "Participación de Liviano 2019 (%)", 51.5, 1),
+    (1, "Participación de Liviano 2024 (%)", 95.6, 1),
+    (1, "Camionetas 2019", 1367, 0),
+    (1, "Participación de camionetas 2019 (%)", 25.2, 1),
+    (1, "Camionetas 2024", 39121, 0),
+    (1, "Participación de camionetas 2024 (%)", 72.5, 1),
+    (1, "Ciclomotores 2019", 2266, 0),
+    (1, "Participación de ciclomotores 2019 (%)", 41.7, 1),
+    (1, "Ciclomotores 2024", 1471, 0),
+    (1, "Participación de ciclomotores 2024 (%)", 2.7, 1),
+    (1, "Camionetas wagon 2024", 38425, 0),
+    (1, "Participación de wagon en camionetas 2024 (%)", 98.2, 1),
+    (2, "% con modelo ≥ año de registro 2024", 93.2, 1),
+    (2, "Vehículos con modelo ≥ año de registro 2024", 50250, 0),
+    (2, "Vehículos registrados 2024", 53934, 0),
+    (2, "Vehículos con modelo anterior 2024", 3684, 0),
+    (2, "% con modelo ≥ año de registro: camionetas 2024", 95.3, 1),
+    (2, "% con modelo ≥ año de registro: automóviles 2024", 96.7, 1),
+    (2, "% con modelo ≥ año de registro: ciclomotores 2019", 91.9, 1),
+    (2, "% con modelo ≥ año de registro: ciclomotores 2024", 39.6, 1),
+    (2, "Ciclomotores con modelo ≥ año de registro 2024", 582, 0),
+    (2, "Ciclomotores registrados 2024", 1471, 0),
+]
+
+
+def _p3_conocimientos(con):
+    """Recalcula desde el modelo las cifras de los conocimientos de P3 y las compara con el texto."""
+    todos = {"familia": [], "anio": P3_K_ANIOS}
+    a0, a1 = P3_K_ANIOS
+
+    # Conocimiento 1: categorías y clases 2019 vs 2024; carrocerías de CAMIONETA en 2024.
+    cat = olap.consultar(con, todos, "categoria", P3_K_ANIOS)
+    cla = olap.consultar(con, todos, "clase", P3_K_ANIOS)
+    tot = {s["anio"]: s["vehiculos"] for s in cat["serie"]}
+
+    def celda(cubo, miembro, anio):
+        return cubo["celdas"].get(((miembro,), anio), 0)
+
+    def pct(cubo, miembro, anio):
+        return celda(cubo, miembro, anio) / tot[anio] * 100 if tot[anio] else None
+
+    camionetas = olap.consultar(con, {"familia": [], "anio": [a1], "clase": ["CAMIONETA"]}, "carroceria", [a1])
+    wagon = next((m["vehiculos"] for m in camionetas["composicion"] if m["llave"] == ("CAMIONETA", "WAGON")), 0)
+
+    # Conocimiento 2: % con modelo ≥ año de registro, en total y por clase.
+    def reciente(clase=None):
+        filtros = {**todos, **({"clase": [clase]} if clase else {})}
+        return {s["anio"]: s for s in olap.modelo_reciente(con, filtros, P3_K_ANIOS)["serie"]}
+
+    general = reciente()
+    por_clase = {c: reciente(c) for c in P3_K2_CLASES}
+    k2_tabla = [{"miembro": "Todas las clases", **{a: general[a] for a in P3_K_ANIOS}}] + [
+        {"miembro": c, **{a: por_clase[c][a] for a in P3_K_ANIOS}} for c in P3_K2_CLASES
+    ]
+
+    modelo = [
+        pct(cat, "Liviano", a0), pct(cat, "Liviano", a1),
+        celda(cla, "CAMIONETA", a0), pct(cla, "CAMIONETA", a0),
+        celda(cla, "CAMIONETA", a1), pct(cla, "CAMIONETA", a1),
+        celda(cla, "CICLOMOTOR", a0), pct(cla, "CICLOMOTOR", a0),
+        celda(cla, "CICLOMOTOR", a1), pct(cla, "CICLOMOTOR", a1),
+        wagon, wagon / camionetas["vehiculos"] * 100 if camionetas["vehiculos"] else None,
+        general[a1]["pct"], general[a1]["recientes"], general[a1]["vehiculos"],
+        general[a1]["vehiculos"] - general[a1]["recientes"],
+        por_clase["CAMIONETA"][a1]["pct"], por_clase["AUTOMOVIL"][a1]["pct"],
+        por_clase["CICLOMOTOR"][a0]["pct"], por_clase["CICLOMOTOR"][a1]["pct"],
+        por_clase["CICLOMOTOR"][a1]["recientes"], por_clase["CICLOMOTOR"][a1]["vehiculos"],
+    ]
+    comprobaciones = [
+        {"k": k, "cifra": cifra, "texto": texto, "decimales": dec, "modelo": valor,
+         "ok": valor is not None and round(valor, dec) == texto}
+        for (k, cifra, texto, dec), valor in zip(P3_CIFRAS_TEXTO, modelo)
+    ]
+    return {
+        "totales": tot,
+        "k2_tabla": k2_tabla,
+        "comprobaciones": comprobaciones,
+        "todas_ok": all(c["ok"] for c in comprobaciones),
+    }
 
 
 @app.route("/analisis-multidimensional/p3")
@@ -1056,6 +1141,7 @@ def analisis_p3():
         if hay_datos:
             reciente = olap.modelo_reciente(con, ctx["filtros"], anios)
             por_modelo = olap.por_modelo(con, ctx["filtros"], estado["nivel_extra"])
+        conocimientos = _p3_conocimientos(con)
 
     p3 = None
     if hay_datos:
@@ -1105,6 +1191,15 @@ def analisis_p3():
         q=pregunta,
         error_modelo=None,
         p3=p3,
+        kc=conocimientos,
+        k_urls={
+            "k1_categorias": url_for("analisis_p3", anio=P3_K_ANIOS),
+            "k1_clases": url_for("analisis_p3", anio=P3_K_ANIOS, nivel="clase"),
+            "k1_camioneta": url_for("analisis_p3", clase="CAMIONETA", anio=[2024], nivel="carroceria"),
+            "k2_clases": url_for("analisis_p3", anio=P3_K_ANIOS, nivel="clase"),
+            "k2_por_clase": [(c, url_for("analisis_p3", clase=c, anio=P3_K_ANIOS, nivel="clase"))
+                             for c in P3_K2_CLASES],
+        },
         top_apiladas=P3_TOP_APILADAS,
         **ctx,
     )

@@ -34,8 +34,15 @@ NIVELES_TERRITORIO = {
     "municipio": {"columnas": ("r.territorio",), "etiqueta": "Municipio"},
 }
 
+# Jerarquía de la dimensión año del modelo (superior -> inferior).
+ORDEN_NIVELES_MODELO = ("rango_modelo", "anio_modelo")
+NIVELES_MODELO = {
+    "rango_modelo": {"columnas": ("m.rango_modelo",), "etiqueta": "Rango del modelo"},
+    "anio_modelo": {"columnas": ("m.anio_modelo",), "etiqueta": "Año del modelo"},
+}
+
 # Todos los niveles que se pueden usar como filas del cubo.
-NIVELES = {**NIVELES_VEHICULO, **NIVELES_TERRITORIO}
+NIVELES = {**NIVELES_VEHICULO, **NIVELES_TERRITORIO, **NIVELES_MODELO}
 
 # Filtros permitidos: nombre -> (columna SQL, dimensión a la que pertenece, etiqueta).
 FILTROS = {
@@ -46,6 +53,8 @@ FILTROS = {
     "clase": ("v.clase", "vehiculo", "Clase"),
     "departamento": ("r.departamento", "territorio", "Departamento"),
     "municipio": ("r.territorio", "territorio", "Municipio"),
+    "rango_modelo": ("m.rango_modelo", "modelo", "Rango del modelo"),
+    "anio_modelo": ("m.anio_modelo", "modelo", "Año del modelo"),
 }
 
 _FROM = """
@@ -54,6 +63,7 @@ JOIN dim_tiempo      t ON t.id_tiempo      = h.id_tiempo
 JOIN dim_combustible c ON c.id_combustible = h.id_combustible
 JOIN dim_vehiculo    v ON v.id_vehiculo    = h.id_vehiculo
 JOIN dim_territorio  r ON r.id_territorio  = h.id_territorio
+JOIN dim_modelo      m ON m.id_modelo      = h.id_modelo
 """
 
 
@@ -83,7 +93,18 @@ def valores_permitidos(con):
             "SELECT territorio FROM dim_territorio WHERE departamento = ? ORDER BY territorio", (dep,))]
         municipios_por_departamento.append((dep, municipios))
 
+    # Rangos del modelo en orden cronológico (por el primer año del modelo de cada rango).
+    rangos = columna("SELECT rango_modelo FROM dim_modelo GROUP BY rango_modelo ORDER BY MIN(anio_modelo)")
+    anios_modelo_por_rango = [
+        (rango, [fila[0] for fila in con.execute(
+            "SELECT anio_modelo FROM dim_modelo WHERE rango_modelo = ? ORDER BY anio_modelo", (rango,))])
+        for rango in rangos
+    ]
+
     return {
+        "rango_modelo": rangos,
+        "anio_modelo": columna("SELECT anio_modelo FROM dim_modelo ORDER BY anio_modelo"),
+        "anios_modelo_por_rango": anios_modelo_por_rango,
         "departamento": departamentos,
         "municipio": columna("SELECT territorio FROM dim_territorio ORDER BY territorio"),
         "municipios_por_departamento": municipios_por_departamento,
@@ -176,6 +197,39 @@ def por_territorio(con, filtros, limite=5):
         params + [limite],
     ).fetchall()
     return [{"territorio": t, "departamento": d, "vehiculos": v} for t, d, v in filas]
+
+
+def por_modelo(con, filtros, nivel):
+    """Vehículos registrados por miembro de la jerarquía del año del modelo, en orden cronológico."""
+    if nivel not in NIVELES_MODELO:
+        raise ValueError(f"Nivel no permitido: {nivel}")
+    col = NIVELES_MODELO[nivel]["columnas"][0]
+    where, params = _where(filtros)
+    filas = con.execute(
+        f"SELECT {col}, SUM(h.cantidad) {_FROM}{where} GROUP BY {col} ORDER BY MIN(m.anio_modelo)", params
+    ).fetchall()
+    return [{"miembro": miembro, "vehiculos": veh} for miembro, veh in filas]
+
+
+def modelo_reciente(con, filtros, anios):
+    """Vehículos con año del modelo igual o posterior al año de registro, por año de registro y en total.
+
+    Denominador: los vehículos de ese año de registro (o de toda la selección, en el total).
+    """
+    where, params = _where(filtros)
+    por_anio = {
+        anio: (recientes, veh) for anio, recientes, veh in con.execute(
+            f"SELECT t.anio, SUM(CASE WHEN m.anio_modelo >= t.anio THEN h.cantidad ELSE 0 END), SUM(h.cantidad) "
+            f"{_FROM}{where} GROUP BY t.anio", params)
+    }
+    serie = []
+    for anio in anios:
+        recientes, veh = por_anio.get(anio, (0, 0))
+        serie.append({"anio": anio, "recientes": recientes, "vehiculos": veh,
+                      "pct": recientes / veh * 100 if veh else None})
+    recientes = sum(s["recientes"] for s in serie)
+    veh = sum(s["vehiculos"] for s in serie)
+    return {"serie": serie, "recientes": recientes, "vehiculos": veh, "pct": recientes / veh * 100 if veh else None}
 
 
 def total_por_nivel(con, filtros, nivel):
