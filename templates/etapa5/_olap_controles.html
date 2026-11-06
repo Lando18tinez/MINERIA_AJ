@@ -25,6 +25,28 @@
               <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: ya está en el nivel más agregado
             </span>
           {% endif %}
+          {% if jerarquia_extra %}
+            {% set je = jerarquia_extra %}
+            <div class="small text-muted fw-semibold mt-1">Jerarquía del {{ je.dimension }}</div>
+            {% if je.url_drill %}
+              <a class="btn btn-sm btn-outline-forest text-start" href="{{ je.url_drill }}">
+                <i class="bi bi-arrow-down-right-circle me-1"></i><strong>Drill-down</strong> a {{ niveles[je.nivel_siguiente].etiqueta | lower }}
+              </a>
+            {% else %}
+              <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
+                <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: {{ niveles[je.nivel].etiqueta | lower }} es el nivel más detallado
+              </span>
+            {% endif %}
+            {% if je.url_rollup %}
+              <a class="btn btn-sm btn-outline-forest text-start" href="{{ je.url_rollup }}">
+                <i class="bi bi-arrow-up-left-circle me-1"></i><strong>Roll-up</strong> a {{ niveles[je.nivel_anterior].etiqueta | lower }}
+              </a>
+            {% else %}
+              <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
+                <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: {{ niveles[je.nivel].etiqueta | lower }} es el nivel más agregado
+              </span>
+            {% endif %}
+          {% endif %}
           <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_pivot }}">
             <i class="bi bi-arrow-left-right me-1"></i><strong>Pivot</strong>:
             {% if estado.pivot %}filas = {{ vista.eje_texto }}, columnas = año{% else %}filas = año, columnas = {{ vista.eje_texto }}{% endif %}
@@ -41,10 +63,11 @@
     <div class="content-card card h-100 border">
       <div class="card-body">
         <h6 class="fw-bold text-dark mb-1"><i class="bi bi-scissors text-success me-1"></i>Slice</h6>
-        <p class="text-muted small">Un solo valor de una dimensión. Reemplaza los demás filtros de tiempo y {{ {'vehiculo': 'vehículo', 'territorio': 'territorio'}[vista.dimension] }}.</p>
+        <p class="text-muted small">Un solo valor de una dimensión. Reemplaza los demás filtros de {{ slice_dimensiones }}.</p>
         <form method="get" action="{{ url_for(endpoint) }}" class="olap-form">
           {% if estado.familia != familia_inicial %}<input type="hidden" name="familia" value="{{ estado.familia }}">{% endif %}
           {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
+          {% if jerarquia_extra and jerarquia_extra.nivel != jerarquia_extra.niveles[0] %}<input type="hidden" name="{{ jerarquia_extra.param }}" value="{{ jerarquia_extra.nivel }}">{% endif %}
           {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
           <label for="slice" class="form-label small fw-semibold">Valor</label>
           <select id="slice" name="slice" class="form-select form-select-sm mb-2" required>
@@ -68,9 +91,8 @@
         <p class="text-muted small">Combine filtros en dos o más dimensiones.</p>
         <form method="get" action="{{ url_for(endpoint) }}" class="olap-form">
           {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
+          {% if jerarquia_extra and jerarquia_extra.nivel != jerarquia_extra.niveles[0] %}<input type="hidden" name="{{ jerarquia_extra.param }}" value="{{ jerarquia_extra.nivel }}">{% endif %}
           {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
-          {% set sup_nombre, sup_etiqueta, sup_valores = dice_superior %}
-          {% set inf_nombre, inf_etiqueta, inf_grupos = dice_inferior %}
           <div class="row g-2 small">
             <div class="col-sm-6">
               <label for="f-familia" class="form-label fw-semibold mb-1">Familia de combustible</label>
@@ -90,6 +112,7 @@
                 {% endfor %}
               </select>
             </div>
+            {% for (sup_nombre, sup_etiqueta, sup_valores), (inf_nombre, inf_etiqueta, inf_grupos) in dice_pares %}
             <div class="col-sm-6">
               <label for="f-{{ sup_nombre }}" class="form-label fw-semibold mb-1">{{ sup_etiqueta }}</label>
               <select id="f-{{ sup_nombre }}" name="{{ sup_nombre }}" class="form-select form-select-sm">
@@ -112,6 +135,7 @@
                 {% endfor %}
               </select>
             </div>
+            {% endfor %}
             <div class="col-12">
               <span class="form-label fw-semibold d-block mb-1">Años de registro <span class="text-muted fw-normal">(ninguno marcado = todos)</span></span>
               <div class="d-flex flex-wrap gap-2">

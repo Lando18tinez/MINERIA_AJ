@@ -12,8 +12,8 @@
         <tr><th>Nivel</th><th class="text-end">Miembros</th><th class="text-end">Suma de subtotales</th><th>Estado</th></tr>
       </thead>
       <tbody>
-        {% for n in orden_niveles %}
-          <tr{{ ' class="fw-semibold"' | safe if n == estado.nivel }}>
+        {% for n in niveles_rollup | default(orden_niveles) %}
+          <tr{{ ' class="fw-semibold"' | safe if n == estado.nivel or (jerarquia_extra and n == jerarquia_extra.nivel) }}>
             <td>{{ niveles[n].etiqueta }}</td>
             <td class="text-end">{{ rollup[n].miembros | miles }}</td>
             <td class="text-end">{{ rollup[n].vehiculos | miles }}</td>

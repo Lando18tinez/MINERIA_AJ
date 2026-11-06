@@ -16,6 +16,15 @@
           {% if not loop.last %}<i class="bi bi-chevron-right text-muted"></i>{% endif %}
         {% endfor %}
       </div>
+      {% if jerarquia_extra %}
+        <div class="text-muted text-uppercase fw-bold mt-2" style="font-size:.7rem">Nivel del {{ jerarquia_extra.dimension }}</div>
+        <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
+          {% for n in jerarquia_extra.niveles %}
+            <span class="olap-nivel{{ ' olap-nivel--activo' if n == jerarquia_extra.nivel }}">{{ niveles[n].etiqueta }}</span>
+            {% if not loop.last %}<i class="bi bi-chevron-right text-muted"></i>{% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
     <div class="col-md-3">
       <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Operación actual</div>
