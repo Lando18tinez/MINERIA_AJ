@@ -157,12 +157,12 @@ como *no disponibles* en la Etapa 2, sin reportar resultados sobre ellas.
 
 ## Estado del proyecto
 
-- ✅ Etapas 1 a 3 implementadas en la aplicación (contenido, tablas y gráficas).
-- ✅ **Conocimiento evidente**: 4 tableros de Power BI (12 indicadores, 8 segmentadores, 12 conocimientos documentados) publicados e incrustados en `/conocimiento-evidente`.
-- ✅ Etapa 2 corregida: perfilamiento y métricas recalculados sobre el dataset real, con datos, código y resultados descargables.
-- ⚠️ Pendiente: alinear el texto de la Etapa 1 (dataset, diccionario, calidad inicial) con el esquema real de la fuente.
-- ⏳ Despliegue en producción (Render) pendiente de configurar.
-- ⏳ Informe técnico del proceso (documento aparte, con evidencias incrustadas).
+- Etapas 1 a 3 implementadas en la aplicación (contenido, tablas y gráficas).
+- **Conocimiento evidente**: 4 tableros de Power BI (12 indicadores, 8 segmentadores, 12 conocimientos documentados) publicados e incrustados en `/conocimiento-evidente`.
+- Etapa 2 corregida: perfilamiento y métricas recalculados sobre el dataset real, con datos, código y resultados descargables.
+- Pendiente: alinear el texto de la Etapa 1 (dataset, diccionario, calidad inicial) con el esquema real de la fuente.
+- Despliegue en producción (Render) pendiente de configurar.
+- Informe técnico del proceso (documento aparte, con evidencias incrustadas).
 
 ---
 Proyecto académico — Minería de Datos, Universidad de Cundinamarca.

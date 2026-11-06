@@ -148,6 +148,23 @@ body {
   font-weight: 600;
 }
 
+/* En celular y tableta (por debajo de lg, donde aparece el menú hamburguesa), los menús de las etapas se abren
+   a todo el ancho, debajo de la barra: Bootstrap no reposiciona los desplegables dentro de un navbar, y con
+   min-width 22rem se salían por la derecha de la pantalla. */
+@media (max-width: 991.98px) {
+  .custom-navbar .dropdown {
+    position: static;
+  }
+
+  .custom-navbar .dropdown-menu-custom {
+    min-width: 0;
+    left: 0.75rem !important;
+    right: 0.75rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+}
+
 /* ==========================================================================
    TIPOGRAFÍA Y ELEMENTOS DE PÁGINA
    ========================================================================== */
@@ -327,4 +344,226 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ==========================================================================
+   ANÁLISIS MULTIDIMENSIONAL (Etapa 5: modelo estrella)
+   ========================================================================== */
+.estrella-cifra {
+  background: var(--bg-page);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-default);
+  padding: 0.85rem 1rem;
+  height: 100%;
+}
+
+.estrella-cifra__valor {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  line-height: 1.1;
+}
+
+.estrella-cifra__etiqueta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.15rem;
+}
+
+/* El diagrama conserva un ancho mínimo legible y se desplaza dentro de su tarjeta en pantallas angostas */
+.estrella-lienzo {
+  overflow-x: auto;
+}
+
+.estrella-svg {
+  display: block;
+  width: 100%;
+  min-width: 640px;
+  height: auto;
+  font-family: inherit;
+}
+
+.estrella-cuerpo {
+  fill: var(--bg-surface);
+  stroke: var(--color-primary-light);
+  stroke-width: 1.5;
+}
+
+.estrella-cabecera {
+  fill: var(--color-primary);
+}
+
+.estrella-titulo {
+  fill: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.estrella-filas {
+  fill: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+}
+
+.estrella-campo {
+  fill: var(--text-main);
+  font-size: 12.5px;
+}
+
+.estrella-llave {
+  fill: var(--color-primary-light);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.estrella-tabla--hechos .estrella-cuerpo {
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+
+.estrella-tabla--hechos .estrella-cabecera {
+  fill: var(--color-accent);
+}
+
+.estrella-tabla--hechos .estrella-titulo {
+  fill: var(--color-primary-dark);
+}
+
+.estrella-tabla--hechos .estrella-filas {
+  fill: var(--color-primary-dark);
+}
+
+.estrella-relacion line {
+  stroke: var(--color-primary-light);
+  stroke-width: 2;
+}
+
+.estrella-cardinalidad text {
+  fill: var(--color-primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Etiqueta «En construcción» para contenido que aún no está publicado */
+.badge-construccion {
+  display: inline-block;
+  background-color: var(--color-accent-soft);
+  color: var(--color-primary-dark);
+  border: 1px dashed var(--color-accent);
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2rem;
+  white-space: nowrap;
+}
+
+.estrella-pendiente {
+  border-style: dashed !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Vista interactiva P1: estado de la consulta y controles OLAP */
+.olap-nivel {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2rem;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.olap-nivel--activo {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.olap-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--color-accent-soft);
+  border: 1px solid rgba(242, 186, 29, 0.5);
+  color: var(--color-primary-dark);
+  border-radius: 2rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.olap-filtro__quitar {
+  color: var(--color-primary-dark);
+  line-height: 1;
+}
+
+.olap-filtro__quitar:hover {
+  color: #b02a37;
+}
+
+.olap-anio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  cursor: pointer;
+  background: var(--bg-surface);
+}
+
+.olap-matriz th a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.olap-matriz th a:hover {
+  text-decoration: underline;
+}
+
+/* Conocimientos de P1: los 8 elementos de cada conocimiento */
+.conocimiento-dl dt {
+  color: var(--color-primary-dark);
+}
+
+.conocimiento-dl dd {
+  margin-bottom: 0.6rem;
+}
+
+/* Vista P2: variación % frente al año anterior en la matriz */
+.olap-var {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Detalle de una celda de la matriz de P4 (territorios, promedio y mediana). */
+.olap-celda-detalle {
+  font-size: 0.7rem;
+  line-height: 1.25;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.olap-var--sube {
+  color: var(--color-primary);
+}
+
+.olap-var--baja {
+  color: #b02a37;
+}
+
+.olap-var--nd {
+  font-style: italic;
+}
+
+.olap-base-pequena {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  background-color: var(--color-accent-soft);
+  border: 1px dashed var(--color-accent);
+  border-radius: 2rem;
+  padding: 0 0.35rem;
+  white-space: nowrap;
 }

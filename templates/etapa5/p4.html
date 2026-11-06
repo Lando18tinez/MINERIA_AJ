@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+
+{% block title %}P4 · Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{# Mediana o promedio: sin decimales si es entero; si no, con uno. #}
+{% macro num(v) -%}
+  {%- if v is none -%}—{%- elif v == v | int -%}{{ v | int | miles }}{%- else -%}{{ v | dec(1) }}{%- endif -%}
+{%- endmacro %}
+
+{# Contenido de una celda de la matriz: vehículos, territorios distintos, promedio y mediana. #}
+{% macro celda(r, fuerte=false) -%}
+  {%- if r and r.vehiculos -%}
+    <div class="{{ 'fw-bold' if fuerte }}">{{ r.vehiculos | miles }}</div>
+    <div class="olap-celda-detalle">{{ r.territorios | miles }} terr.</div>
+    <div class="olap-celda-detalle">prom. {{ r.promedio | dec(1) }}</div>
+    <div class="olap-celda-detalle">med. {{ num(r.mediana) }}</div>
+  {%- else -%}
+    <span class="text-muted">0</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('analisis_multidimensional') }}" class="text-decoration-none">Análisis multidimensional</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">P4</li>
+  </ol>
+</nav>
+
+<!-- Encabezado -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Pregunta de análisis {{ q.id }}
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-2">Promedio, mediana y concentración por territorio</h1>
+  <p class="lead fs-6 text-dark mb-0">{{ q.pregunta }}</p>
+</div>
+
+<!-- Dimensiones, medidas y jerarquías -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <div class="row g-4 small">
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-layers-fill text-warning me-1"></i>Dimensiones</h6>
+      <ul class="ps-3 mb-0">
+        <li><code>dim_combustible</code>: familia y combustible (sin filtro inicial: todos)</li>
+        <li><code>dim_vehiculo</code>: tipo de vehículo</li>
+        <li><code>dim_territorio</code>: departamento y municipio (nivel de cálculo)</li>
+      </ul>
+      <p class="text-muted mt-2 mb-0">Se usan los 10 años de registro (2015–2024); esta vista no filtra por tiempo.</p>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-calculator-fill text-warning me-1"></i>Medidas</h6>
+      <ul class="ps-3 mb-0">
+        <li><strong>Vehículos registrados</strong>: <code>SUM(cantidad)</code>, aditiva</li>
+        <li><strong>Territorios distintos</strong>: territorios del nivel elegido con al menos un vehículo, no aditiva</li>
+        <li><strong>Promedio por territorio</strong>: vehículos / territorios distintos, no aditiva</li>
+        <li><strong>Mediana por territorio</strong>: valor central de los totales por territorio, no aditiva</li>
+        <li><strong>Participación de los {{ top }} principales</strong>: vehículos de los {{ top }} territorios con más registros / vehículos de la selección × 100, no aditiva</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-diagram-2-fill text-warning me-1"></i>Jerarquías</h6>
+      <ul class="ps-3 mb-0">
+        <li>Vehículo: <code>categoria</code> → <code>clase</code></li>
+        <li>Combustible: <code>familia</code> → <code>combustible</code></li>
+        <li>Territorio: <code>departamento</code> → <code>municipio</code> (llave <code>territorio</code>)</li>
+      </ul>
+    </div>
+  </div>
+  <p class="text-muted small mt-3 mb-0">
+    Todas las cifras se recalculan en cada consulta desde <code>hechos_registros</code> en
+    <code>data/modelo/modelo_estrella.db</code> (solo lectura). El promedio y la mediana se calculan sobre el total de
+    vehículos de cada territorio del nivel elegido, dentro de la selección actual (o de la celda).
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}</div>
+{% else %}
+
+{% set nivel_ter = niveles[estado.nivel_territorio].etiqueta | lower %}
+{% set denominadores_extra = [
+     ('Denominador del promedio',
+      'territorios distintos (nivel ' ~ nivel_ter ~ ') con al menos un vehículo en la selección o en la celda.'),
+     ('Mediana', 'valor central de los totales por territorio (nivel ' ~ nivel_ter ~ ') de la selección o de la celda.'),
+     ('Denominador de la participación de los ' ~ top ~ ' principales y de la curva de concentración',
+      'vehículos de la selección actual.')] %}
+{% include "etapa5/_olap_estado.html" %}
+
+{% include "etapa5/_olap_controles.html" %}
+
+{% if not cubo or cubo.vehiculos == 0 %}
+  {% include "etapa5/_olap_sin_datos.html" %}
+{% else %}
+{% set r = p4.resumen %}
+
+<!-- Indicadores -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Promedio de vehículos por territorio ({{ nivel_ter }})</div>
+      <div class="estrella-cifra__valor">{{ r.promedio | dec(1) }}</div>
+      <div class="small text-muted mt-1">
+        {{ r.vehiculos | miles }} vehículos / {{ r.territorios | miles }} territorios con registros.
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Mediana de vehículos por territorio ({{ nivel_ter }})</div>
+      <div class="estrella-cifra__valor">{{ num(r.mediana) }}</div>
+      <div class="small text-muted mt-1">
+        Valor central de los {{ r.territorios | miles }} totales por territorio. La mitad de los territorios tiene
+        {{ num(r.mediana) }} vehículos o menos.
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Participación de los {{ [top, r.territorios] | min }} territorios con más vehículos</div>
+      <div class="estrella-cifra__valor">{{ r.top_pct | pct(2) }}</div>
+      <div class="small text-muted mt-1">
+        {{ r.top_vehiculos | miles }} vehículos. Denominador: {{ r.vehiculos | miles }} vehículos de la selección actual.
+        Líder: <strong>{{ r.lider.territorio }}</strong>, {{ r.lider.vehiculos | miles }} ({{ r.lider.pct | pct(2) }}).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficas -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Promedio y mediana por {{ niveles[estado.nivel].etiqueta | lower }}</h6>
+        <p class="text-muted small mb-2">
+          Vehículos por territorio ({{ nivel_ter }}) dentro de cada grupo. Denominador del promedio: territorios con
+          al menos un vehículo del grupo.
+        </p>
+        <div style="height: {{ [320, p4.filas | length * 34 + 70] | max }}px">
+          <canvas id="grafPromedio" aria-label="Promedio y mediana de vehículos por territorio en cada grupo" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Curva de concentración ({{ nivel_ter }})</h6>
+        <p class="text-muted small mb-2">
+          Participación acumulada de los {{ r.territorios | miles }} territorios, ordenados de mayor a menor.
+          Denominador: {{ r.vehiculos | miles }} vehículos de la selección.
+        </p>
+        <div style="height: 320px"><canvas id="grafCurva" aria-label="Curva de concentración por territorio" role="img"></canvas></div>
+        <p class="small text-muted mt-2 mb-0">
+          Los {{ p4.top | length }} primeros:
+          {% for t in p4.top %}{{ t.territorio }} ({{ t.vehiculos | miles }}; {{ t.pct | pct(2) }}){{ ', ' if not loop.last else '.' }}{% endfor %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Matriz tipo de vehículo × combustible -->
+{% set nivel_comb = niveles[estado.nivel_combustible].etiqueta %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-2">
+  <div>
+    <h2 class="h5 fw-bold text-dark mb-1"><i class="bi bi-table text-success me-2"></i>Matriz {{ (nivel_comb | lower ~ ' × tipo de vehículo') if estado.pivot else ('tipo de vehículo × ' ~ nivel_comb | lower) }}</h2>
+    <p class="text-muted small mb-0">
+      En cada celda: vehículos registrados, territorios distintos ({{ nivel_ter }}), promedio y mediana por territorio.
+      Filas: {{ nivel_comb | lower if estado.pivot else niveles[estado.nivel].etiqueta | lower }} ·
+      columnas: {{ niveles[estado.nivel].etiqueta | lower if estado.pivot else nivel_comb | lower }}.
+    </p>
+  </div>
+  <a class="btn btn-sm btn-outline-forest" href="{{ url_pivot }}"><i class="bi bi-arrow-left-right me-1"></i>Pivot</a>
+</div>
+<div class="table-responsive mb-2 olap-matriz">
+  <table class="table table-sm table-bordered small align-middle bg-white mb-0">
+    {% if not estado.pivot %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">{{ niveles[estado.nivel].etiqueta }}</th>
+          {% for c in p4.columnas %}
+            <th scope="col" class="text-end">
+              {% if c.drill %}<a href="{{ c.drill }}" title="Drill-down en {{ c.miembro }}">{{ c.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ c.miembro }}{% endif %}
+            </th>
+          {% endfor %}
+          <th scope="col" class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in p4.filas %}
+          {% set drill = url_drill_miembro(f.llave) %}
+          <tr>
+            <th scope="row" class="fw-semibold">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ f.miembro }}">{{ f.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ f.miembro }}{% endif %}
+            </th>
+            {% for c in p4.columnas %}
+              <td class="text-end">{{ celda(p4.celdas.get((f.llave, c.llave))) }}</td>
+            {% endfor %}
+            <td class="text-end">{{ celda(f, true) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light">
+        <tr>
+          <th scope="row">Total</th>
+          {% for c in p4.columnas %}<td class="text-end">{{ celda(c, true) }}</td>{% endfor %}
+          <td class="text-end">{{ celda(r, true) }}</td>
+        </tr>
+      </tfoot>
+    {% else %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">{{ nivel_comb }}</th>
+          {% for f in p4.filas %}
+            {% set drill = url_drill_miembro(f.llave) %}
+            <th scope="col" class="text-end">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ f.miembro }}">{{ f.miembro }}</a>{% else %}{{ f.miembro }}{% endif %}
+            </th>
+          {% endfor %}
+          <th scope="col" class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in p4.columnas %}
+          <tr>
+            <th scope="row" class="fw-semibold">
+              {% if c.drill %}<a href="{{ c.drill }}" title="Drill-down en {{ c.miembro }}">{{ c.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ c.miembro }}{% endif %}
+            </th>
+            {% for f in p4.filas %}
+              <td class="text-end">{{ celda(p4.celdas.get((f.llave, c.llave))) }}</td>
+            {% endfor %}
+            <td class="text-end">{{ celda(c, true) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light">
+        <tr>
+          <th scope="row">Total</th>
+          {% for f in p4.filas %}<td class="text-end">{{ celda(f, true) }}</td>{% endfor %}
+          <td class="text-end">{{ celda(r, true) }}</td>
+        </tr>
+      </tfoot>
+    {% endif %}
+  </table>
+</div>
+<p class="text-muted small mb-4">
+  En cada celda, «terr.» son los territorios distintos (nivel {{ nivel_ter }}) con al menos un vehículo en la celda;
+  el promedio es vehículos de la celda / esos territorios, y la mediana es el valor central de sus totales. Ni los
+  promedios ni las medianas se suman entre celdas: el total de la fila, de la columna y de la tabla se recalcula
+  sobre sus propios territorios.
+</p>
+
+{% include "etapa5/_olap_rollup.html" %}
+{% endif %}
+
+{% if kc %}
+<!-- ======================================================================
+     Interpretación, conocimientos, limitación y decisión de P4
+     ====================================================================== -->
+<div class="mt-5 pt-4 border-top" id="conocimientos">
+  <h2 class="h4 fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretación</h2>
+  <div class="callout-energy mb-5">
+    <p class="mb-0">
+      El promedio de vehículos por territorio describe mal el caso típico, porque pocos territorios concentran la
+      mayoría de los registros. La concentración también cambia según el combustible y el tipo de vehículo.
+    </p>
+  </div>
+
+  <!-- Conocimiento 1 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">1</span>
+        <h3 class="h5 fw-bold text-dark mb-0">El promedio exagera el territorio típico</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿El promedio representa bien la cantidad de vehículos de un territorio?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">
+          Combustible y territorio; promedio y mediana por territorio, territorios distintos y participación de los 5
+          principales.
+        </dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Nivel municipio; comparar todos los combustibles con las familias Eléctrico e Híbrido mediante slice.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Indicadores y matriz de tipo de vehículo por combustible, con enlaces.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.todos }}">
+              <i class="bi bi-table me-1"></i>Todos los combustibles (municipio)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.electrico }}">
+              <i class="bi bi-scissors me-1"></i>Slice: familia Eléctrico
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.hibrido }}">
+              <i class="bi bi-scissors me-1"></i>Slice: familia Híbrido
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          Con todos los combustibles, el promedio es 630,7 vehículos por territorio y la mediana es 17, en 247
+          territorios. En eléctricos, el promedio es 168,0 y la mediana 11; en híbridos, 585,2 y 10. Los 5 principales
+          territorios reúnen 53,23 % de los eléctricos y 71,41 % de los híbridos.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">Los híbridos están más concentrados que los eléctricos.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">
+          Indica que las comparaciones territoriales deben incluir la mediana y la concentración, no solo el promedio.
+        </dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">El promedio y la mediana solo incluyen territorios con al menos un registro en la selección.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Nivel territorial = <strong>Municipio</strong></span>
+        <span class="olap-filtro">Familia = <strong>Todas</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Familia = <strong>Híbrido</strong></span>
+        <div class="text-muted mt-1">
+          Denominador del promedio: territorios con al menos un vehículo en la selección. Denominador de la
+          participación de los 5 principales: vehículos de la selección (eléctricos o híbridos). Se usan los 10 años
+          de registro.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conocimiento 2 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">2</span>
+        <h3 class="h5 fw-bold text-dark mb-0">La concentración depende del tipo de vehículo</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Todos los tipos de vehículo se concentran en los mismos territorios?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">
+          Vehículo, combustible y territorio; participación del territorio líder, participación de los 5 principales
+          y mediana por territorio.
+        </dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Nivel municipio; slice por categoría y dice de Eléctrico con Liviano.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Barras de promedio y mediana, curva de concentración y enlaces.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.motorizado }}">
+              <i class="bi bi-scissors me-1"></i>Slice: categoría Motorizado ligero
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.pasajeros }}">
+              <i class="bi bi-scissors me-1"></i>Slice: categoría Pasajeros
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.electrico_liviano }}">
+              <i class="bi bi-grid-3x3-gap-fill me-1"></i>Dice: Eléctrico y Liviano
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          En Motorizado ligero, los 5 principales territorios reúnen solo 31,18 % y el líder, Madrid (Cundinamarca),
+          tiene 7,95 %. En Pasajeros, Bogotá tiene 1.613 de 1.762 vehículos (91,54 %) y la mediana es 2. En eléctricos
+          livianos, Bogotá tiene 9.448 de 16.745 (56,42 %) y la mediana es 3 en 106 territorios.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">
+          Los vehículos motorizados ligeros están más distribuidos, mientras los de pasajeros y los eléctricos livianos
+          se concentran en Bogotá.
+        </dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">
+          Permite usar estrategias distintas: más territorial para los motorizados ligeros y más focalizada para
+          pasajeros y eléctricos livianos.
+        </dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">El territorio corresponde a la matrícula y no confirma dónde circula el vehículo.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Nivel territorial = <strong>Municipio</strong></span>
+        <span class="olap-filtro">Categoría = <strong>Motorizado ligero</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Categoría = <strong>Pasajeros</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="olap-filtro">Categoría = <strong>Liviano</strong></span>
+        <div class="text-muted mt-1">
+          Denominador de las participaciones (líder, Bogotá y 5 principales): vehículos de cada selección
+          ({{ kc.vehiculos.motorizado | miles }} motorizados ligeros, {{ kc.vehiculos.pasajeros | miles }} de pasajeros
+          y {{ kc.vehiculos.electrico_liviano | miles }} eléctricos livianos). Se usan los 10 años de registro.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limitación y decisión -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitación del análisis</h3>
+        <p class="small mb-0">
+          Las medidas se calculan sobre los territorios con registros. Los territorios sin vehículos en la selección no
+          entran en el promedio ni en la mediana.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-signpost-split-fill text-success me-2"></i>Posible decisión</h3>
+        <p class="small mb-0">
+          Reportar la mediana y la participación de los principales territorios junto con el promedio, y diseñar
+          estrategias distintas según el tipo de vehículo.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comprobación de las cifras del texto -->
+  <details class="card border-0 shadow-sm p-3 bg-white mb-2"{{ ' open' if not kc.todas_ok }}>
+    <summary class="fw-bold text-dark small">
+      <i class="bi bi-check2-square text-success me-1"></i>Comprobación de las cifras citadas:
+      {% if kc.todas_ok %}
+        <span class="text-success">las {{ kc.comprobaciones | length }} coinciden con el modelo</span>
+      {% else %}
+        <span class="text-danger">hay cifras que no coinciden con el modelo</span>
+      {% endif %}
+    </summary>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Conocimiento</th><th>Cifra</th><th class="text-end">En el texto</th><th class="text-end">En el modelo</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for c in kc.comprobaciones %}
+            <tr>
+              <td>{{ c.k }}</td>
+              <td>{{ c.cifra }}</td>
+              {% if c.decimales is none %}
+                <td class="text-end">{{ c.texto }}</td>
+                <td class="text-end">{{ c.modelo if c.modelo is not none else '—' }}</td>
+              {% else %}
+                <td class="text-end">{{ c.texto | dec(c.decimales) }}</td>
+                <td class="text-end">{{ c.modelo | dec(c.decimales + 2 if c.decimales else 0) }}</td>
+              {% endif %}
+              <td>
+                {% if c.ok %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coincide</span>
+                {% elif c.modelo is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Sin valor en el modelo</span>
+                {% elif c.decimales is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>No coincide</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (c.modelo - c.texto) | dec(c.decimales) }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      Cada cifra se recalcula desde <code>hechos_registros</code> al cargar la página y se redondea a los decimales
+      con que se cita en el texto.
+    </p>
+  </details>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_p3') }}">
+    <i class="bi bi-arrow-left me-1"></i> P3
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_multidimensional') }}">
+    <i class="bi bi-boxes me-1"></i> Análisis multidimensional
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "etapa5/_olap_formularios_js.html" %}
+{% if p4 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const filas = {{ p4.filas | map(attribute='miembro') | list | tojson }};
+    const promedios = {{ p4.filas | map(attribute='promedio') | list | tojson }};
+    const medianas = {{ p4.filas | map(attribute='mediana') | list | tojson }};
+    const territorios = {{ p4.filas | map(attribute='territorios') | list | tojson }};
+    const curva = {{ p4.curva | tojson }};
+    const fmt = n => n.toLocaleString('es-CO', { maximumFractionDigits: 1 });
+    const fmtPct = n => n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
+
+    new Chart(document.getElementById('grafPromedio'), {
+      type: 'bar',
+      data: {
+        labels: filas,
+        datasets: [
+          { label: 'Promedio por territorio', data: promedios, backgroundColor: '#2d5a43', borderRadius: 4 },
+          { label: 'Mediana por territorio', data: medianas, backgroundColor: '#f2ba1d', borderRadius: 4 }
+        ]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12 } },
+          tooltip: { callbacks: { label: c => c.dataset.label + ': ' + fmt(c.parsed.x) + ' vehículos (' + territorios[c.dataIndex] + ' territorios)' } }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { callback: v => fmt(v) }, title: { display: true, text: 'Vehículos por territorio' } },
+          y: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('grafCurva'), {
+      type: 'line',
+      data: {
+        labels: curva.map((_, i) => i + 1),
+        datasets: [{
+          label: 'Participación acumulada', data: curva.map(p => p.acumulado),
+          borderColor: '#2d5a43', backgroundColor: 'rgba(242, 186, 29, 0.25)', fill: true,
+          pointRadius: curva.length > 60 ? 0 : 3, pointHoverRadius: 4, tension: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            title: items => 'Territorio n.º ' + items[0].label + ': ' + curva[items[0].dataIndex].territorio,
+            label: c => fmt(curva[c.dataIndex].vehiculos) + ' vehículos · acumulado ' + fmtPct(c.parsed.y)
+          } }
+        },
+        scales: {
+          y: { min: 0, max: 100, ticks: { callback: v => v + ' %' }, title: { display: true, text: 'Participación acumulada % (denominador: la selección)' } },
+          x: { title: { display: true, text: 'Territorios ordenados de mayor a menor' }, ticks: { maxTicksLimit: 12 } }
+        }
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,516 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{# Caja de una tabla en el diagrama SVG: encabezado + un renglón por campo. #}
+{% macro caja(x, y, titulo, filas, campos, hechos=false) %}
+  {% set alto = 38 + campos | length * 20 + 12 %}
+  <g class="estrella-tabla{{ ' estrella-tabla--hechos' if hechos }}">
+    <rect x="{{ x }}" y="{{ y }}" width="220" height="{{ alto }}" rx="10" class="estrella-cuerpo"/>
+    <path d="M{{ x }},{{ y + 10 }} a10,10 0 0 1 10,-10 h200 a10,10 0 0 1 10,10 v28 h-220 z" class="estrella-cabecera"/>
+    <text x="{{ x + 12 }}" y="{{ y + 24 }}" class="estrella-titulo">{{ titulo }}</text>
+    <text x="{{ x + 208 }}" y="{{ y + 24 }}" text-anchor="end" class="estrella-filas">{{ filas }}</text>
+    {% for nombre, llave in campos %}
+      <text x="{{ x + 12 }}" y="{{ y + 56 + loop.index0 * 20 }}" class="estrella-campo">
+        {%- if llave %}<tspan class="estrella-llave">{{ llave }}</tspan> {% endif %}{{ nombre -}}
+      </text>
+    {% endfor %}
+  </g>
+{% endmacro %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Análisis multidimensional</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de sección -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Modelo estrella
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-1">Análisis multidimensional</h1>
+  <p class="text-muted mb-0">
+    Organización de los vehículos eléctricos e híbridos registrados en un modelo estrella, para analizarlos por
+    tiempo, territorio, combustible, tipo de vehículo y año del modelo.
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}
+    Las cifras de esta página se leen de esa base y no se muestran hasta que esté disponible.
+  </div>
+{% endif %}
+
+<!-- Propósito de la etapa -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <h4 class="fw-bold text-dark mb-2"><i class="bi bi-bullseye text-warning me-2"></i>Propósito de la etapa</h4>
+  <p class="mb-2">
+    Pasar de las tablas planas del conocimiento evidente a un <strong>modelo estrella</strong>: una tabla de hechos
+    con los grupos de registro y cinco dimensiones con jerarquías. Así las preguntas de negocio se responden
+    subiendo, bajando y cruzando niveles sin perder la consistencia de los totales.
+  </p>
+  <p class="text-muted small mb-0">
+    El diseño lógico (granularidad, dimensiones, medidas y reglas para valores faltantes) está documentado en
+    <code>docs/etapa5/modelo_multidimensional.md</code>, y la carga se valida contra el origen en
+    <code>docs/etapa5/resultados_validacion.md</code>.
+  </p>
+</div>
+
+<!-- Fuente y cifras del modelo -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-primary">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-database-check text-primary me-2"></i>Fuente y cobertura</h4>
+  <div class="row g-4 align-items-start">
+    <div class="col-lg-6">
+      <dl class="row small mb-0">
+        <dt class="col-sm-4">Fuente</dt>
+        <dd class="col-sm-8">
+          {{ ce.meta.fuente }} · <code>{{ ce.meta.identificador }}</code> ·
+          <a href="{{ ce.meta.url_portal }}" target="_blank" rel="noopener noreferrer">portal datos.gov.co
+            <i class="bi bi-box-arrow-up-right"></i></a>
+        </dd>
+
+        <dt class="col-sm-4">Base del modelo</dt>
+        <dd class="col-sm-8"><code>data/modelo/modelo_estrella.db</code> (SQLite, abierta en solo lectura)</dd>
+
+        <dt class="col-sm-4">Cobertura</dt>
+        <dd class="col-sm-8">
+          {% if m %}
+            Años de registro <strong>{{ m.anio_min }}–{{ m.anio_max }}</strong>
+          {% else %}
+            Años de registro {{ ce.meta.periodo.desde }}–{{ ce.meta.periodo.hasta }}
+          {% endif %}
+          · quedan fuera {{ ce.meta.fuera_de_la_ventana.vehiculos | miles }} vehículos de
+          {{ ce.meta.fuera_de_la_ventana.anios }}.
+        </dd>
+
+        <dt class="col-sm-4">Granularidad</dt>
+        <dd class="col-sm-8">
+          Una fila por combinación única de combustible, clase, carrocería, año de registro, año del modelo y
+          territorio. Cada fila es un <em>grupo</em> de vehículos.
+        </dd>
+      </dl>
+    </div>
+
+    <div class="col-lg-6">
+      {% if m %}
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.grupos | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Filas de hechos (grupos)</div>
+              <code class="small">COUNT(*)</code>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.vehiculos | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Vehículos registrados</div>
+              <code class="small">SUM(cantidad)</code>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.territorios | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Territorios con registros</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.departamentos | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Departamentos</div>
+            </div>
+          </div>
+        </div>
+        <p class="text-muted small mt-2 mb-0">Cifras consultadas en la base al cargar esta página.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Relación con el conocimiento evidente -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-success">
+  <h4 class="fw-bold text-dark mb-2">
+    <i class="bi bi-link-45deg text-success me-2"></i>Relación con el conocimiento evidente
+  </h4>
+  <p class="mb-2">
+    Esta etapa parte de los mismos datos tratados que alimentan los tableros de
+    <a href="{{ url_for('conocimiento_evidente') }}">Conocimiento evidente</a>
+    (<code>data/powerbi/hechos_vehiculos.csv</code>). Esos tableros usan una tabla de hechos con llaves naturales y
+    tres dimensiones; el modelo estrella agrega llaves sustitutas, las dimensiones de vehículo y de año del modelo, y
+    jerarquías en cada dimensión.
+  </p>
+  {% if m %}
+    <div class="table-responsive">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Cifra</th><th class="text-end">Conocimiento evidente</th><th class="text-end">Modelo estrella</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for etiqueta, origen, modelo in [
+               ('Grupos de registro', ce.preparacion.registros_analisis, m.grupos),
+               ('Vehículos registrados', ce.preparacion.vehiculos, m.vehiculos)] %}
+            <tr>
+              <td>{{ etiqueta }}</td>
+              <td class="text-end">{{ origen | miles }}</td>
+              <td class="text-end">{{ modelo | miles }}</td>
+              <td>
+                {% if origen == modelo %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coinciden</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (modelo - origen) | miles }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Diagrama del modelo estrella -->
+<div class="d-flex align-items-center justify-content-between mb-3 mt-5">
+  <div>
+    <h2 class="h4 fw-bold mb-1 text-dark"><i class="bi bi-diagram-3-fill text-success me-2"></i>Modelo estrella</h2>
+    <p class="text-muted small mb-0">
+      Relaciones muchos a uno; cada dimensión filtra la tabla de hechos en un solo sentido.
+    </p>
+  </div>
+</div>
+
+{% set f = (m.filas_dim_tiempo, m.filas_dim_territorio, m.filas_dim_combustible, m.filas_dim_vehiculo, m.filas_dim_modelo, m.grupos) if m else ('', '', '', '', '', '') %}
+<div class="content-card card border mb-5">
+  <div class="card-body estrella-lienzo">
+    <svg viewBox="0 0 960 600" class="estrella-svg" role="img"
+         aria-labelledby="estrella-titulo estrella-desc">
+      <title id="estrella-titulo">Diagrama del modelo estrella</title>
+      <desc id="estrella-desc">
+        La tabla de hechos hechos_registros está en el centro y se relaciona con cinco dimensiones:
+        dim_tiempo, dim_territorio, dim_combustible, dim_vehiculo y dim_modelo.
+      </desc>
+
+      <!-- Relaciones: 1 en la dimensión, N en los hechos -->
+      <g class="estrella-relacion">
+        <line x1="250" y1="95"  x2="370" y2="200"/>
+        <line x1="710" y1="105" x2="590" y2="200"/>
+        <line x1="250" y1="470" x2="370" y2="390"/>
+        <line x1="710" y1="470" x2="590" y2="390"/>
+        <line x1="480" y1="470" x2="480" y2="426"/>
+      </g>
+      <g class="estrella-cardinalidad">
+        <text x="262" y="92">1</text>   <text x="352" y="196">N</text>
+        <text x="692" y="102">1</text>  <text x="598" y="196">N</text>
+        <text x="262" y="466">1</text>  <text x="350" y="388">N</text>
+        <text x="692" y="466">1</text>  <text x="600" y="388">N</text>
+        <text x="488" y="464">1</text>  <text x="488" y="442">N</text>
+      </g>
+
+      {% set sufijo = ' filas' %}
+      {{ caja(370, 190, 'hechos_registros', (f[5] | miles ~ sufijo) if m else '', [
+           ('id_hecho', 'PK'), ('id_tiempo', 'FK'), ('id_territorio', 'FK'), ('id_combustible', 'FK'),
+           ('id_vehiculo', 'FK'), ('id_modelo', 'FK'), ('cantidad', ''), ('modelo_inusual', ''),
+           ('grupo_grande', '')], hechos=true) }}
+      {{ caja(30, 30, 'dim_tiempo', (f[0] ~ sufijo) if m else '', [
+           ('id_tiempo', 'PK'), ('anio', ''), ('periodo', '')]) }}
+      {{ caja(710, 30, 'dim_territorio', (f[1] ~ sufijo) if m else '', [
+           ('id_territorio', 'PK'), ('territorio', ''), ('municipio', ''), ('departamento', '')]) }}
+      {{ caja(30, 410, 'dim_combustible', (f[2] ~ sufijo) if m else '', [
+           ('id_combustible', 'PK'), ('codigo', ''), ('etiqueta', ''), ('familia', '')]) }}
+      {{ caja(710, 410, 'dim_vehiculo', (f[3] ~ sufijo) if m else '', [
+           ('id_vehiculo', 'PK'), ('categoria', ''), ('clase', ''), ('carroceria', '')]) }}
+      {{ caja(370, 470, 'dim_modelo', (f[4] ~ sufijo) if m else '', [
+           ('id_modelo', 'PK'), ('anio_modelo', ''), ('rango_modelo', '')]) }}
+    </svg>
+  </div>
+</div>
+
+<!-- Dimensiones y jerarquías -->
+<h2 class="h4 fw-bold mb-3 text-dark"><i class="bi bi-layers-fill text-success me-2"></i>Dimensiones y jerarquías</h2>
+<div class="table-responsive mb-5">
+  <table class="table table-sm small align-middle bg-white border">
+    <thead class="table-light">
+      <tr><th>Dimensión</th><th>Qué describe</th><th>Jerarquía (superior → inferior)</th><th class="text-end">Filas</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>dim_tiempo</code></td>
+        <td>Año de registro{% if m %} ({{ m.anio_min }}–{{ m.anio_max }}){% endif %}. La fuente no trae mes.</td>
+        <td><code>periodo</code> → <code>anio</code></td>
+        <td class="text-end">{{ m.filas_dim_tiempo | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_territorio</code></td>
+        <td>Municipio y departamento. La llave es <code>territorio</code> porque hay municipios homónimos en distintos departamentos.</td>
+        <td><code>departamento</code> → <code>municipio</code></td>
+        <td class="text-end">{{ m.filas_dim_territorio | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_combustible</code></td>
+        <td>Tipo de combustible y su familia (Eléctrico, Híbrido u Otro). La fuente no distingue HEV de PHEV.</td>
+        <td><code>familia</code> → <code>combustible</code></td>
+        <td class="text-end">{{ m.filas_dim_combustible | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_vehiculo</code></td>
+        <td>Pareja clase-carrocería, agrupada en categorías. «SIN DATO» y «SIN CARROCERIA» son miembros distintos.</td>
+        <td><code>categoria</code> → <code>clase</code> → <code>carroceria</code></td>
+        <td class="text-end">{{ m.filas_dim_vehiculo | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_modelo</code></td>
+        <td>Año del modelo{% if m %} ({{ m.modelo_min }}–{{ m.modelo_max }}){% endif %}. No es el año de registro.</td>
+        <td><code>rango_modelo</code> → <code>anio_modelo</code></td>
+        <td class="text-end">{{ m.filas_dim_modelo | miles if m else '—' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Medidas -->
+<h2 class="h4 fw-bold mb-3 text-dark"><i class="bi bi-calculator-fill text-success me-2"></i>Medidas</h2>
+<div class="table-responsive mb-2">
+  <table class="table table-sm small align-middle bg-white border">
+    <thead class="table-light">
+      <tr><th>Medida</th><th>Fórmula</th><th>¿Se puede sumar?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Vehículos registrados</td><td><code>SUM(cantidad)</code></td><td><span class="text-success fw-semibold">Sí</span>, en todas las dimensiones</td></tr>
+      <tr><td>Grupos de registro</td><td><code>COUNT(*)</code></td><td><span class="text-success fw-semibold">Sí</span>, en todas las dimensiones</td></tr>
+      <tr><td>Territorios distintos</td><td><code>COUNT(DISTINCT id_territorio)</code></td><td><span class="text-danger fw-semibold">No</span>: se recalcula en cada nivel</td></tr>
+      <tr><td>Participación %</td><td>vehículos del grupo / vehículos del denominador × 100</td><td><span class="text-danger fw-semibold">No</span>: solo suman 100 % las partes de un mismo denominador</td></tr>
+      <tr><td>Promedio de vehículos por territorio</td><td><code>SUM(cantidad) / COUNT(DISTINCT id_territorio)</code></td><td><span class="text-danger fw-semibold">No</span>: cociente de dos totales</td></tr>
+      <tr><td>Mediana de vehículos por territorio</td><td>mediana de los totales por territorio</td><td><span class="text-danger fw-semibold">No</span>: se recalcula desde los totales por territorio</td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="text-muted small mb-5">
+  Las marcas <code>modelo_inusual</code> y <code>grupo_grande</code> de la tabla de hechos son atributos del grupo,
+  no medidas: sirven para filtrar o segmentar.
+</p>
+
+<!-- Las cuatro preguntas -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h2 class="h4 fw-bold mb-1 text-dark">
+      <i class="bi bi-question-circle-fill text-success me-2"></i>Preguntas de análisis
+    </h2>
+    <p class="text-muted small mb-0">Cada pregunta tiene su propia página de análisis sobre el modelo estrella.</p>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-lg-2 g-4 mb-5">
+  {% for q in preguntas %}
+    <div class="col">
+      <div class="content-card card h-100 border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+            <span class="pregunta-num">{{ q.id }}</span>
+            {% if q.endpoint %}
+              <span class="badge-forest"><i class="bi bi-check-circle me-1"></i>Vista interactiva</span>
+            {% else %}
+              <span class="badge-construccion"><i class="bi bi-cone-striped me-1"></i>En construcción</span>
+            {% endif %}
+          </div>
+          <h5 class="card-title fw-bold text-dark fs-6 mb-2">{{ q.pregunta }}</h5>
+          <p class="small text-muted mb-1"><strong>Dimensiones:</strong> {{ q.dimensiones }}.</p>
+          <p class="small text-muted mb-3"><strong>Medidas:</strong> {{ q.medidas }}.</p>
+          <div class="mt-auto pt-3 border-top">
+            {% if q.endpoint %}
+              <a class="btn btn-sm btn-outline-forest w-100" href="{{ url_for(q.endpoint) }}">
+                Abrir el análisis de {{ q.id }} <i class="bi bi-arrow-right-circle ms-1"></i>
+              </a>
+            {% else %}
+              <span class="btn btn-sm btn-outline-secondary w-100 disabled" aria-disabled="true">
+                Análisis de {{ q.id }} · disponible próximamente
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Resultados del análisis -->
+<h2 class="h4 fw-bold mb-1 text-dark"><i class="bi bi-clipboard-data-fill text-success me-2"></i>Resultados del análisis</h2>
+<p class="text-muted small mb-3">
+  Resumen de las preguntas P1–P4. Las cifras son las que ya se citan en cada vista; los enlaces abren la selección
+  exacta en el modelo.
+  {% if comprobacion %}
+    {% if comprobacion.ok == comprobacion.total %}
+      <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Las {{ comprobacion.total }} cifras citadas en
+      los conocimientos de P1–P4 coinciden con el modelo</span>
+    {% else %}
+      <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>{{ comprobacion.total - comprobacion.ok }} de
+      {{ comprobacion.total }} cifras citadas no coinciden con el modelo</span>
+    {% endif %}
+    ({% for v in comprobacion.por_vista %}<a href="{{ url_for(v.endpoint) }}#conocimientos">{{ v.id }}</a>: {{ v.ok }}/{{ v.total }}{{ ', ' if not loop.last }}{% endfor %}).
+  {% endif %}
+</p>
+
+<!-- Operaciones -->
+<h3 class="h5 fw-bold mt-4 mb-2 text-dark"><i class="bi bi-arrows-move text-success me-2"></i>Operaciones</h3>
+<p class="text-muted small mb-2">Un ejemplo real de cada operación, tomado de las vistas P1–P4.</p>
+<div class="table-responsive mb-5">
+  <table class="table table-sm small align-middle bg-white border">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Operación</th>
+        <th scope="col">Qué hace</th>
+        <th scope="col">Ejemplo</th>
+        <th scope="col">Dimensiones y medidas</th>
+        <th scope="col">Filtros o nivel</th>
+        <th scope="col">Interpretación</th>
+        <th scope="col">Selección</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">Drill-down</th>
+        <td>Baja a un nivel más detallado de una jerarquía.</td>
+        <td><strong>P1</strong>: de clase a carrocería en CAMIONETA 2024. 5.435 de 5.798 camionetas eléctricas fueron wagon (93,74 %).</td>
+        <td>Tiempo, combustible y vehículo; vehículos registrados y participación %.</td>
+        <td>Familia Eléctrico, año 2024, clase CAMIONETA; nivel clase → clase · carrocería.</td>
+        <td>Las camionetas wagon explican gran parte del cambio de composición.</td>
+        <td><a href="{{ url_for('analisis_p1', clase='CAMIONETA', anio=[2024], nivel='carroceria') }}">Abrir en P1</a></td>
+      </tr>
+      <tr>
+        <th scope="row">Roll-up</th>
+        <td>Sube a un nivel más agregado; el total se conserva.</td>
+        <td><strong>P2</strong>: de los municipios de ANTIOQUIA al departamento. Antioquia aumentó 829 eléctricos entre 2021 y 2024.</td>
+        <td>Tiempo, territorio y combustible; vehículos registrados y variación.</td>
+        <td>Familia Eléctrico, años 2021 y 2024; nivel municipio → departamento.</td>
+        <td>El total departamental oculta diferencias municipales.</td>
+        <td>
+          <a href="{{ url_for('analisis_p2', departamento='ANTIOQUIA', anio=[2021, 2024], nivel='municipio') }}">Municipios</a> ·
+          <a href="{{ url_for('analisis_p2', anio=[2021, 2024]) }}">Departamentos</a>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Slice</th>
+        <td>Fija un solo valor de una dimensión.</td>
+        <td><strong>P4</strong>: familia Eléctrico. El promedio es 168,0 vehículos por territorio y la mediana 11.</td>
+        <td>Combustible y territorio; promedio y mediana por territorio.</td>
+        <td>Familia = Eléctrico; nivel municipio.</td>
+        <td>El promedio exagera el territorio típico.</td>
+        <td><a href="{{ url_for('analisis_p4', familia='Eléctrico') }}">Abrir en P4</a></td>
+      </tr>
+      <tr>
+        <th scope="row">Dice</th>
+        <td>Combina filtros en dos o más dimensiones.</td>
+        <td><strong>P4</strong>: Eléctrico y Liviano. Bogotá tiene 9.448 de 16.745 (56,42 %) y la mediana es 3 en 106 territorios.</td>
+        <td>Combustible, vehículo y territorio; participación del territorio líder y mediana por territorio.</td>
+        <td>Familia = Eléctrico, categoría = Liviano; nivel municipio.</td>
+        <td>Los eléctricos livianos se concentran en Bogotá.</td>
+        <td><a href="{{ url_for('analisis_p4', familia='Eléctrico', categoria='Liviano') }}">Abrir en P4</a></td>
+      </tr>
+      <tr>
+        <th scope="row">Pivot</th>
+        <td>Intercambia filas y columnas de la matriz; no cambia las cifras.</td>
+        <td><strong>P3</strong>: matriz año de registro × clase. Las camionetas pasan de 25,2 % en 2019 a 72,5 % en 2024.</td>
+        <td>Tiempo y vehículo; vehículos registrados y participación % dentro del año.</td>
+        <td>Todos los combustibles, años 2019 y 2024; nivel clase; filas = año.</td>
+        <td>La población registrada cambió de tipo de vehículo, no solo de tamaño.</td>
+        <td><a href="{{ url_for('analisis_p3', anio=[2019, 2024], nivel='clase', pivot='1') }}">Abrir en P3</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Conocimientos -->
+<h3 class="h5 fw-bold mb-2 text-dark"><i class="bi bi-lightbulb-fill text-success me-2"></i>Conocimientos</h3>
+<p class="text-muted small mb-3">Los ocho conocimientos de P1–P4. Cada vista muestra sus 8 elementos y la comprobación de sus cifras.</p>
+<div class="row row-cols-1 row-cols-md-2 g-3 mb-5">
+  {% for vista, endpoint, n, titulo, hallazgo in [
+       ('P1', 'analisis_p1', 1, 'Cambio en el tipo de vehículo que impulsa el crecimiento',
+        'Los eléctricos pasaron de 3.242 a 11.298 entre 2019 y 2024; las camionetas pasaron de 2,28 % a 51,32 % y los ciclomotores de 69,90 % a 13,02 %.'),
+       ('P1', 'analisis_p1', 2, 'Efecto de los buses en la tendencia anual',
+        'En 2022 se registraron 1.006 buses eléctricos, 16,74 % de los eléctricos del año; con buses, 2022 creció 49,4 %, y sin buses, 27,6 %.'),
+       ('P2', 'analisis_p2', 1, 'Bogotá explica la mayor parte del aumento',
+        'Entre 2021 y 2024 los eléctricos aumentaron 7.276; Bogotá aportó 4.810, el 66,11 % del aumento.'),
+       ('P2', 'analisis_p2', 2, 'El crecimiento también es desigual dentro de los departamentos',
+        'Medellín aportó 630 de los 829 vehículos de aumento de Antioquia (76,0 %), y Funza, Chía y Mosquera 774 de los 868 de Cundinamarca (89,2 %).'),
+       ('P3', 'analisis_p3', 1, 'Los vehículos livianos pasan a dominar los registros',
+        'La categoría Liviano pasó de 51,5 % de los registros en 2019 a 95,6 % en 2024; en 2024, 38.425 de las 39.121 camionetas fueron wagon (98,2 %).'),
+       ('P3', 'analisis_p3', 2, 'Los ciclomotores de 2024 tienen modelos más antiguos',
+        'En 2024, el 93,2 % de los registros tenía modelo igual o posterior al año de registro; en los ciclomotores bajó de 91,9 % en 2019 a 39,6 % en 2024.'),
+       ('P4', 'analisis_p4', 1, 'El promedio exagera el territorio típico',
+        'Con todos los combustibles, el promedio es 630,7 vehículos por territorio y la mediana 17; los 5 principales territorios reúnen 53,23 % de los eléctricos y 71,41 % de los híbridos.'),
+       ('P4', 'analisis_p4', 2, 'La concentración depende del tipo de vehículo',
+        'En Motorizado ligero, los 5 principales territorios reúnen solo 31,18 %; Bogotá tiene 91,54 % de los vehículos de pasajeros y 56,42 % de los eléctricos livianos.')] %}
+    <div class="col">
+      <div class="content-card card h-100 border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="pregunta-num">{{ vista }}</span>
+            <span class="small text-muted fw-semibold">Conocimiento {{ n }}</span>
+          </div>
+          <h4 class="fw-bold text-dark fs-6 mb-2">{{ titulo }}</h4>
+          <p class="small mb-3">{{ hallazgo }}</p>
+          <div class="mt-auto">
+            <a class="btn btn-sm btn-outline-forest" href="{{ url_for(endpoint) }}#conocimientos">
+              Ver en {{ vista }} <i class="bi bi-arrow-right-circle ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Limitaciones y conclusiones -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+      <h3 class="h5 fw-bold text-dark mb-3"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitaciones</h3>
+      <ul class="small mb-0 ps-3">
+        <li class="mb-2">El dataset registra matrículas por año, no vehículos en circulación.</li>
+        <li class="mb-2">El territorio corresponde a la matrícula, no al lugar de uso.</li>
+        <li class="mb-2">El dataset no trae emisiones ni población, por lo que no se calcula CO2 ni indicadores per cápita.</li>
+        <li>Las asociaciones encontradas no prueban causas.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+      <h3 class="h5 fw-bold text-dark mb-3"><i class="bi bi-flag-fill text-success me-2"></i>Conclusiones</h3>
+      <ul class="small mb-0 ps-3">
+        <li class="mb-2">
+          El crecimiento de los eléctricos cambió de composición: pasó de ciclomotores a vehículos livianos, sobre todo
+          camionetas. <a href="{{ url_for('analisis_p1') }}#conocimientos">P1</a>
+        </li>
+        <li class="mb-2">
+          El crecimiento no fue homogéneo: Bogotá explica la mayor parte del aumento entre 2021 y 2024.
+          <a href="{{ url_for('analisis_p2') }}#conocimientos">P2</a>
+        </li>
+        <li class="mb-2">
+          La composición de los registros se concentró en vehículos livianos.
+          <a href="{{ url_for('analisis_p3') }}#conocimientos">P3</a>
+        </li>
+        <li class="mb-2">
+          El promedio territorial debe leerse junto con la mediana y la concentración.
+          <a href="{{ url_for('analisis_p4') }}#conocimientos">P4</a>
+        </li>
+        <li>
+          Estos resultados ayudan a priorizar seguimiento por tipo de vehículo y territorio, aunque no permiten medir
+          directamente la reducción de la huella de carbono.
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('conocimiento_evidente') }}">
+    <i class="bi bi-arrow-left me-1"></i> Conocimiento evidente
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Volver al inicio
+  </a>
+</div>
+{% endblock %}

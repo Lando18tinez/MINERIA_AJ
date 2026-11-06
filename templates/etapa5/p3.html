@@ -1,0 +1,603 @@
+{% extends "base.html" %}
+
+{% block title %}P3 · Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('analisis_multidimensional') }}" class="text-decoration-none">Análisis multidimensional</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">P3</li>
+  </ol>
+</nav>
+
+<!-- Encabezado -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Pregunta de análisis {{ q.id }}
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-2">Distribución por tipo de vehículo y año del modelo</h1>
+  <p class="lead fs-6 text-dark mb-0">{{ q.pregunta }}</p>
+</div>
+
+<!-- Dimensiones, medidas y jerarquías -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <div class="row g-4 small">
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-layers-fill text-warning me-1"></i>Dimensiones</h6>
+      <ul class="ps-3 mb-0">
+        <li><code>dim_tiempo</code>: año de registro</li>
+        <li><code>dim_vehiculo</code>: tipo de vehículo</li>
+        <li><code>dim_modelo</code>: año del modelo</li>
+        <li><code>dim_combustible</code>: familia (sin filtro inicial: todos los combustibles)</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-calculator-fill text-warning me-1"></i>Medidas</h6>
+      <ul class="ps-3 mb-0">
+        <li><strong>Vehículos registrados</strong>: <code>SUM(cantidad)</code>, aditiva</li>
+        <li><strong>Participación % en el año</strong>: vehículos del tipo en el año / vehículos de ese año de registro × 100, no aditiva</li>
+        <li><strong>Participación % en la selección</strong>: vehículos del tipo / vehículos de la selección × 100, no aditiva</li>
+        <li><strong>% con modelo ≥ año de registro</strong>: vehículos con <code>anio_modelo ≥ anio</code> / vehículos del mismo año de registro × 100, no aditiva</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-diagram-2-fill text-warning me-1"></i>Jerarquías</h6>
+      <ul class="ps-3 mb-0">
+        <li>Tiempo: <code>periodo</code> → <code>anio</code></li>
+        <li>Vehículo: <code>categoria</code> → <code>clase</code> → <code>carroceria</code></li>
+        <li>Modelo: <code>rango_modelo</code> → <code>anio_modelo</code></li>
+        <li>Combustible: <code>familia</code> → <code>combustible</code></li>
+      </ul>
+    </div>
+  </div>
+  <p class="text-muted small mt-3 mb-0">
+    Todas las cifras se recalculan en cada consulta desde <code>hechos_registros</code> en
+    <code>data/modelo/modelo_estrella.db</code> (solo lectura).
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}</div>
+{% else %}
+
+{% set denominadores_extra = [
+     ('Denominador de la participación % en la matriz y en las barras apiladas',
+      'vehículos del mismo año de registro (el total de esa columna de la matriz).'),
+     ('Denominador del % con modelo ≥ año de registro',
+      'vehículos del mismo año de registro; en el indicador, todos los vehículos de la selección.')] %}
+{% include "etapa5/_olap_estado.html" %}
+
+{% include "etapa5/_olap_controles.html" %}
+
+{% if not cubo or cubo.vehiculos == 0 %}
+  {% include "etapa5/_olap_sin_datos.html" %}
+{% else %}
+
+<!-- Indicadores -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Vehículos registrados</div>
+      <div class="estrella-cifra__valor">{{ cubo.vehiculos | miles }}</div>
+      <div class="small text-muted mt-1">
+        <code>SUM(cantidad)</code> en {{ anios | length }} año{{ 's' if anios | length != 1 }} de registro
+        ({{ anios[0] }}{% if anios | length > 1 %}–{{ anios[-1] }}{% endif %}) · {{ cubo.grupos | miles }} grupos de registro
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set l = cubo.lider %}
+      <div class="estrella-cifra__etiqueta">Participación del tipo líder ({{ niveles[estado.nivel].etiqueta | lower }})</div>
+      <div class="estrella-cifra__valor">{{ l.pct | pct(2) }}</div>
+      <div class="small text-muted mt-1">
+        <strong>{{ l.miembro }}</strong>: {{ l.vehiculos | miles }} vehículos.
+        Denominador: {{ cubo.vehiculos | miles }} vehículos de la selección actual.
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set r = p3.reciente %}
+      <div class="estrella-cifra__etiqueta">Modelo igual o posterior al año de registro</div>
+      <div class="estrella-cifra__valor">{{ r.pct | pct(1) }}</div>
+      <div class="small text-muted mt-1">
+        {{ r.recientes | miles }} vehículos con <code>anio_modelo ≥ anio</code>.
+        Denominador: {{ r.vehiculos | miles }} vehículos de la selección actual. El valor de cada año está en la
+        última fila de la matriz.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficas -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-7">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Participación por tipo de vehículo en cada año de registro · {{ niveles[estado.nivel].etiqueta | lower }}</h6>
+        <p class="text-muted small mb-2">
+          Barras apiladas al 100 %. Denominador: vehículos del mismo año de registro.
+          {% if p3.apiladas | length > top_apiladas %}Se muestran los {{ top_apiladas }} tipos con más vehículos; el resto se agrupa en «Otros».{% endif %}
+        </p>
+        <div style="height: 340px"><canvas id="grafApiladas" aria-label="Participación por tipo de vehículo en cada año de registro" role="img"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Vehículos por {{ niveles[estado.nivel_modelo].etiqueta | lower }}</h6>
+        <p class="text-muted small mb-2">
+          Vehículos registrados en la selección actual, en orden cronológico del modelo.
+          % sobre {{ cubo.vehiculos | miles }} vehículos de la selección.
+        </p>
+        <div style="height: {{ [260, p3.barras_modelo | length * 22 + 60] | max }}px">
+          <canvas id="grafModelo" aria-label="Vehículos por año del modelo" role="img"></canvas>
+        </div>
+        <div class="table-responsive mt-2">
+          <table class="table table-sm small align-middle mb-0">
+            <thead class="table-light">
+              <tr><th>{{ niveles[estado.nivel_modelo].etiqueta }}</th><th class="text-end">Vehículos</th><th class="text-end">%</th></tr>
+            </thead>
+            <tbody>
+              {% for b in p3.barras_modelo %}
+                <tr>
+                  <td>
+                    {% if b.drill %}<a href="{{ b.drill }}" title="Drill-down en {{ b.miembro }}">{{ b.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ b.miembro }}{% endif %}
+                  </td>
+                  <td class="text-end">{{ b.vehiculos | miles }}</td>
+                  <td class="text-end">{{ b.pct | dec(2) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Matriz tipo de vehículo × año de registro -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-2">
+  <div>
+    <h2 class="h5 fw-bold text-dark mb-1"><i class="bi bi-table text-success me-2"></i>Matriz {{ 'año de registro × tipo de vehículo' if estado.pivot else 'tipo de vehículo × año de registro' }}</h2>
+    <p class="text-muted small mb-0">
+      Vehículos registrados y, debajo, la participación % dentro del año de registro.
+      Filas: {{ 'año de registro' if estado.pivot else niveles[estado.nivel].etiqueta | lower }} ·
+      columnas: {{ niveles[estado.nivel].etiqueta | lower if estado.pivot else 'año de registro' }}.
+    </p>
+  </div>
+  <a class="btn btn-sm btn-outline-forest" href="{{ url_pivot }}"><i class="bi bi-arrow-left-right me-1"></i>Pivot</a>
+</div>
+<div class="table-responsive mb-2 olap-matriz">
+  <table class="table table-sm table-bordered small align-middle bg-white mb-0">
+    {% if not estado.pivot %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">{{ niveles[estado.nivel].etiqueta }}</th>
+          {% for a in anios %}<th scope="col" class="text-end">{{ a }}</th>{% endfor %}
+          <th scope="col" class="text-end">Total</th>
+          <th scope="col" class="text-end">% selección</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in cubo.composicion %}
+          {% set drill = url_drill_miembro(fila.llave) %}
+          <tr>
+            <th scope="row" class="fw-semibold">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+            {% for a in anios %}
+              {% set n = cubo.celdas.get((fila.llave, a), 0) %}
+              {% set p = p3.pct_anio[(fila.llave, a)] %}
+              <td class="text-end">
+                <div class="{{ 'text-muted' if n == 0 }}">{{ n | miles }}</div>
+                <span class="olap-var">{{ p | pct(1) if p is not none else '—' }}</span>
+              </td>
+            {% endfor %}
+            <td class="text-end fw-bold">{{ fila.vehiculos | miles }}</td>
+            <td class="text-end">{{ fila.pct | dec(2) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total del año</th>
+          {% for s in cubo.serie %}
+            <td class="text-end"><div>{{ s.vehiculos | miles }}</div><span class="olap-var">{{ '100,0 %' if s.vehiculos else '—' }}</span></td>
+          {% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+          <td class="text-end">100,00</td>
+        </tr>
+        <tr class="fw-normal">
+          <th scope="row">% con modelo ≥ año de registro</th>
+          {% for a in anios %}
+            {% set r = p3.reciente_por_anio[a] %}
+            <td class="text-end" title="{{ r.recientes | miles }} de {{ r.vehiculos | miles }}">{{ r.pct | pct(1) if r.pct is not none else '—' }}</td>
+          {% endfor %}
+          <td class="text-end">{{ p3.reciente.pct | pct(1) }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    {% else %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Año de registro</th>
+          {% for fila in cubo.composicion %}
+            {% set drill = url_drill_miembro(fila.llave) %}
+            <th scope="col" class="text-end">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }}</a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+          {% endfor %}
+          <th scope="col" class="text-end">Total del año</th>
+          <th scope="col" class="text-end">% con modelo ≥ año de registro</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in cubo.serie %}
+          {% set r = p3.reciente_por_anio[s.anio] %}
+          <tr>
+            <th scope="row">{{ s.anio }}</th>
+            {% for fila in cubo.composicion %}
+              {% set n = cubo.celdas.get((fila.llave, s.anio), 0) %}
+              {% set p = p3.pct_anio[(fila.llave, s.anio)] %}
+              <td class="text-end">
+                <div class="{{ 'text-muted' if n == 0 }}">{{ n | miles }}</div>
+                <span class="olap-var">{{ p | pct(1) if p is not none else '—' }}</span>
+              </td>
+            {% endfor %}
+            <td class="text-end fw-bold"><div>{{ s.vehiculos | miles }}</div><span class="olap-var">{{ '100,0 %' if s.vehiculos else '—' }}</span></td>
+            <td class="text-end" title="{{ r.recientes | miles }} de {{ r.vehiculos | miles }}">{{ r.pct | pct(1) if r.pct is not none else '—' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.vehiculos | miles }}</td>{% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+          <td class="text-end">{{ p3.reciente.pct | pct(1) }}</td>
+        </tr>
+        <tr class="fw-normal">
+          <th scope="row">% selección</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.pct | dec(2) }}</td>{% endfor %}
+          <td class="text-end">100,00</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    {% endif %}
+  </table>
+</div>
+<p class="text-muted small mb-4">
+  El % debajo de cada cifra es la participación del tipo de vehículo dentro de su año de registro; denominador: el
+  total de ese año («Total del año»). «% selección» usa como denominador los {{ cubo.vehiculos | miles }} vehículos
+  de la selección actual. «% con modelo ≥ año de registro»: denominador, los vehículos del mismo año de registro.
+  Los porcentajes no se suman entre años ni entre selecciones distintas.
+</p>
+
+{% include "etapa5/_olap_rollup.html" %}
+{% endif %}
+
+{% if kc %}
+<!-- ======================================================================
+     Interpretación, conocimientos, limitación y decisión de P3
+     ====================================================================== -->
+<div class="mt-5 pt-4 border-top" id="conocimientos">
+  <h2 class="h4 fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretación</h2>
+  <div class="callout-energy mb-5">
+    <p class="mb-0">
+      Entre 2019 y 2024, los registros se concentraron en vehículos livianos, sobre todo camionetas wagon. En casi
+      todas las clases predominan los modelos del mismo año de registro o posteriores, pero entre las clases con más
+      registros, los ciclomotores de 2024 son la excepción.
+    </p>
+  </div>
+
+  <!-- Conocimiento 1 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">1</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Los vehículos livianos pasan a dominar los registros</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Cómo cambió la composición de los registros por tipo de vehículo?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">Tiempo y vehículo; vehículos registrados y participación %.</dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">
+          Todos los combustibles, años 2019 y 2024, nivel categoría; drill-down a clase y a carrocería en CAMIONETA 2024.
+        </dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Matriz de tipo de vehículo por año y enlaces a esas selecciones.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_categorias }}">
+              <i class="bi bi-table me-1"></i>Matriz de categoría × año (2019 y 2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_clases }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: clase × año (2019 y 2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_camioneta }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: carrocerías de CAMIONETA 2024
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          La categoría Liviano pasó de 51,5 % de los registros en 2019 a 95,6 % en 2024. Las camionetas pasaron de
+          1.367 (25,2 %) a 39.121 (72,5 %), y los ciclomotores de 2.266 (41,7 %) a 1.471 (2,7 %). En 2024, 38.425 de
+          las 39.121 camionetas fueron wagon (98,2 %).
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">La población registrada cambió de tipo de vehículo, no solo de tamaño.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Orienta la planeación hacia vehículos livianos, especialmente camionetas.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">Los datos no explican por qué cambió la preferencia de los compradores.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Todas</strong></span>
+        <span class="olap-filtro">Año = <strong>2019, 2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Categoría</strong> → <strong>Clase</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Clase = <strong>CAMIONETA</strong></span>
+        <span class="olap-filtro">Año = <strong>2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Clase · carrocería</strong></span>
+        <div class="text-muted mt-1">
+          Denominador de las participaciones: vehículos registrados del mismo año ({{ kc.totales[2019] | miles }} en 2019 y {{ kc.totales[2024] | miles }} en 2024);
+          para wagon, las 39.121 camionetas de 2024.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conocimiento 2 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">2</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Los ciclomotores de 2024 tienen modelos más antiguos</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Qué tan nuevos son los modelos registrados en cada tipo de vehículo?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">
+          Tiempo, vehículo y año del modelo; vehículos registrados y % con modelo igual o posterior al año de registro.
+        </dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">
+          Todos los combustibles, años 2019 y 2024, nivel clase; comparar el indicador de modelo reciente entre clases.
+        </dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Fila de modelo reciente de la matriz y enlaces a esas selecciones.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k2_clases }}">
+              <i class="bi bi-table me-1"></i>Matriz de clase × año (2019 y 2024)
+            </a>
+            {% for clase, url in k_urls.k2_por_clase %}
+              <a class="btn btn-sm btn-outline-forest" href="{{ url }}">
+                <i class="bi bi-scissors me-1"></i>Solo {{ clase }} (2019 y 2024)
+              </a>
+            {% endfor %}
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table table-sm table-bordered align-middle bg-white mb-1">
+              <caption class="small text-muted">
+                Consulta al modelo (<code>olap.modelo_reciente</code>): todos los combustibles; % de vehículos con
+                <code>anio_modelo ≥ anio</code>. Denominador: vehículos de la clase en ese año de registro. Es la fila
+                «% con modelo ≥ año de registro» de la matriz al filtrar cada clase.
+              </caption>
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Clase</th>
+                  {% for a in [2019, 2024] %}
+                    <th scope="col" class="text-end">Modelo ≥ registro {{ a }}</th>
+                    <th scope="col" class="text-end">Registrados {{ a }}</th>
+                    <th scope="col" class="text-end">% {{ a }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in kc.k2_tabla %}
+                  <tr{{ ' class="fw-semibold"' | safe if loop.first }}>
+                    <th scope="row">{{ f.miembro }}</th>
+                    {% for a in [2019, 2024] %}
+                      <td class="text-end">{{ f[a].recientes | miles }}</td>
+                      <td class="text-end">{{ f[a].vehiculos | miles }}</td>
+                      <td class="text-end">{{ f[a].pct | pct(1) if f[a].pct is not none else '—' }}</td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          En 2024, el 93,2 % de los registros tenía modelo igual o posterior al año de registro (50.250 de 53.934);
+          3.684 tenían modelos anteriores. Las camionetas tuvieron 95,3 % y los automóviles 96,7 %. Los ciclomotores
+          bajaron de 91,9 % en 2019 a 39,6 % en 2024 (582 de 1.471).
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">El promedio general oculta una diferencia fuerte en los ciclomotores.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Indica que los ciclomotores deben analizarse aparte al estudiar la renovación.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">
+          Un modelo anterior puede reflejar inventario o una matrícula tardía; es una hipótesis que los datos no
+          permiten comprobar.
+        </dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Todas</strong></span>
+        <span class="olap-filtro">Año = <strong>2019, 2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Clase</strong></span>
+        <span class="olap-filtro">Clase = <strong>CAMIONETA</strong> / <strong>AUTOMOVIL</strong> / <strong>CICLOMOTOR</strong> (por separado)</span>
+        <div class="text-muted mt-1">
+          Denominador del % con modelo ≥ año de registro: vehículos del mismo año de registro (53.934 en 2024 para el
+          total; 1.471 para los ciclomotores de 2024).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limitación y decisión -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitación del análisis</h3>
+        <p class="small mb-0">
+          El año del modelo y el año de registro no indican la edad real de uso ni si el vehículo sigue circulando.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-signpost-split-fill text-success me-2"></i>Posible decisión</h3>
+        <p class="small mb-0">
+          Enfocar el seguimiento en vehículos livianos y revisar por separado los ciclomotores con modelos anteriores
+          antes de generalizar conclusiones sobre renovación.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comprobación de las cifras del texto -->
+  <details class="card border-0 shadow-sm p-3 bg-white mb-2"{{ ' open' if not kc.todas_ok }}>
+    <summary class="fw-bold text-dark small">
+      <i class="bi bi-check2-square text-success me-1"></i>Comprobación de las cifras citadas:
+      {% if kc.todas_ok %}
+        <span class="text-success">las {{ kc.comprobaciones | length }} coinciden con el modelo</span>
+      {% else %}
+        <span class="text-danger">hay cifras que no coinciden con el modelo</span>
+      {% endif %}
+    </summary>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Conocimiento</th><th>Cifra</th><th class="text-end">En el texto</th><th class="text-end">En el modelo</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for c in kc.comprobaciones %}
+            <tr>
+              <td>{{ c.k }}</td>
+              <td>{{ c.cifra }}</td>
+              <td class="text-end">{{ c.texto | dec(c.decimales) }}</td>
+              <td class="text-end">{{ c.modelo | dec(c.decimales + 2 if c.decimales else 0) }}</td>
+              <td>
+                {% if c.ok %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coincide</span>
+                {% elif c.modelo is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Sin valor en el modelo</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (c.modelo - c.texto) | dec(c.decimales) }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      Cada cifra se recalcula desde <code>hechos_registros</code> al cargar la página y se redondea a los decimales
+      con que se cita en el texto.
+    </p>
+  </details>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_p2') }}">
+    <i class="bi bi-arrow-left me-1"></i> P2
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_multidimensional') }}">
+    <i class="bi bi-boxes me-1"></i> Análisis multidimensional
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "etapa5/_olap_formularios_js.html" %}
+{% if p3 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const anios = {{ anios | tojson }};
+    const apiladas = {{ p3.apiladas | tojson }};
+    const modelo = {{ p3.barras_modelo | tojson }};
+    const fmt = n => n.toLocaleString('es-CO');
+    const fmtPct = n => n.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
+    // Paleta del proyecto (verdes y amarillos) y gris para «Otros».
+    const colores = ['#2d5a43', '#f2ba1d', '#447a5b', '#b8860b', '#1b382b', '#8fb996', '#e3c565'];
+    const otros = '#9aa5b1';
+
+    new Chart(document.getElementById('grafApiladas'), {
+      type: 'bar',
+      data: {
+        labels: anios,
+        datasets: apiladas.map((s, i) => ({
+          label: s.miembro, data: s.datos,
+          backgroundColor: s.miembro.startsWith('Otros (') && i === apiladas.length - 1 ? otros : colores[i % colores.length]
+        }))
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12 } },
+          tooltip: { callbacks: { label: c => c.dataset.label + ': ' + (c.parsed.y === null ? 'sin vehículos' : fmtPct(c.parsed.y)) } }
+        },
+        scales: {
+          x: { stacked: true, title: { display: true, text: 'Año de registro' } },
+          y: { stacked: true, min: 0, max: 100, ticks: { callback: v => v + ' %' },
+               title: { display: true, text: 'Participación % (denominador: el año de registro)' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('grafModelo'), {
+      type: 'bar',
+      data: {
+        labels: modelo.map(b => b.miembro),
+        datasets: [{ label: 'Vehículos', data: modelo.map(b => b.vehiculos), backgroundColor: '#2d5a43', borderRadius: 4 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => fmt(c.parsed.x) + ' vehículos · ' + fmtPct(modelo[c.dataIndex].pct) + ' de la selección' } }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { callback: v => fmt(v) }, title: { display: true, text: 'Vehículos' } },
+          y: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

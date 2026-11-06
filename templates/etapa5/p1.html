@@ -1,0 +1,541 @@
+{% extends "base.html" %}
+
+{% block title %}P1 · Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('analisis_multidimensional') }}" class="text-decoration-none">Análisis multidimensional</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">P1</li>
+  </ol>
+</nav>
+
+<!-- Encabezado -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Pregunta de análisis {{ q.id }}
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-2">Tendencia de los vehículos eléctricos y tipos de vehículo</h1>
+  <p class="lead fs-6 text-dark mb-0">{{ q.pregunta }}</p>
+</div>
+
+<!-- Dimensiones, medidas y jerarquías -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <div class="row g-4 small">
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-layers-fill text-warning me-1"></i>Dimensiones</h6>
+      <ul class="ps-3 mb-0">
+        <li><code>dim_tiempo</code>: año de registro</li>
+        <li><code>dim_combustible</code>: familia (filtro inicial: Eléctrico)</li>
+        <li><code>dim_vehiculo</code>: tipo de vehículo</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-calculator-fill text-warning me-1"></i>Medidas</h6>
+      <ul class="ps-3 mb-0">
+        <li><strong>Vehículos registrados</strong>: <code>SUM(cantidad)</code>, aditiva</li>
+        <li><strong>Participación %</strong>: vehículos del tipo / vehículos de la selección × 100, no aditiva</li>
+        <li><strong>Variación</strong>: último año − primer año (absoluta) y ÷ primer año × 100 (porcentual)</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-diagram-2-fill text-warning me-1"></i>Jerarquías</h6>
+      <ul class="ps-3 mb-0">
+        <li>Tiempo: <code>periodo</code> → <code>anio</code></li>
+        <li>Vehículo: <code>categoria</code> → <code>clase</code> → <code>carroceria</code></li>
+        <li>Combustible: <code>familia</code> → <code>combustible</code></li>
+      </ul>
+    </div>
+  </div>
+  <p class="text-muted small mt-3 mb-0">
+    Todas las cifras se recalculan en cada consulta desde <code>hechos_registros</code> en
+    <code>data/modelo/modelo_estrella.db</code> (solo lectura).
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}</div>
+{% else %}
+
+{% include "etapa5/_olap_estado.html" %}
+
+{% include "etapa5/_olap_controles.html" %}
+
+{% if not cubo or cubo.vehiculos == 0 %}
+  {% include "etapa5/_olap_sin_datos.html" %}
+{% else %}
+
+<!-- Indicadores -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Vehículos registrados</div>
+      <div class="estrella-cifra__valor">{{ cubo.vehiculos | miles }}</div>
+      <div class="small text-muted mt-1">
+        <code>SUM(cantidad)</code> en {{ anios | length }} año{{ 's' if anios | length != 1 }}
+        ({{ anios[0] }}{% if anios | length > 1 %}–{{ anios[-1] }}{% endif %}) · {{ cubo.grupos | miles }} grupos de registro
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set v = cubo.variacion %}
+      {% if v %}
+        <div class="estrella-cifra__etiqueta">Variación {{ v.anio_inicial }} → {{ v.anio_final }}</div>
+        <div class="estrella-cifra__valor">
+          {{ '+' if v.absoluta > 0 }}{{ v.absoluta | miles }}
+          <span class="fs-6 fw-semibold">
+            ({% if v.pct is not none %}{{ '+' if v.pct > 0 }}{{ v.pct | pct(1) }}{% else %}% no definido{% endif %})
+          </span>
+        </div>
+        <div class="small text-muted mt-1">
+          De {{ v.inicial | miles }} vehículos en {{ v.anio_inicial }} a {{ v.final | miles }} en {{ v.anio_final }}.
+          {% if v.pct is none %}El primer año no tiene vehículos, así que la variación porcentual no se puede calcular.{% endif %}
+        </div>
+      {% else %}
+        <div class="estrella-cifra__etiqueta">Variación entre el primer y el último año</div>
+        <div class="estrella-cifra__valor">—</div>
+        <div class="small text-muted mt-1">Se necesitan al menos dos años en la selección.</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set l = cubo.lider %}
+      <div class="estrella-cifra__etiqueta">Participación del tipo líder ({{ niveles[estado.nivel].etiqueta | lower }})</div>
+      <div class="estrella-cifra__valor">{{ l.pct | pct(2) }}</div>
+      <div class="small text-muted mt-1">
+        <strong>{{ l.miembro }}</strong>: {{ l.vehiculos | miles }} vehículos.
+        Denominador: {{ cubo.vehiculos | miles }} vehículos de la selección actual.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficas -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Tendencia anual</h6>
+        <p class="text-muted small mb-2">Vehículos registrados por año de registro en la selección actual.</p>
+        <div style="height: 300px"><canvas id="grafTendencia" aria-label="Tendencia anual de vehículos registrados" role="img"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Composición por tipo de vehículo · {{ niveles[estado.nivel].etiqueta | lower }}</h6>
+        <p class="text-muted small mb-2">Participación % sobre {{ cubo.vehiculos | miles }} vehículos de la selección actual.</p>
+        <div style="height: {{ [300, cubo.composicion | length * 24 + 60] | max }}px">
+          <canvas id="grafComposicion" aria-label="Composición por tipo de vehículo" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Matriz tipo de vehículo × año -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-2">
+  <div>
+    <h2 class="h5 fw-bold text-dark mb-1"><i class="bi bi-table text-success me-2"></i>Matriz {{ 'año × tipo de vehículo' if estado.pivot else 'tipo de vehículo × año' }}</h2>
+    <p class="text-muted small mb-0">
+      Vehículos registrados. Filas: {{ 'año de registro' if estado.pivot else niveles[estado.nivel].etiqueta | lower }} ·
+      columnas: {{ niveles[estado.nivel].etiqueta | lower if estado.pivot else 'año de registro' }}.
+    </p>
+  </div>
+  <a class="btn btn-sm btn-outline-forest" href="{{ url_pivot }}"><i class="bi bi-arrow-left-right me-1"></i>Pivot</a>
+</div>
+<div class="table-responsive mb-2 olap-matriz">
+  <table class="table table-sm table-bordered small align-middle bg-white mb-0">
+    {% if not estado.pivot %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">{{ niveles[estado.nivel].etiqueta }}</th>
+          {% for a in anios %}<th scope="col" class="text-end">{{ a }}</th>{% endfor %}
+          <th scope="col" class="text-end">Total</th>
+          <th scope="col" class="text-end">%</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in cubo.composicion %}
+          {% set drill = url_drill_miembro(fila.llave) %}
+          <tr>
+            <th scope="row" class="fw-semibold">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+            {% for a in anios %}
+              {% set n = cubo.celdas.get((fila.llave, a), 0) %}
+              <td class="text-end{{ ' text-muted' if n == 0 }}">{{ n | miles }}</td>
+            {% endfor %}
+            <td class="text-end fw-bold">{{ fila.vehiculos | miles }}</td>
+            <td class="text-end">{{ fila.pct | dec(2) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for s in cubo.serie %}<td class="text-end">{{ s.vehiculos | miles }}</td>{% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+          <td class="text-end">100,00</td>
+        </tr>
+      </tfoot>
+    {% else %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Año</th>
+          {% for fila in cubo.composicion %}
+            {% set drill = url_drill_miembro(fila.llave) %}
+            <th scope="col" class="text-end">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }}</a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+          {% endfor %}
+          <th scope="col" class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in cubo.serie %}
+          <tr>
+            <th scope="row">{{ s.anio }}</th>
+            {% for fila in cubo.composicion %}
+              {% set n = cubo.celdas.get((fila.llave, s.anio), 0) %}
+              <td class="text-end{{ ' text-muted' if n == 0 }}">{{ n | miles }}</td>
+            {% endfor %}
+            <td class="text-end fw-bold">{{ s.vehiculos | miles }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.vehiculos | miles }}</td>{% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+        </tr>
+        <tr class="fw-normal">
+          <th scope="row">%</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.pct | dec(2) }}</td>{% endfor %}
+          <td class="text-end">100,00</td>
+        </tr>
+      </tfoot>
+    {% endif %}
+  </table>
+</div>
+<p class="text-muted small mb-4">
+  La columna o fila «%» es la participación de cada tipo de vehículo; denominador: {{ cubo.vehiculos | miles }}
+  vehículos de la selección actual. Los porcentajes no se suman entre selecciones distintas.
+</p>
+
+{% include "etapa5/_olap_rollup.html" %}
+{% endif %}
+
+{% if kc %}
+<!-- ======================================================================
+     Interpretación, conocimientos, limitación y decisión de P1
+     ====================================================================== -->
+<div class="mt-5 pt-4 border-top" id="conocimientos">
+  <h2 class="h4 fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretación</h2>
+  <div class="callout-energy mb-5">
+    <p class="mb-0">
+      Entre 2019 y 2024, el crecimiento de los eléctricos registrados cambió de composición: pasó de estar liderado
+      por ciclomotores a concentrarse en vehículos livianos. El nivel de detalle muestra que las camionetas wagon
+      explican gran parte de ese cambio.
+    </p>
+  </div>
+
+  <!-- Conocimiento 1 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">1</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Cambio en el tipo de vehículo que impulsa el crecimiento</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Qué clases explican el aumento de eléctricos entre 2019 y 2024?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">Tiempo, combustible y vehículo; vehículos registrados y participación %.</dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Familia Eléctrico, años 2019 y 2024, nivel clase; drill-down a carrocería en CAMIONETA 2024.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Matriz de clase por año y enlace a esa selección.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_clases }}">
+              <i class="bi bi-table me-1"></i>Matriz de clase × año (2019 y 2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_camioneta }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: carrocerías de CAMIONETA 2024
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          Los eléctricos pasaron de 3.242 a 11.298, un aumento de 8.056 vehículos. Las camionetas aumentaron 5.724 y
+          pasaron de 2,28 % a 51,32 %. Los automóviles aumentaron 2.564. Los ciclomotores disminuyeron 795 y pasaron
+          de 69,90 % a 13,02 %. En 2024, 5.435 de 5.798 camionetas eléctricas fueron wagon (93,74 %).
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">El total nacional oculta un cambio de composición.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Orienta el análisis hacia vehículos livianos.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">Los datos muestran matrículas registradas, no uso ni causas.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="olap-filtro">Año = <strong>2019, 2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Clase</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Clase = <strong>CAMIONETA</strong></span>
+        <span class="olap-filtro">Año = <strong>2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Clase · carrocería</strong></span>
+        <div class="text-muted mt-1">
+          Denominador de las participaciones: eléctricos del mismo año (3.242 en 2019 y 11.298 en 2024); para wagon,
+          las 5.798 camionetas eléctricas de 2024.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conocimiento 2 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">2</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Efecto de los buses en la tendencia anual</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Los buses alteran la lectura del crecimiento anual?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">Tiempo, combustible, vehículo y territorio; vehículos registrados, variación % y participación %.</dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">
+          Familia Eléctrico, años 2021 a 2024; comparar el total con y sin la clase BUS; consultar el territorio para
+          los buses de 2022.
+        </dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Matriz de clase por año y consultas al modelo.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k2_clases }}">
+              <i class="bi bi-table me-1"></i>Matriz de clase × año (2021–2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k2_buses }}">
+              <i class="bi bi-scissors me-1"></i>Solo la clase BUS (2021–2024)
+            </a>
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table table-sm table-bordered align-middle bg-white mb-1">
+              <caption class="small text-muted">
+                Consulta al modelo (<code>olap.serie_anual</code>): familia Eléctrico; «sin buses» excluye la clase BUS
+                (<code>clase NOT IN ('BUS')</code>). Variación % frente al año anterior.
+              </caption>
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Año</th>
+                  <th scope="col" class="text-end">Eléctricos (con buses)</th>
+                  <th scope="col" class="text-end">Variación %</th>
+                  <th scope="col" class="text-end">Buses</th>
+                  <th scope="col" class="text-end">Eléctricos sin buses</th>
+                  <th scope="col" class="text-end">Variación %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in kc.k2_tabla %}
+                  <tr>
+                    <th scope="row">{{ f.anio }}</th>
+                    <td class="text-end">{{ f.con | miles }}</td>
+                    <td class="text-end">{{ f.pct_con | pct(1) }}</td>
+                    <td class="text-end">{{ f.buses | miles }}</td>
+                    <td class="text-end">{{ f.sin | miles }}</td>
+                    <td class="text-end">{{ f.pct_sin | pct(1) }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="text-muted">
+            Territorios con más buses eléctricos registrados en 2022 (<code>olap.por_territorio</code>):
+            {% for t in kc.territorios_buses %}{{ t.territorio }} ({{ t.vehiculos | miles }}){{ ', ' if not loop.last else '.' }}{% endfor %}
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          En 2022 se registraron 1.006 buses eléctricos, 16,74 % de los eléctricos del año; 998 estaban en Bogotá.
+          Con buses, 2022 creció 49,4 % y 2023 creció 4,5 %.
+          Sin buses, crecieron {{ kc.k2[2022].pct_sin | pct(1) }} y {{ kc.k2[2023].pct_sin | pct(1) }}.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">Los registros concentrados de buses pueden distorsionar la lectura anual.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Conviene analizar los buses separados de los vehículos livianos.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">El dataset no permite confirmar si fue una compra de flota; es una hipótesis.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="olap-filtro">Año = <strong>2021, 2022, 2023, 2024</strong></span>
+        <span class="olap-filtro">Clase ≠ <strong>BUS</strong> (serie sin buses)</span>
+        <span class="olap-filtro">Clase = <strong>BUS</strong>, año = <strong>2022</strong> (territorio)</span>
+        <div class="text-muted mt-1">
+          Denominador de la participación de buses: eléctricos registrados en 2022. La exclusión de BUS no es un
+          filtro de la vista interactiva; se calcula con una consulta al modelo, cuyo resultado se muestra en la tabla.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limitación y decisión -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitación del análisis</h3>
+        <p class="small mb-0">
+          El dataset registra matrículas por año. No indica si los vehículos siguen circulando, ni permite atribuir causas.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-signpost-split-fill text-success me-2"></i>Posible decisión</h3>
+        <p class="small mb-0">
+          Hacer seguimiento separado de los vehículos livianos y de los buses antes de planear infraestructura de
+          recarga o incentivos.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comprobación de las cifras del texto -->
+  <details class="card border-0 shadow-sm p-3 bg-white mb-2"{{ ' open' if not kc.todas_ok }}>
+    <summary class="fw-bold text-dark small">
+      <i class="bi bi-check2-square text-success me-1"></i>Comprobación de las cifras citadas:
+      {% if kc.todas_ok %}
+        <span class="text-success">las {{ kc.comprobaciones | length }} coinciden con el modelo</span>
+      {% else %}
+        <span class="text-danger">hay cifras que no coinciden con el modelo</span>
+      {% endif %}
+    </summary>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Conocimiento</th><th>Cifra</th><th class="text-end">En el texto</th><th class="text-end">En el modelo</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for c in kc.comprobaciones %}
+            <tr>
+              <td>{{ c.k }}</td>
+              <td>{{ c.cifra }}</td>
+              <td class="text-end">{{ c.texto | dec(c.decimales) }}</td>
+              <td class="text-end">{{ c.modelo | dec(c.decimales + 2 if c.decimales else 0) }}</td>
+              <td>
+                {% if c.ok %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coincide</span>
+                {% elif c.modelo is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Sin valor en el modelo</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (c.modelo - c.texto) | dec(c.decimales) }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      Cada cifra se recalcula desde <code>hechos_registros</code> al cargar la página y se redondea a los decimales
+      con que se cita en el texto.
+    </p>
+  </details>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_multidimensional') }}">
+    <i class="bi bi-arrow-left me-1"></i> Análisis multidimensional
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Volver al inicio
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "etapa5/_olap_formularios_js.html" %}
+{% if cubo and cubo.vehiculos %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const serie = {{ cubo.serie | tojson }};
+    const comp = {{ cubo.composicion | map(attribute='miembro') | list | tojson }};
+    const compVeh = {{ cubo.composicion | map(attribute='vehiculos') | list | tojson }};
+    const compPct = {{ cubo.composicion | map(attribute='pct') | list | tojson }};
+    const fmt = n => n.toLocaleString('es-CO');
+    const fmtPct = n => n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
+
+    new Chart(document.getElementById('grafTendencia'), {
+      type: 'line',
+      data: {
+        labels: serie.map(s => s.anio),
+        datasets: [{
+          label: 'Vehículos registrados', data: serie.map(s => s.vehiculos),
+          borderColor: '#2d5a43', backgroundColor: 'rgba(242, 186, 29, 0.25)',
+          pointBackgroundColor: '#f2ba1d', pointBorderColor: '#2d5a43', pointRadius: 4, fill: true, tension: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.parsed.y) + ' vehículos' } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => fmt(v) }, title: { display: true, text: 'Vehículos' } },
+          x: { title: { display: true, text: 'Año de registro' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('grafComposicion'), {
+      type: 'bar',
+      data: {
+        labels: comp,
+        datasets: [{ label: 'Participación %', data: compPct, backgroundColor: '#2d5a43', borderRadius: 4 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => fmtPct(c.parsed.x) + ' · ' + fmt(compVeh[c.dataIndex]) + ' vehículos' } }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { callback: v => v + ' %' }, title: { display: true, text: 'Participación % (denominador: selección actual)' } },
+          y: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

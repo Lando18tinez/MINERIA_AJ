@@ -1,0 +1,18 @@
+{# Mensaje para una selección sin vehículos. Variables: anios, vista, url_limpiar. #}
+<!-- Selección sin datos -->
+<div class="alert alert-info d-flex gap-3 align-items-start">
+  <i class="bi bi-info-circle-fill fs-4"></i>
+  <div>
+    <strong>La selección no tiene vehículos registrados.</strong>
+    <p class="mb-2 small">
+      {% if not anios %}
+        Los años elegidos no pertenecen al periodo elegido, así que no queda ningún año para consultar.
+      {% else %}
+        En el modelo no hay registros que cumplan a la vez todos los filtros activos
+        (por ejemplo, {{ vista.ejemplo_sin_datos }}).
+      {% endif %}
+    </p>
+    <p class="mb-0 small">Quite alguno de los filtros activos o
+      <a href="{{ url_limpiar }}">vuelva a la selección inicial</a>.</p>
+  </div>
+</div>

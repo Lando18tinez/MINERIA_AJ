@@ -91,11 +91,37 @@
         </ul>
       </div>
 
-      <!-- Conocimiento evidente: tableros de Power BI (misma píldora, enlace directo) -->
-      <a class="brand-badge brand-badge--menu text-decoration-none me-auto {{ 'active' if active == 'conocimiento' }}"
-         href="{{ url_for('conocimiento_evidente') }}" title="Conocimiento evidente: tableros de Power BI">
-        <span>E4</span><i class="bi bi-bar-chart-line-fill"></i>Conocimiento evidente
+      <!-- Etapa 4: Conocimiento evidente (misma píldora; enlace directo, porque es una sola página) -->
+      <a class="brand-badge brand-badge--menu text-decoration-none me-2 {{ 'active' if active == 'conocimiento' }}"
+         href="{{ url_for('conocimiento_evidente') }}" title="Etapa 4: Conocimiento evidente">
+        Etapa 4
       </a>
+
+      <!-- Menú Etapa 5: Misma píldora integrada -->
+      <div class="dropdown me-auto">
+        <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active == 'multidimensional' }}"
+                type="button" id="menuEtapa5" data-bs-toggle="dropdown" aria-expanded="false"
+                title="Etapa 5: Análisis multidimensional">
+          Etapa 5
+        </button>
+        <ul class="dropdown-menu dropdown-menu-custom animate slideIn" aria-labelledby="menuEtapa5">
+          <li><h6 class="dropdown-header"><i class="bi bi-boxes me-1"></i>Etapa 5: Análisis multidimensional</h6></li>
+          {% for endpoint, num, titulo in [
+               ('analisis_multidimensional', none, 'Análisis multidimensional'),
+               ('analisis_p1', 'P1', 'Crecimiento de los eléctricos'),
+               ('analisis_p2', 'P2', 'Crecimiento por territorio'),
+               ('analisis_p3', 'P3', 'Distribución por vehículo y modelo'),
+               ('analisis_p4', 'P4', 'Promedio, mediana y concentración')] %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center {{ 'active' if request.endpoint == endpoint }}"
+                 href="{{ url_for(endpoint) }}">
+                <span class="badge bg-light text-dark border me-2">{% if num %}{{ num }}{% else %}<i class="bi bi-boxes"></i>{% endif %}</span>
+                <span>{{ titulo }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
 
       <!-- Botón colapsable para móviles -->
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
