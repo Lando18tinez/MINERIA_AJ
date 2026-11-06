@@ -148,6 +148,23 @@ body {
   font-weight: 600;
 }
 
+/* En celular y tableta (por debajo de lg, donde aparece el menú hamburguesa), los menús de las etapas se abren
+   a todo el ancho, debajo de la barra: Bootstrap no reposiciona los desplegables dentro de un navbar, y con
+   min-width 22rem se salían por la derecha de la pantalla. */
+@media (max-width: 991.98px) {
+  .custom-navbar .dropdown {
+    position: static;
+  }
+
+  .custom-navbar .dropdown-menu-custom {
+    min-width: 0;
+    left: 0.75rem !important;
+    right: 0.75rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+}
+
 /* ==========================================================================
    TIPOGRAFÍA Y ELEMENTOS DE PÁGINA
    ========================================================================== */
