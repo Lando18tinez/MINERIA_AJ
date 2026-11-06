@@ -795,6 +795,97 @@ def analisis_p1():
 P2_BASE_PEQUENA = 30   # con menos vehículos en el año anterior, la variación % se marca «base pequeña»
 P2_TOP_LINEAS = 5      # territorios en la gráfica de líneas
 P2_TOP_BARRAS = 10     # territorios en la gráfica de variación
+P2_K_ANIOS = [2021, 2024]
+P2_BOGOTA = "BOGOTA D.C."
+P2_UMBRAL_POCOS = 10   # «menos de 10 eléctricos» en el conocimiento 2
+
+# Cifras citadas en los conocimientos de P2: (conocimiento, cifra, valor del texto, decimales con que se cita).
+# Cada una se compara en cada carga con el valor recalculado desde el modelo (_p2_conocimientos).
+P2_CIFRAS_TEXTO = [
+    (1, "Eléctricos registrados en 2021", 4022, 0),
+    (1, "Eléctricos registrados en 2024", 11298, 0),
+    (1, "Aumento de eléctricos 2021 → 2024", 7276, 0),
+    (1, "Eléctricos de Bogotá 2021", 571, 0),
+    (1, "Eléctricos de Bogotá 2024", 5381, 0),
+    (1, "Aumento de Bogotá 2021 → 2024", 4810, 0),
+    (1, "Parte del aumento nacional aportada por Bogotá (%)", 66.11, 2),
+    (1, "Participación de Bogotá 2021 (%)", 14.2, 1),
+    (1, "Participación de Bogotá 2024 (%)", 47.6, 1),
+    (1, "Resto del país 2021", 3451, 0),
+    (1, "Resto del país 2024", 5917, 0),
+    (1, "Resto del país: 2024 ÷ 2021 (veces)", 1.71, 2),
+    (2, "Aumento de Antioquia 2021 → 2024", 829, 0),
+    (2, "Aumento de Medellín 2021 → 2024", 630, 0),
+    (2, "Parte del aumento de Antioquia aportada por Medellín (%)", 76.0, 1),
+    (2, "Eléctricos de Bello 2021", 87, 0),
+    (2, "Eléctricos de Bello 2024", 12, 0),
+    (2, "Cambio de Bello 2021 → 2024", -75, 0),
+    (2, "Cambio de La Estrella 2021 → 2024", -18, 0),
+    (2, "Cambio de Sabaneta 2021 → 2024", -15, 0),
+    (2, "Aumento de Cundinamarca 2021 → 2024", 868, 0),
+    (2, "Aumento de Funza, Chía y Mosquera 2021 → 2024", 774, 0),
+    (2, "Parte del aumento de Cundinamarca aportada por Funza, Chía y Mosquera (%)", 89.2, 1),
+    (2, "Territorios con menos de 10 eléctricos en 2024", 91, 0),
+    (2, "Territorios con eléctricos en 2024", 140, 0),
+]
+
+
+def _p2_conocimientos(con):
+    """Recalcula desde el modelo las cifras de los conocimientos de P2 y las compara con el texto."""
+    electrico = {"familia": [FAMILIA_INICIAL]}
+    a0, a1 = P2_K_ANIOS
+
+    # Conocimiento 1: departamentos 2021 vs 2024.
+    dep = olap.consultar(con, {**electrico, "anio": P2_K_ANIOS}, "departamento", P2_K_ANIOS)
+    nac = {s["anio"]: s["vehiculos"] for s in dep["serie"]}
+    bog = {a: dep["celdas"].get(((P2_BOGOTA,), a), 0) for a in P2_K_ANIOS}
+    aumento_nac = nac[a1] - nac[a0]
+    resto = {a: nac[a] - bog[a] for a in P2_K_ANIOS}
+
+    # Conocimiento 2: drill-down a municipio en Antioquia y Cundinamarca; territorios de 2024.
+    def municipios(departamento):
+        cubo = olap.consultar(con, {**electrico, "anio": P2_K_ANIOS, "departamento": [departamento]},
+                              "municipio", P2_K_ANIOS)
+        tot = {s["anio"]: s["vehiculos"] for s in cubo["serie"]}
+
+        def valor(municipio, anio):
+            return cubo["celdas"].get(((f"{municipio} ({departamento})",), anio), 0)
+
+        def cambio(municipio):
+            return valor(municipio, a1) - valor(municipio, a0)
+        return tot[a1] - tot[a0], cambio, valor
+
+    ant, cambio_ant, valor_ant = municipios("ANTIOQUIA")
+    cun, cambio_cun, _ = municipios("CUNDINAMARCA")
+    tres_cun = sum(cambio_cun(m) for m in ("FUNZA", "CHIA", "MOSQUERA"))
+    mun_2024 = olap.consultar(con, {**electrico, "anio": [a1]}, "municipio", [a1])
+    pocos = sum(1 for m in mun_2024["composicion"] if m["vehiculos"] < P2_UMBRAL_POCOS)
+
+    modelo = [
+        nac[a0], nac[a1], aumento_nac,
+        bog[a0], bog[a1], bog[a1] - bog[a0],
+        (bog[a1] - bog[a0]) / aumento_nac * 100 if aumento_nac else None,
+        bog[a0] / nac[a0] * 100 if nac[a0] else None,
+        bog[a1] / nac[a1] * 100 if nac[a1] else None,
+        resto[a0], resto[a1],
+        resto[a1] / resto[a0] if resto[a0] else None,
+        ant, cambio_ant("MEDELLIN"),
+        cambio_ant("MEDELLIN") / ant * 100 if ant else None,
+        valor_ant("BELLO", a0), valor_ant("BELLO", a1), cambio_ant("BELLO"),
+        cambio_ant("LA ESTRELLA"), cambio_ant("SABANETA"),
+        cun, tres_cun,
+        tres_cun / cun * 100 if cun else None,
+        pocos, mun_2024["territorios"],
+    ]
+    comprobaciones = [
+        {"k": k, "cifra": cifra, "texto": texto, "decimales": dec, "modelo": valor,
+         "ok": valor is not None and round(valor, dec) == texto}
+        for (k, cifra, texto, dec), valor in zip(P2_CIFRAS_TEXTO, modelo)
+    ]
+    return {
+        "comprobaciones": comprobaciones,
+        "todas_ok": all(c["ok"] for c in comprobaciones),
+    }
 
 
 @app.route("/analisis-multidimensional/p2")
@@ -809,6 +900,7 @@ def analisis_p2():
         destino, ctx = _olap_contexto(VISTAS_OLAP["p2"], con, request.args)
         if destino:
             return redirect(destino)
+        conocimientos = _p2_conocimientos(con)
 
     cubo, anios = ctx["cubo"], ctx["anios"]
     p2 = None
@@ -853,6 +945,12 @@ def analisis_p2():
         q=pregunta,
         error_modelo=None,
         p2=p2,
+        kc=conocimientos,
+        k_urls={
+            "k1_departamentos": url_for("analisis_p2", anio=P2_K_ANIOS),
+            "k2_antioquia": url_for("analisis_p2", departamento="ANTIOQUIA", anio=P2_K_ANIOS, nivel="municipio"),
+            "k2_cundinamarca": url_for("analisis_p2", departamento="CUNDINAMARCA", anio=P2_K_ANIOS, nivel="municipio"),
+        },
         base_pequena=P2_BASE_PEQUENA,
         top_lineas=P2_TOP_LINEAS,
         top_barras=P2_TOP_BARRAS,

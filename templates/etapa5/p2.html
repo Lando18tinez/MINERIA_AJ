@@ -279,6 +279,203 @@
 
 {% include "etapa5/_olap_rollup.html" %}
 {% endif %}
+
+{% if kc %}
+<!-- ======================================================================
+     Interpretación, conocimientos, limitación y decisión de P2
+     ====================================================================== -->
+<div class="mt-5 pt-4 border-top" id="conocimientos">
+  <h2 class="h4 fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretación</h2>
+  <div class="callout-energy mb-5">
+    <p class="mb-0">
+      El crecimiento de los eléctricos no fue homogéneo. Bogotá explica la mayor parte del aumento entre 2021 y 2024,
+      y dentro de los departamentos el crecimiento también se concentra en pocos municipios.
+    </p>
+  </div>
+
+  <!-- Conocimiento 1 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">1</span>
+        <h3 class="h5 fw-bold text-dark mb-0">Bogotá explica la mayor parte del aumento</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿El aumento de eléctricos entre 2021 y 2024 fue similar entre territorios?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">Tiempo, territorio y combustible; vehículos registrados, variación y participación %.</dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Familia Eléctrico, años 2021 y 2024, nivel departamento.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Matriz de departamento por año y enlace a esa selección.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k1_departamentos }}">
+              <i class="bi bi-table me-1"></i>Matriz de departamento × año (2021 y 2024)
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          Los eléctricos aumentaron de 4.022 a 11.298, es decir, 7.276 vehículos. Bogotá pasó de 571 a 5.381 y aportó
+          4.810, el 66,11 % del aumento. Su participación subió de 14,2 % a 47,6 %. El resto del país pasó de 3.451 a
+          5.917, es decir, 1,71 veces.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">El crecimiento nacional depende en gran medida de un solo territorio.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Permite separar las decisiones para Bogotá y para el resto del país.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">El territorio corresponde al registro y no confirma dónde circula el vehículo.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="olap-filtro">Año = <strong>2021, 2024</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Departamento</strong></span>
+        <div class="text-muted mt-1">
+          Denominador de las participaciones: eléctricos del mismo año (4.022 en 2021 y 11.298 en 2024); para el aporte
+          de Bogotá, el aumento nacional de 7.276. «Resto del país» = total nacional − Bogotá.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conocimiento 2 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">2</span>
+        <h3 class="h5 fw-bold text-dark mb-0">El crecimiento también es desigual dentro de los departamentos</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Qué municipios explican el aumento en Antioquia y Cundinamarca?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">Tiempo, territorio y combustible; vehículos registrados y variación.</dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Familia Eléctrico, años 2021 y 2024; drill-down de departamento a municipio.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Matrices de municipio por año y enlaces a ambas selecciones.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k2_antioquia }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: municipios de ANTIOQUIA (2021 y 2024)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.k2_cundinamarca }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: municipios de CUNDINAMARCA (2021 y 2024)
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          Antioquia aumentó 829 vehículos, y Medellín aportó 630 (76,0 %), mientras Bello disminuyó 75 (de 87 a 12), La
+          Estrella 18 y Sabaneta 15. Cundinamarca aumentó 868, y Funza, Chía y Mosquera aportaron 774 (89,2 %). En 2024, 91 de 140 territorios
+          registraron menos de 10 eléctricos.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">El total departamental oculta diferencias municipales.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">Ayuda a priorizar municipios en lugar de tratar cada departamento como un bloque.</dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">Varios municipios tienen bases pequeñas; sus porcentajes pueden variar mucho.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="olap-filtro">Año = <strong>2021, 2024</strong></span>
+        <span class="olap-filtro">Departamento = <strong>ANTIOQUIA</strong> / <strong>CUNDINAMARCA</strong></span>
+        <span class="olap-filtro">Nivel = <strong>Municipio</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Año = <strong>2024</strong>, nivel = <strong>Municipio</strong> (conteo de territorios)</span>
+        <div class="text-muted mt-1">
+          Denominador de los aportes: el aumento de cada departamento (829 en Antioquia y 868 en Cundinamarca).
+          «Territorios» = municipios con al menos un eléctrico registrado en 2024.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limitación y decisión -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitación del análisis</h3>
+        <p class="small mb-0">
+          El dataset muestra el territorio de matrícula, no el lugar de uso, y no permite explicar por sí solo las
+          causas de las diferencias.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-signpost-split-fill text-success me-2"></i>Posible decisión</h3>
+        <p class="small mb-0">
+          Priorizar el seguimiento de Bogotá y de los municipios que concentran el crecimiento, sin extender esas
+          conclusiones a todo su departamento.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comprobación de las cifras del texto -->
+  <details class="card border-0 shadow-sm p-3 bg-white mb-2"{{ ' open' if not kc.todas_ok }}>
+    <summary class="fw-bold text-dark small">
+      <i class="bi bi-check2-square text-success me-1"></i>Comprobación de las cifras citadas:
+      {% if kc.todas_ok %}
+        <span class="text-success">las {{ kc.comprobaciones | length }} coinciden con el modelo</span>
+      {% else %}
+        <span class="text-danger">hay cifras que no coinciden con el modelo</span>
+      {% endif %}
+    </summary>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Conocimiento</th><th>Cifra</th><th class="text-end">En el texto</th><th class="text-end">En el modelo</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for c in kc.comprobaciones %}
+            <tr>
+              <td>{{ c.k }}</td>
+              <td>{{ c.cifra }}</td>
+              <td class="text-end">{{ c.texto | dec(c.decimales) }}</td>
+              <td class="text-end">{{ c.modelo | dec(c.decimales + 2 if c.decimales else 0) }}</td>
+              <td>
+                {% if c.ok %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coincide</span>
+                {% elif c.modelo is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Sin valor en el modelo</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (c.modelo - c.texto) | dec(c.decimales) }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      Cada cifra se recalcula desde <code>hechos_registros</code> al cargar la página y se redondea a los decimales
+      con que se cita en el texto.
+    </p>
+  </details>
+</div>
+{% endif %}
 {% endif %}
 
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
