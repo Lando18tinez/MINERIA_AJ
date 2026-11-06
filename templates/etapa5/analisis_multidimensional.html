@@ -336,26 +336,173 @@
   {% endfor %}
 </div>
 
-<!-- Secciones pendientes -->
-<h2 class="h4 fw-bold mb-3 text-dark"><i class="bi bi-hourglass-split text-success me-2"></i>Resultados del análisis</h2>
-<div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
-  {% for icono, titulo, texto in [
-       ('bi-arrows-move', 'Operaciones', 'Operaciones multidimensionales (roll-up, drill-down, slice, dice y pivot) aplicadas al modelo.'),
-       ('bi-lightbulb-fill', 'Conocimientos', 'Conocimientos obtenidos al responder las preguntas de negocio.'),
-       ('bi-exclamation-diamond-fill', 'Limitaciones', 'Limitaciones del modelo y de la fuente que afectan la interpretación.'),
-       ('bi-flag-fill', 'Conclusiones', 'Conclusiones de la etapa.')] %}
+<!-- Resultados del análisis -->
+<h2 class="h4 fw-bold mb-1 text-dark"><i class="bi bi-clipboard-data-fill text-success me-2"></i>Resultados del análisis</h2>
+<p class="text-muted small mb-3">
+  Resumen de las preguntas P1–P4. Las cifras son las que ya se citan en cada vista; los enlaces abren la selección
+  exacta en el modelo.
+  {% if comprobacion %}
+    {% if comprobacion.ok == comprobacion.total %}
+      <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Las {{ comprobacion.total }} cifras citadas en
+      los conocimientos de P1–P4 coinciden con el modelo</span>
+    {% else %}
+      <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>{{ comprobacion.total - comprobacion.ok }} de
+      {{ comprobacion.total }} cifras citadas no coinciden con el modelo</span>
+    {% endif %}
+    ({% for v in comprobacion.por_vista %}<a href="{{ url_for(v.endpoint) }}#conocimientos">{{ v.id }}</a>: {{ v.ok }}/{{ v.total }}{{ ', ' if not loop.last }}{% endfor %}).
+  {% endif %}
+</p>
+
+<!-- Operaciones -->
+<h3 class="h5 fw-bold mt-4 mb-2 text-dark"><i class="bi bi-arrows-move text-success me-2"></i>Operaciones</h3>
+<p class="text-muted small mb-2">Un ejemplo real de cada operación, tomado de las vistas P1–P4.</p>
+<div class="table-responsive mb-5">
+  <table class="table table-sm small align-middle bg-white border">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Operación</th>
+        <th scope="col">Qué hace</th>
+        <th scope="col">Ejemplo</th>
+        <th scope="col">Dimensiones y medidas</th>
+        <th scope="col">Filtros o nivel</th>
+        <th scope="col">Interpretación</th>
+        <th scope="col">Selección</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">Drill-down</th>
+        <td>Baja a un nivel más detallado de una jerarquía.</td>
+        <td><strong>P1</strong>: de clase a carrocería en CAMIONETA 2024. 5.435 de 5.798 camionetas eléctricas fueron wagon (93,74 %).</td>
+        <td>Tiempo, combustible y vehículo; vehículos registrados y participación %.</td>
+        <td>Familia Eléctrico, año 2024, clase CAMIONETA; nivel clase → clase · carrocería.</td>
+        <td>Las camionetas wagon explican gran parte del cambio de composición.</td>
+        <td><a href="{{ url_for('analisis_p1', clase='CAMIONETA', anio=[2024], nivel='carroceria') }}">Abrir en P1</a></td>
+      </tr>
+      <tr>
+        <th scope="row">Roll-up</th>
+        <td>Sube a un nivel más agregado; el total se conserva.</td>
+        <td><strong>P2</strong>: de los municipios de ANTIOQUIA al departamento. Antioquia aumentó 829 eléctricos entre 2021 y 2024.</td>
+        <td>Tiempo, territorio y combustible; vehículos registrados y variación.</td>
+        <td>Familia Eléctrico, años 2021 y 2024; nivel municipio → departamento.</td>
+        <td>El total departamental oculta diferencias municipales.</td>
+        <td>
+          <a href="{{ url_for('analisis_p2', departamento='ANTIOQUIA', anio=[2021, 2024], nivel='municipio') }}">Municipios</a> ·
+          <a href="{{ url_for('analisis_p2', anio=[2021, 2024]) }}">Departamentos</a>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Slice</th>
+        <td>Fija un solo valor de una dimensión.</td>
+        <td><strong>P4</strong>: familia Eléctrico. El promedio es 168,0 vehículos por territorio y la mediana 11.</td>
+        <td>Combustible y territorio; promedio y mediana por territorio.</td>
+        <td>Familia = Eléctrico; nivel municipio.</td>
+        <td>El promedio exagera el territorio típico.</td>
+        <td><a href="{{ url_for('analisis_p4', familia='Eléctrico') }}">Abrir en P4</a></td>
+      </tr>
+      <tr>
+        <th scope="row">Dice</th>
+        <td>Combina filtros en dos o más dimensiones.</td>
+        <td><strong>P4</strong>: Eléctrico y Liviano. Bogotá tiene 9.448 de 16.745 (56,42 %) y la mediana es 3 en 106 territorios.</td>
+        <td>Combustible, vehículo y territorio; participación del territorio líder y mediana por territorio.</td>
+        <td>Familia = Eléctrico, categoría = Liviano; nivel municipio.</td>
+        <td>Los eléctricos livianos se concentran en Bogotá.</td>
+        <td><a href="{{ url_for('analisis_p4', familia='Eléctrico', categoria='Liviano') }}">Abrir en P4</a></td>
+      </tr>
+      <tr>
+        <th scope="row">Pivot</th>
+        <td>Intercambia filas y columnas de la matriz; no cambia las cifras.</td>
+        <td><strong>P3</strong>: matriz año de registro × clase. Las camionetas pasan de 25,2 % en 2019 a 72,5 % en 2024.</td>
+        <td>Tiempo y vehículo; vehículos registrados y participación % dentro del año.</td>
+        <td>Todos los combustibles, años 2019 y 2024; nivel clase; filas = año.</td>
+        <td>La población registrada cambió de tipo de vehículo, no solo de tamaño.</td>
+        <td><a href="{{ url_for('analisis_p3', anio=[2019, 2024], nivel='clase', pivot='1') }}">Abrir en P3</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Conocimientos -->
+<h3 class="h5 fw-bold mb-2 text-dark"><i class="bi bi-lightbulb-fill text-success me-2"></i>Conocimientos</h3>
+<p class="text-muted small mb-3">Los ocho conocimientos de P1–P4. Cada vista muestra sus 8 elementos y la comprobación de sus cifras.</p>
+<div class="row row-cols-1 row-cols-md-2 g-3 mb-5">
+  {% for vista, endpoint, n, titulo, hallazgo in [
+       ('P1', 'analisis_p1', 1, 'Cambio en el tipo de vehículo que impulsa el crecimiento',
+        'Los eléctricos pasaron de 3.242 a 11.298 entre 2019 y 2024; las camionetas pasaron de 2,28 % a 51,32 % y los ciclomotores de 69,90 % a 13,02 %.'),
+       ('P1', 'analisis_p1', 2, 'Efecto de los buses en la tendencia anual',
+        'En 2022 se registraron 1.006 buses eléctricos, 16,74 % de los eléctricos del año; con buses, 2022 creció 49,4 %, y sin buses, 27,6 %.'),
+       ('P2', 'analisis_p2', 1, 'Bogotá explica la mayor parte del aumento',
+        'Entre 2021 y 2024 los eléctricos aumentaron 7.276; Bogotá aportó 4.810, el 66,11 % del aumento.'),
+       ('P2', 'analisis_p2', 2, 'El crecimiento también es desigual dentro de los departamentos',
+        'Medellín aportó 630 de los 829 vehículos de aumento de Antioquia (76,0 %), y Funza, Chía y Mosquera 774 de los 868 de Cundinamarca (89,2 %).'),
+       ('P3', 'analisis_p3', 1, 'Los vehículos livianos pasan a dominar los registros',
+        'La categoría Liviano pasó de 51,5 % de los registros en 2019 a 95,6 % en 2024; en 2024, 38.425 de las 39.121 camionetas fueron wagon (98,2 %).'),
+       ('P3', 'analisis_p3', 2, 'Los ciclomotores de 2024 tienen modelos más antiguos',
+        'En 2024, el 93,2 % de los registros tenía modelo igual o posterior al año de registro; en los ciclomotores bajó de 91,9 % en 2019 a 39,6 % en 2024.'),
+       ('P4', 'analisis_p4', 1, 'El promedio exagera el territorio típico',
+        'Con todos los combustibles, el promedio es 630,7 vehículos por territorio y la mediana 17; los 5 principales territorios reúnen 53,23 % de los eléctricos y 71,41 % de los híbridos.'),
+       ('P4', 'analisis_p4', 2, 'La concentración depende del tipo de vehículo',
+        'En Motorizado ligero, los 5 principales territorios reúnen solo 31,18 %; Bogotá tiene 91,54 % de los vehículos de pasajeros y 56,42 % de los eléctricos livianos.')] %}
     <div class="col">
-      <div class="card h-100 border border-dashed bg-white estrella-pendiente">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h5 class="fw-bold text-dark fs-6 mb-0"><i class="bi {{ icono }} text-warning me-2"></i>{{ titulo }}</h5>
-            <span class="badge-construccion"><i class="bi bi-cone-striped me-1"></i>En construcción</span>
+      <div class="content-card card h-100 border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="pregunta-num">{{ vista }}</span>
+            <span class="small text-muted fw-semibold">Conocimiento {{ n }}</span>
           </div>
-          <p class="small text-muted mb-0">{{ texto }}</p>
+          <h4 class="fw-bold text-dark fs-6 mb-2">{{ titulo }}</h4>
+          <p class="small mb-3">{{ hallazgo }}</p>
+          <div class="mt-auto">
+            <a class="btn btn-sm btn-outline-forest" href="{{ url_for(endpoint) }}#conocimientos">
+              Ver en {{ vista }} <i class="bi bi-arrow-right-circle ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>
   {% endfor %}
+</div>
+
+<!-- Limitaciones y conclusiones -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+      <h3 class="h5 fw-bold text-dark mb-3"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitaciones</h3>
+      <ul class="small mb-0 ps-3">
+        <li class="mb-2">El dataset registra matrículas por año, no vehículos en circulación.</li>
+        <li class="mb-2">El territorio corresponde a la matrícula, no al lugar de uso.</li>
+        <li class="mb-2">El dataset no trae emisiones ni población, por lo que no se calcula CO2 ni indicadores per cápita.</li>
+        <li>Las asociaciones encontradas no prueban causas.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+      <h3 class="h5 fw-bold text-dark mb-3"><i class="bi bi-flag-fill text-success me-2"></i>Conclusiones</h3>
+      <ul class="small mb-0 ps-3">
+        <li class="mb-2">
+          El crecimiento de los eléctricos cambió de composición: pasó de ciclomotores a vehículos livianos, sobre todo
+          camionetas. <a href="{{ url_for('analisis_p1') }}#conocimientos">P1</a>
+        </li>
+        <li class="mb-2">
+          El crecimiento no fue homogéneo: Bogotá explica la mayor parte del aumento entre 2021 y 2024.
+          <a href="{{ url_for('analisis_p2') }}#conocimientos">P2</a>
+        </li>
+        <li class="mb-2">
+          La composición de los registros se concentró en vehículos livianos.
+          <a href="{{ url_for('analisis_p3') }}#conocimientos">P3</a>
+        </li>
+        <li class="mb-2">
+          El promedio territorial debe leerse junto con la mediana y la concentración.
+          <a href="{{ url_for('analisis_p4') }}#conocimientos">P4</a>
+        </li>
+        <li>
+          Estos resultados ayudan a priorizar seguimiento por tipo de vehículo y territorio, aunque no permiten medir
+          directamente la reducción de la huella de carbono.
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
 
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">

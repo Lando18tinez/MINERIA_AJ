@@ -433,6 +433,24 @@ def _resumen_modelo():
     return resumen, None
 
 
+def _comprobacion_conocimientos():
+    """Comprobación de las cifras citadas en los conocimientos de P1-P4 (las mismas que muestra cada vista).
+
+    La portada solo resume y repite cifras de esas listas, así que basta con recalcularlas aquí.
+    """
+    try:
+        con = olap.conectar()
+    except (FileNotFoundError, sqlite3.Error):
+        return None
+    with closing(con):
+        listas = [("P1", "analisis_p1", _p1_conocimientos(con)), ("P2", "analisis_p2", _p2_conocimientos(con)),
+                  ("P3", "analisis_p3", _p3_conocimientos(con)), ("P4", "analisis_p4", _p4_conocimientos(con))]
+    por_vista = [{"id": i, "endpoint": e, "total": len(k["comprobaciones"]),
+                  "ok": sum(c["ok"] for c in k["comprobaciones"])} for i, e, k in listas]
+    return {"por_vista": por_vista, "total": sum(v["total"] for v in por_vista),
+            "ok": sum(v["ok"] for v in por_vista)}
+
+
 @app.route("/analisis-multidimensional")
 def analisis_multidimensional():
     resumen, error = _resumen_modelo()
@@ -441,6 +459,7 @@ def analisis_multidimensional():
         active="multidimensional",
         m=resumen,
         error_modelo=error,
+        comprobacion=None if error else _comprobacion_conocimientos(),
         preguntas=MODELO_PREGUNTAS,
         ce=CONOCIMIENTO,
     )
@@ -1254,6 +1273,73 @@ def analisis_p3():
 # --- Vista P4: promedio, mediana y concentración por territorio -------------
 
 P4_TOP = 5   # territorios del indicador de concentración
+P4_BOGOTA = "BOGOTA (BOGOTA D.C.)"
+# Selecciones de los conocimientos de P4 (nivel municipio, sin filtro de tiempo).
+P4_K_SELECCIONES = {
+    "todos": {},
+    "electrico": {"familia": ["Eléctrico"]},
+    "hibrido": {"familia": ["Híbrido"]},
+    "motorizado": {"categoria": ["Motorizado ligero"]},
+    "pasajeros": {"categoria": ["Pasajeros"]},
+    "electrico_liviano": {"familia": ["Eléctrico"], "categoria": ["Liviano"]},
+}
+
+# Cifras citadas en los conocimientos de P4: (conocimiento, cifra, valor del texto, decimales con que se cita;
+# None = texto). Cada una se compara en cada carga con el valor recalculado desde el modelo (_p4_conocimientos).
+P4_CIFRAS_TEXTO = [
+    (1, "Todos: promedio por territorio", 630.7, 1),
+    (1, "Todos: mediana por territorio", 17, 0),
+    (1, "Todos: territorios distintos", 247, 0),
+    (1, "Eléctrico: promedio por territorio", 168.0, 1),
+    (1, "Eléctrico: mediana por territorio", 11, 0),
+    (1, "Híbrido: promedio por territorio", 585.2, 1),
+    (1, "Híbrido: mediana por territorio", 10, 0),
+    (1, "Eléctrico: participación de los 5 principales (%)", 53.23, 2),
+    (1, "Híbrido: participación de los 5 principales (%)", 71.41, 2),
+    (2, "Motorizado ligero: participación de los 5 principales (%)", 31.18, 2),
+    (2, "Motorizado ligero: territorio líder", "MADRID (CUNDINAMARCA)", None),
+    (2, "Motorizado ligero: participación del líder (%)", 7.95, 2),
+    (2, "Pasajeros: vehículos de Bogotá", 1613, 0),
+    (2, "Pasajeros: vehículos", 1762, 0),
+    (2, "Pasajeros: participación de Bogotá (%)", 91.54, 2),
+    (2, "Pasajeros: mediana por territorio", 2, 0),
+    (2, "Eléctrico y Liviano: vehículos de Bogotá", 9448, 0),
+    (2, "Eléctrico y Liviano: vehículos", 16745, 0),
+    (2, "Eléctrico y Liviano: participación de Bogotá (%)", 56.42, 2),
+    (2, "Eléctrico y Liviano: mediana por territorio", 3, 0),
+    (2, "Eléctrico y Liviano: territorios distintos", 106, 0),
+]
+
+
+def _p4_conocimientos(con):
+    """Recalcula desde el modelo las cifras de los conocimientos de P4 y las compara con el texto."""
+    filas = {k: olap.totales_por_territorio(con, f, "municipio").get((), []) for k, f in P4_K_SELECCIONES.items()}
+    r = {k: olap.resumen_territorial(v, P4_TOP) for k, v in filas.items()}
+
+    def bogota(k):
+        veh = dict(filas[k]).get(P4_BOGOTA, 0)
+        return veh, (veh / r[k]["vehiculos"] * 100 if r[k]["vehiculos"] else None)
+
+    modelo = [
+        r["todos"]["promedio"], r["todos"]["mediana"], r["todos"]["territorios"],
+        r["electrico"]["promedio"], r["electrico"]["mediana"],
+        r["hibrido"]["promedio"], r["hibrido"]["mediana"],
+        r["electrico"]["top_pct"], r["hibrido"]["top_pct"],
+        r["motorizado"]["top_pct"], r["motorizado"]["lider"]["territorio"], r["motorizado"]["lider"]["pct"],
+        bogota("pasajeros")[0], r["pasajeros"]["vehiculos"], bogota("pasajeros")[1], r["pasajeros"]["mediana"],
+        bogota("electrico_liviano")[0], r["electrico_liviano"]["vehiculos"], bogota("electrico_liviano")[1],
+        r["electrico_liviano"]["mediana"], r["electrico_liviano"]["territorios"],
+    ]
+    comprobaciones = [
+        {"k": k, "cifra": cifra, "texto": texto, "decimales": dec, "modelo": valor,
+         "ok": valor is not None and (valor == texto if dec is None else round(valor, dec) == texto)}
+        for (k, cifra, texto, dec), valor in zip(P4_CIFRAS_TEXTO, modelo)
+    ]
+    return {
+        "vehiculos": {k: v["vehiculos"] for k, v in r.items()},
+        "comprobaciones": comprobaciones,
+        "todas_ok": all(c["ok"] for c in comprobaciones),
+    }
 
 
 @app.route("/analisis-multidimensional/p4")
@@ -1280,6 +1366,7 @@ def analisis_p4():
             por_vehiculo = olap.totales_por_territorio(con, filtros, nt, (nv,))
             por_combustible = olap.totales_por_territorio(con, filtros, nt, (nc,))
             por_celda = olap.totales_por_territorio(con, filtros, nt, (nv, nc))
+        conocimientos = _p4_conocimientos(con)
 
     p4 = None
     if hay_datos:
@@ -1321,6 +1408,15 @@ def analisis_p4():
         q=pregunta,
         error_modelo=None,
         p4=p4,
+        kc=conocimientos,
+        k_urls={
+            "todos": url_for("analisis_p4"),
+            "electrico": url_for("analisis_p4", familia="Eléctrico"),
+            "hibrido": url_for("analisis_p4", familia="Híbrido"),
+            "motorizado": url_for("analisis_p4", categoria="Motorizado ligero"),
+            "pasajeros": url_for("analisis_p4", categoria="Pasajeros"),
+            "electrico_liviano": url_for("analisis_p4", familia="Eléctrico", categoria="Liviano"),
+        },
         top=P4_TOP,
         **ctx,
     )

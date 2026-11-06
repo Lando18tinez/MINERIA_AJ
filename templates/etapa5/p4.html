@@ -258,6 +258,239 @@
 
 {% include "etapa5/_olap_rollup.html" %}
 {% endif %}
+
+{% if kc %}
+<!-- ======================================================================
+     Interpretación, conocimientos, limitación y decisión de P4
+     ====================================================================== -->
+<div class="mt-5 pt-4 border-top" id="conocimientos">
+  <h2 class="h4 fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretación</h2>
+  <div class="callout-energy mb-5">
+    <p class="mb-0">
+      El promedio de vehículos por territorio describe mal el caso típico, porque pocos territorios concentran la
+      mayoría de los registros. La concentración también cambia según el combustible y el tipo de vehículo.
+    </p>
+  </div>
+
+  <!-- Conocimiento 1 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">1</span>
+        <h3 class="h5 fw-bold text-dark mb-0">El promedio exagera el territorio típico</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿El promedio representa bien la cantidad de vehículos de un territorio?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">
+          Combustible y territorio; promedio y mediana por territorio, territorios distintos y participación de los 5
+          principales.
+        </dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Nivel municipio; comparar todos los combustibles con las familias Eléctrico e Híbrido mediante slice.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Indicadores y matriz de tipo de vehículo por combustible, con enlaces.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.todos }}">
+              <i class="bi bi-table me-1"></i>Todos los combustibles (municipio)
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.electrico }}">
+              <i class="bi bi-scissors me-1"></i>Slice: familia Eléctrico
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.hibrido }}">
+              <i class="bi bi-scissors me-1"></i>Slice: familia Híbrido
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          Con todos los combustibles, el promedio es 630,7 vehículos por territorio y la mediana es 17, en 247
+          territorios. En eléctricos, el promedio es 168,0 y la mediana 11; en híbridos, 585,2 y 10. Los 5 principales
+          territorios reúnen 53,23 % de los eléctricos y 71,41 % de los híbridos.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">Los híbridos están más concentrados que los eléctricos.</dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">
+          Indica que las comparaciones territoriales deben incluir la mediana y la concentración, no solo el promedio.
+        </dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">El promedio y la mediana solo incluyen territorios con al menos un registro en la selección.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Nivel territorial = <strong>Municipio</strong></span>
+        <span class="olap-filtro">Familia = <strong>Todas</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Familia = <strong>Híbrido</strong></span>
+        <div class="text-muted mt-1">
+          Denominador del promedio: territorios con al menos un vehículo en la selección. Denominador de la
+          participación de los 5 principales: vehículos de la selección (eléctricos o híbridos). Se usan los 10 años
+          de registro.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conocimiento 2 -->
+  <div class="content-card card border mb-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="pregunta-num">2</span>
+        <h3 class="h5 fw-bold text-dark mb-0">La concentración depende del tipo de vehículo</h3>
+      </div>
+      <dl class="row small mb-3 conocimiento-dl">
+        <dt class="col-md-3">Pregunta</dt>
+        <dd class="col-md-9">¿Todos los tipos de vehículo se concentran en los mismos territorios?</dd>
+
+        <dt class="col-md-3">Dimensiones y medidas</dt>
+        <dd class="col-md-9">
+          Vehículo, combustible y territorio; participación del territorio líder, participación de los 5 principales
+          y mediana por territorio.
+        </dd>
+
+        <dt class="col-md-3">Procedimiento</dt>
+        <dd class="col-md-9">Nivel municipio; slice por categoría y dice de Eléctrico con Liviano.</dd>
+
+        <dt class="col-md-3">Evidencia</dt>
+        <dd class="col-md-9">
+          Barras de promedio y mediana, curva de concentración y enlaces.
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.motorizado }}">
+              <i class="bi bi-scissors me-1"></i>Slice: categoría Motorizado ligero
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.pasajeros }}">
+              <i class="bi bi-scissors me-1"></i>Slice: categoría Pasajeros
+            </a>
+            <a class="btn btn-sm btn-outline-forest" href="{{ k_urls.electrico_liviano }}">
+              <i class="bi bi-grid-3x3-gap-fill me-1"></i>Dice: Eléctrico y Liviano
+            </a>
+          </div>
+        </dd>
+
+        <dt class="col-md-3">Hallazgo</dt>
+        <dd class="col-md-9">
+          En Motorizado ligero, los 5 principales territorios reúnen solo 31,18 % y el líder, Madrid (Cundinamarca),
+          tiene 7,95 %. En Pasajeros, Bogotá tiene 1.613 de 1.762 vehículos (91,54 %) y la mediana es 2. En eléctricos
+          livianos, Bogotá tiene 9.448 de 16.745 (56,42 %) y la mediana es 3 en 106 territorios.
+        </dd>
+
+        <dt class="col-md-3">Interpretación</dt>
+        <dd class="col-md-9">
+          Los vehículos motorizados ligeros están más distribuidos, mientras los de pasajeros y los eléctricos livianos
+          se concentran en Bogotá.
+        </dd>
+
+        <dt class="col-md-3">Utilidad</dt>
+        <dd class="col-md-9">
+          Permite usar estrategias distintas: más territorial para los motorizados ligeros y más focalizada para
+          pasajeros y eléctricos livianos.
+        </dd>
+
+        <dt class="col-md-3">Limitación</dt>
+        <dd class="col-md-9">El territorio corresponde a la matrícula y no confirma dónde circula el vehículo.</dd>
+      </dl>
+      <div class="small border-top pt-2">
+        <span class="text-muted fw-semibold me-1">Filtros usados:</span>
+        <span class="olap-filtro">Nivel territorial = <strong>Municipio</strong></span>
+        <span class="olap-filtro">Categoría = <strong>Motorizado ligero</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Categoría = <strong>Pasajeros</strong></span>
+        <span class="text-muted mx-1">·</span>
+        <span class="olap-filtro">Familia = <strong>Eléctrico</strong></span>
+        <span class="olap-filtro">Categoría = <strong>Liviano</strong></span>
+        <div class="text-muted mt-1">
+          Denominador de las participaciones (líder, Bogotá y 5 principales): vehículos de cada selección
+          ({{ kc.vehiculos.motorizado | miles }} motorizados ligeros, {{ kc.vehiculos.pasajeros | miles }} de pasajeros
+          y {{ kc.vehiculos.electrico_liviano | miles }} eléctricos livianos). Se usan los 10 años de registro.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limitación y decisión -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-danger">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>Limitación del análisis</h3>
+        <p class="small mb-0">
+          Las medidas se calculan sobre los territorios con registros. Los territorios sin vehículos en la selección no
+          entran en el promedio ni en la mediana.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 border-0 shadow-sm p-4 bg-white border-start border-4 border-success">
+        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-signpost-split-fill text-success me-2"></i>Posible decisión</h3>
+        <p class="small mb-0">
+          Reportar la mediana y la participación de los principales territorios junto con el promedio, y diseñar
+          estrategias distintas según el tipo de vehículo.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comprobación de las cifras del texto -->
+  <details class="card border-0 shadow-sm p-3 bg-white mb-2"{{ ' open' if not kc.todas_ok }}>
+    <summary class="fw-bold text-dark small">
+      <i class="bi bi-check2-square text-success me-1"></i>Comprobación de las cifras citadas:
+      {% if kc.todas_ok %}
+        <span class="text-success">las {{ kc.comprobaciones | length }} coinciden con el modelo</span>
+      {% else %}
+        <span class="text-danger">hay cifras que no coinciden con el modelo</span>
+      {% endif %}
+    </summary>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Conocimiento</th><th>Cifra</th><th class="text-end">En el texto</th><th class="text-end">En el modelo</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for c in kc.comprobaciones %}
+            <tr>
+              <td>{{ c.k }}</td>
+              <td>{{ c.cifra }}</td>
+              {% if c.decimales is none %}
+                <td class="text-end">{{ c.texto }}</td>
+                <td class="text-end">{{ c.modelo if c.modelo is not none else '—' }}</td>
+              {% else %}
+                <td class="text-end">{{ c.texto | dec(c.decimales) }}</td>
+                <td class="text-end">{{ c.modelo | dec(c.decimales + 2 if c.decimales else 0) }}</td>
+              {% endif %}
+              <td>
+                {% if c.ok %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coincide</span>
+                {% elif c.modelo is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Sin valor en el modelo</span>
+                {% elif c.decimales is none %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>No coincide</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (c.modelo - c.texto) | dec(c.decimales) }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      Cada cifra se recalcula desde <code>hechos_registros</code> al cargar la página y se redondea a los decimales
+      con que se cita en el texto.
+    </p>
+  </details>
+</div>
+{% endif %}
 {% endif %}
 
 <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
