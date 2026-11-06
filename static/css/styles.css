@@ -501,3 +501,12 @@ h1, h2, h3, h4, h5, h6 {
 .olap-matriz th a:hover {
   text-decoration: underline;
 }
+
+/* Conocimientos de P1: los 8 elementos de cada conocimiento */
+.conocimiento-dl dt {
+  color: var(--color-primary-dark);
+}
+
+.conocimiento-dl dd {
+  margin-bottom: 0.6rem;
+}

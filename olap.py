@@ -73,17 +73,22 @@ def valores_permitidos(con):
     }
 
 
-def _where(filtros):
-    """Construye el WHERE con marcadores ?. «filtros» es {nombre: [valores]} y solo usa nombres de FILTROS."""
+def _where(filtros, excluir=None):
+    """Construye el WHERE con marcadores ?.
+
+    «filtros» ({nombre: [valores]}) conserva solo esos valores (IN); «excluir» (mismo formato) los quita
+    (NOT IN). Ambos aceptan solo nombres de FILTROS.
+    """
     partes, params = [], []
-    for nombre, valores in filtros.items():
-        if nombre not in FILTROS:
-            raise ValueError(f"Filtro no permitido: {nombre}")
-        if not valores:
-            continue
-        columna = FILTROS[nombre][0]
-        partes.append(f"{columna} IN ({', '.join('?' for _ in valores)})")
-        params.extend(valores)
+    for operador, condiciones in (("IN", filtros), ("NOT IN", excluir or {})):
+        for nombre, valores in condiciones.items():
+            if nombre not in FILTROS:
+                raise ValueError(f"Filtro no permitido: {nombre}")
+            if not valores:
+                continue
+            columna = FILTROS[nombre][0]
+            partes.append(f"{columna} {operador} ({', '.join('?' for _ in valores)})")
+            params.extend(valores)
     return (" WHERE " + " AND ".join(partes) if partes else ""), params
 
 
@@ -97,6 +102,36 @@ def total(con, filtros):
     where, params = _where(filtros)
     vehiculos, grupos = con.execute(f"SELECT COALESCE(SUM(h.cantidad), 0), COUNT(*) {_FROM}{where}", params).fetchone()
     return vehiculos, grupos
+
+
+def serie_anual(con, filtros, anios, excluir=None):
+    """Vehículos registrados por año y variación % frente al año anterior de la lista.
+
+    «excluir» quita valores de un filtro (por ejemplo {"clase": ["BUS"]} para la serie sin buses).
+    """
+    where, params = _where(filtros, excluir)
+    por_anio = dict(con.execute(f"SELECT t.anio, SUM(h.cantidad) {_FROM}{where} GROUP BY t.anio", params).fetchall())
+    serie, previo = [], None
+    for anio in anios:
+        veh = por_anio.get(anio, 0)
+        serie.append({"anio": anio, "vehiculos": veh,
+                      "pct": (veh - previo) / previo * 100 if previo else None})
+        previo = veh
+    return serie
+
+
+def por_territorio(con, filtros, limite=5):
+    """Territorios con más vehículos registrados en la selección (dim_territorio)."""
+    if not isinstance(limite, int) or not 1 <= limite <= 50:
+        raise ValueError("El límite debe ser un entero entre 1 y 50.")
+    where, params = _where(filtros)
+    filas = con.execute(
+        f"SELECT r.territorio, r.departamento, SUM(h.cantidad) AS veh {_FROM}"
+        f"JOIN dim_territorio r ON r.id_territorio = h.id_territorio{where} "
+        "GROUP BY r.id_territorio ORDER BY veh DESC, r.territorio LIMIT ?",
+        params + [limite],
+    ).fetchall()
+    return [{"territorio": t, "departamento": d, "vehiculos": v} for t, d, v in filas]
 
 
 def total_por_nivel(con, filtros, nivel):

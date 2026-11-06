@@ -541,6 +541,91 @@ def _p1_operacion(estado):
     return "Filtro en una dimensión", f"Varios valores de la dimensión {ETIQUETA_DIMENSION[dim]}."
 
 
+# Cifras citadas en los conocimientos de P1: (conocimiento, cifra, valor del texto, decimales con que se cita).
+# Cada una se compara en cada carga con el valor recalculado desde el modelo (_p1_conocimientos).
+P1_CIFRAS_TEXTO = [
+    (1, "Eléctricos registrados en 2019", 3242, 0),
+    (1, "Eléctricos registrados en 2024", 11298, 0),
+    (1, "Aumento de eléctricos 2019 → 2024", 8056, 0),
+    (1, "Aumento de camionetas 2019 → 2024", 5724, 0),
+    (1, "Participación de camionetas 2019 (%)", 2.28, 2),
+    (1, "Participación de camionetas 2024 (%)", 51.32, 2),
+    (1, "Aumento de automóviles 2019 → 2024", 2564, 0),
+    (1, "Cambio de ciclomotores 2019 → 2024", -795, 0),
+    (1, "Participación de ciclomotores 2019 (%)", 69.90, 2),
+    (1, "Participación de ciclomotores 2024 (%)", 13.02, 2),
+    (1, "Camionetas eléctricas 2024", 5798, 0),
+    (1, "Camionetas wagon 2024", 5435, 0),
+    (1, "Participación de wagon en camionetas 2024 (%)", 93.74, 2),
+    (2, "Buses eléctricos 2022", 1006, 0),
+    (2, "Participación de buses en eléctricos 2022 (%)", 16.74, 2),
+    (2, "Buses eléctricos 2022 en Bogotá", 998, 0),
+    (2, "Variación 2022 con buses (%)", 49.4, 1),
+    (2, "Variación 2023 con buses (%)", 4.5, 1),
+    (2, "Variación 2022 sin buses (%)", 27.6, 1),
+    (2, "Variación 2023 sin buses (%)", 25.4, 1),
+]
+P1_K2_ANIOS = [2021, 2022, 2023, 2024]
+
+
+def _p1_conocimientos(con):
+    """Recalcula desde el modelo las cifras de los conocimientos de P1 y las compara con el texto."""
+    electrico = {"familia": [P1_FAMILIA_INICIAL]}
+
+    # Conocimiento 1: clases 2019 vs 2024 y carrocerías de CAMIONETA en 2024.
+    k1 = olap.consultar(con, {**electrico, "anio": [2019, 2024]}, "clase", [2019, 2024])
+    anual = {s["anio"]: s["vehiculos"] for s in k1["serie"]}
+
+    def clase(nombre, anio):
+        return k1["celdas"].get(((nombre,), anio), 0)
+
+    camionetas = olap.consultar(con, {**electrico, "anio": [2024], "clase": ["CAMIONETA"]}, "carroceria", [2024])
+    wagon = next((m["vehiculos"] for m in camionetas["composicion"] if m["llave"] == ("CAMIONETA", "WAGON")), 0)
+
+    # Conocimiento 2: serie con buses, sin buses (NOT IN BUS) y solo buses; territorio de los buses de 2022.
+    con_buses = olap.serie_anual(con, electrico, P1_K2_ANIOS)
+    sin_buses = olap.serie_anual(con, electrico, P1_K2_ANIOS, excluir={"clase": ["BUS"]})
+    buses = olap.serie_anual(con, {**electrico, "clase": ["BUS"]}, P1_K2_ANIOS)
+    territorios_buses = olap.por_territorio(con, {**electrico, "clase": ["BUS"], "anio": [2022]}, limite=3)
+    k2_tabla = [
+        {"anio": c["anio"], "con": c["vehiculos"], "pct_con": c["pct"], "buses": b["vehiculos"],
+         "sin": s["vehiculos"], "pct_sin": s["pct"]}
+        for c, s, b in zip(con_buses, sin_buses, buses)
+    ]
+    por_anio = {fila["anio"]: fila for fila in k2_tabla}
+    bogota = next((t["vehiculos"] for t in territorios_buses if t["departamento"] == "BOGOTA D.C."), 0)
+
+    modelo = [
+        anual[2019], anual[2024], anual[2024] - anual[2019],
+        clase("CAMIONETA", 2024) - clase("CAMIONETA", 2019),
+        clase("CAMIONETA", 2019) / anual[2019] * 100 if anual[2019] else None,
+        clase("CAMIONETA", 2024) / anual[2024] * 100 if anual[2024] else None,
+        clase("AUTOMOVIL", 2024) - clase("AUTOMOVIL", 2019),
+        clase("CICLOMOTOR", 2024) - clase("CICLOMOTOR", 2019),
+        clase("CICLOMOTOR", 2019) / anual[2019] * 100 if anual[2019] else None,
+        clase("CICLOMOTOR", 2024) / anual[2024] * 100 if anual[2024] else None,
+        camionetas["vehiculos"], wagon,
+        wagon / camionetas["vehiculos"] * 100 if camionetas["vehiculos"] else None,
+        por_anio[2022]["buses"],
+        por_anio[2022]["buses"] / por_anio[2022]["con"] * 100 if por_anio[2022]["con"] else None,
+        bogota,
+        por_anio[2022]["pct_con"], por_anio[2023]["pct_con"],
+        por_anio[2022]["pct_sin"], por_anio[2023]["pct_sin"],
+    ]
+    comprobaciones = [
+        {"k": k, "cifra": cifra, "texto": texto, "decimales": dec, "modelo": valor,
+         "ok": valor is not None and round(valor, dec) == texto}
+        for (k, cifra, texto, dec), valor in zip(P1_CIFRAS_TEXTO, modelo)
+    ]
+    return {
+        "k2_tabla": k2_tabla,
+        "k2": por_anio,
+        "territorios_buses": territorios_buses,
+        "comprobaciones": comprobaciones,
+        "todas_ok": all(c["ok"] for c in comprobaciones),
+    }
+
+
 @app.route("/analisis-multidimensional/p1")
 def analisis_p1():
     pregunta = MODELO_PREGUNTAS[0]
@@ -573,6 +658,7 @@ def analisis_p1():
         filtros = _p1_filtros(estado)
         cubo = olap.consultar(con, filtros, estado["nivel"], anios) if anios else None
         rollup = {n: olap.total_por_nivel(con, filtros, n) for n in olap.ORDEN_NIVELES} if cubo else None
+        conocimientos = _p1_conocimientos(con)
 
     i = olap.ORDEN_NIVELES.index(estado["nivel"])
     siguiente = olap.ORDEN_NIVELES[i + 1] if i + 1 < len(olap.ORDEN_NIVELES) else None
@@ -620,6 +706,13 @@ def analisis_p1():
         url_limpiar=_p1_url({**estado, "familia": P1_FAMILIA_INICIAL, "periodo": "", "anio": [],
                              "categoria": "", "clase": "", "nivel": NIVEL_INICIAL, "pivot": False}),
         url_drill_miembro=url_drill_miembro,
+        kc=conocimientos,
+        k_urls={
+            "k1_clases": url_for("analisis_p1", anio=[2019, 2024], nivel="clase"),
+            "k1_camioneta": url_for("analisis_p1", clase="CAMIONETA", anio=[2024], nivel="carroceria"),
+            "k2_clases": url_for("analisis_p1", anio=P1_K2_ANIOS, nivel="clase"),
+            "k2_buses": url_for("analisis_p1", clase="BUS", anio=P1_K2_ANIOS),
+        },
         nivel_siguiente=siguiente,
         nivel_anterior=anterior,
         todas=TODAS,
