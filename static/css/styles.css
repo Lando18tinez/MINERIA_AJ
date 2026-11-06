@@ -443,3 +443,61 @@ h1, h2, h3, h4, h5, h6 {
   border-style: dashed !important;
   border-color: var(--border-subtle) !important;
 }
+
+/* Vista interactiva P1: estado de la consulta y controles OLAP */
+.olap-nivel {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2rem;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.olap-nivel--activo {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.olap-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--color-accent-soft);
+  border: 1px solid rgba(242, 186, 29, 0.5);
+  color: var(--color-primary-dark);
+  border-radius: 2rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.olap-filtro__quitar {
+  color: var(--color-primary-dark);
+  line-height: 1;
+}
+
+.olap-filtro__quitar:hover {
+  color: #b02a37;
+}
+
+.olap-anio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  cursor: pointer;
+  background: var(--bg-surface);
+}
+
+.olap-matriz th a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.olap-matriz th a:hover {
+  text-decoration: underline;
+}

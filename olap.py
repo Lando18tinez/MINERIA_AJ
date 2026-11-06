@@ -1,0 +1,176 @@
+"""Consultas OLAP de solo lectura sobre el modelo estrella de la Etapa 5.
+
+La base data/modelo/modelo_estrella.db se abre siempre con mode=ro. Las dimensiones, los niveles y los
+filtros que se aceptan están en listas cerradas; los valores elegidos por el usuario se pasan a SQLite
+solo como parámetros (?), nunca se pegan en el texto de la consulta.
+
+Todas las medidas se recalculan desde hechos_registros en cada consulta. Los vehículos se cuentan con
+SUM(cantidad), no contando filas.
+"""
+
+import sqlite3
+from contextlib import closing
+from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parent
+MODELO_DB = RAIZ / "data" / "modelo" / "modelo_estrella.db"
+
+# --- Listas cerradas ---------------------------------------------------------
+
+# Jerarquía de la dimensión vehículo (superior -> inferior). En «carroceria» el miembro hoja es la
+# pareja clase-carrocería, porque una misma carrocería aparece en varias clases.
+ORDEN_NIVELES = ("categoria", "clase", "carroceria")
+NIVELES_VEHICULO = {
+    "categoria": {"columnas": ("v.categoria",), "etiqueta": "Categoría"},
+    "clase": {"columnas": ("v.clase",), "etiqueta": "Clase"},
+    "carroceria": {"columnas": ("v.clase", "v.carroceria"), "etiqueta": "Clase · carrocería"},
+}
+
+# Filtros permitidos: nombre -> (columna SQL, dimensión a la que pertenece, etiqueta).
+FILTROS = {
+    "familia": ("c.familia", "combustible", "Familia de combustible"),
+    "periodo": ("t.periodo", "tiempo", "Periodo"),
+    "anio": ("t.anio", "tiempo", "Año de registro"),
+    "categoria": ("v.categoria", "vehiculo", "Categoría"),
+    "clase": ("v.clase", "vehiculo", "Clase"),
+}
+
+_FROM = """
+FROM hechos_registros h
+JOIN dim_tiempo      t ON t.id_tiempo      = h.id_tiempo
+JOIN dim_combustible c ON c.id_combustible = h.id_combustible
+JOIN dim_vehiculo    v ON v.id_vehiculo    = h.id_vehiculo
+"""
+
+
+def conectar():
+    """Abre el modelo estrella en solo lectura. Lanza FileNotFoundError si la base no existe."""
+    if not MODELO_DB.is_file():
+        raise FileNotFoundError(MODELO_DB)
+    return sqlite3.connect(f"{MODELO_DB.as_uri()}?mode=ro", uri=True)
+
+
+def valores_permitidos(con):
+    """Valores válidos de cada filtro, leídos de las dimensiones (la lista cerrada de valores)."""
+    def columna(sql):
+        return [fila[0] for fila in con.execute(sql)]
+
+    categorias = columna("SELECT DISTINCT categoria FROM dim_vehiculo ORDER BY categoria")
+    clases_por_categoria = []
+    for cat in categorias:
+        clases = [fila[0] for fila in con.execute(
+            "SELECT DISTINCT clase FROM dim_vehiculo WHERE categoria = ? ORDER BY clase", (cat,))]
+        clases_por_categoria.append((cat, clases))
+
+    return {
+        "familia": columna("SELECT DISTINCT familia FROM dim_combustible ORDER BY familia"),
+        "periodo": columna("SELECT DISTINCT periodo FROM dim_tiempo ORDER BY periodo"),
+        "anio": columna("SELECT anio FROM dim_tiempo ORDER BY anio"),
+        "categoria": categorias,
+        "clase": columna("SELECT DISTINCT clase FROM dim_vehiculo ORDER BY clase"),
+        "clases_por_categoria": clases_por_categoria,
+        "periodo_de_anio": dict(con.execute("SELECT anio, periodo FROM dim_tiempo")),
+    }
+
+
+def _where(filtros):
+    """Construye el WHERE con marcadores ?. «filtros» es {nombre: [valores]} y solo usa nombres de FILTROS."""
+    partes, params = [], []
+    for nombre, valores in filtros.items():
+        if nombre not in FILTROS:
+            raise ValueError(f"Filtro no permitido: {nombre}")
+        if not valores:
+            continue
+        columna = FILTROS[nombre][0]
+        partes.append(f"{columna} IN ({', '.join('?' for _ in valores)})")
+        params.extend(valores)
+    return (" WHERE " + " AND ".join(partes) if partes else ""), params
+
+
+def _miembro(fila, nivel):
+    """Etiqueta legible de un miembro del nivel de vehículo."""
+    return " · ".join(fila) if nivel == "carroceria" else fila[0]
+
+
+def total(con, filtros):
+    """Vehículos registrados (SUM(cantidad)) y grupos de registro (COUNT(*)) en la selección."""
+    where, params = _where(filtros)
+    vehiculos, grupos = con.execute(f"SELECT COALESCE(SUM(h.cantidad), 0), COUNT(*) {_FROM}{where}", params).fetchone()
+    return vehiculos, grupos
+
+
+def total_por_nivel(con, filtros, nivel):
+    """Suma de los subtotales de un nivel de vehículo (sirve para comprobar que el roll-up conserva el total)."""
+    if nivel not in NIVELES_VEHICULO:
+        raise ValueError(f"Nivel no permitido: {nivel}")
+    cols = ", ".join(NIVELES_VEHICULO[nivel]["columnas"])
+    where, params = _where(filtros)
+    fila = con.execute(
+        f"SELECT COALESCE(SUM(sub), 0), COUNT(*) FROM (SELECT SUM(h.cantidad) AS sub {_FROM}{where} GROUP BY {cols})",
+        params,
+    ).fetchone()
+    return {"vehiculos": fila[0], "miembros": fila[1]}
+
+
+def consultar(con, filtros, nivel, anios):
+    """Cubo vehículo × año para la selección.
+
+    filtros: {nombre: [valores]} ya validados.
+    nivel:   nivel de la jerarquía de vehículo usado como filas.
+    anios:   años de registro que se muestran (columnas de la matriz y eje de la tendencia).
+    """
+    if nivel not in NIVELES_VEHICULO:
+        raise ValueError(f"Nivel no permitido: {nivel}")
+    cols = NIVELES_VEHICULO[nivel]["columnas"]
+    lista_cols = ", ".join(cols)
+    where, params = _where(filtros)
+
+    vehiculos, grupos = total(con, filtros)
+
+    # Tendencia anual: se completan con 0 los años seleccionados sin registros.
+    por_anio = dict(con.execute(f"SELECT t.anio, SUM(h.cantidad) {_FROM}{where} GROUP BY t.anio", params).fetchall())
+    serie = [{"anio": a, "vehiculos": por_anio.get(a, 0)} for a in anios]
+
+    # Composición por tipo de vehículo en el nivel actual (denominador: vehículos de la selección).
+    composicion = []
+    for fila in con.execute(
+        f"SELECT {lista_cols}, SUM(h.cantidad) AS veh {_FROM}{where} GROUP BY {lista_cols} ORDER BY veh DESC, {lista_cols}",
+        params,
+    ):
+        llave, veh = tuple(fila[:-1]), fila[-1]
+        composicion.append({
+            "llave": llave,
+            "miembro": _miembro(llave, nivel),
+            "vehiculos": veh,
+            "pct": veh / vehiculos * 100 if vehiculos else None,
+        })
+
+    # Matriz tipo de vehículo × año.
+    celdas = {}
+    for fila in con.execute(
+        f"SELECT {lista_cols}, t.anio, SUM(h.cantidad) {_FROM}{where} GROUP BY {lista_cols}, t.anio", params
+    ):
+        celdas[(tuple(fila[:-2]), fila[-2])] = fila[-1]
+
+    # Variación entre el primer y el último año seleccionados.
+    variacion = None
+    if len(anios) >= 2:
+        inicial, final = por_anio.get(anios[0], 0), por_anio.get(anios[-1], 0)
+        variacion = {
+            "anio_inicial": anios[0],
+            "anio_final": anios[-1],
+            "inicial": inicial,
+            "final": final,
+            "absoluta": final - inicial,
+            "pct": (final - inicial) / inicial * 100 if inicial else None,
+        }
+
+    return {
+        "vehiculos": vehiculos,
+        "grupos": grupos,
+        "serie": serie,
+        "composicion": composicion,
+        "lider": composicion[0] if composicion else None,
+        "celdas": celdas,
+        "variacion": variacion,
+    }

@@ -1,9 +1,12 @@
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
-from flask import Flask, abort, render_template, send_from_directory, url_for
+from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
 from jinja2 import TemplateNotFound
+
+import olap
 
 app = Flask(__name__)
 
@@ -23,8 +26,8 @@ CONOCIMIENTO = json.loads(
     (RAIZ / "data" / "processed" / "resultados_conocimiento_evidente.json").read_text(encoding="utf-8")
 )
 
-# Modelo estrella de la Etapa 5 (SQLite). La app solo lo lee: se abre con mode=ro.
-MODELO_DB = RAIZ / "data" / "modelo" / "modelo_estrella.db"
+# Modelo estrella de la Etapa 5 (SQLite). La app solo lo lee: se abre con mode=ro (ver olap.py).
+MODELO_DB = olap.MODELO_DB
 
 # Archivos que la app permite descargar/consultar (evidencia de dónde salen los resultados).
 DATOS_PUBLICOS = {
@@ -352,11 +355,12 @@ def conocimiento_evidente():
 
 # --- Análisis multidimensional (Etapa 5: modelo estrella) -------------------
 
-# Preguntas de negocio del modelo (docs/etapa5/modelo_multidimensional.md, sección 2).
-# Sus páginas de análisis aún no existen: se muestran como «En construcción», sin enlace.
+# Preguntas de análisis del modelo (docs/etapa5/modelo_multidimensional.md, sección 2).
+# «endpoint» es la ruta de su vista; sin «endpoint» la pregunta se muestra «En construcción», sin enlace.
 MODELO_PREGUNTAS = [
     {
         "id": "P1",
+        "endpoint": "analisis_p1",
         "pregunta": (
             "¿Cuál es la tendencia de crecimiento de los vehículos eléctricos registrados entre 2015 y 2024, "
             "y qué tipos de vehículo la impulsan?"
@@ -436,6 +440,189 @@ def analisis_multidimensional():
         error_modelo=error,
         preguntas=MODELO_PREGUNTAS,
         ce=CONOCIMIENTO,
+    )
+
+
+# --- Vista P1: tendencia de los eléctricos y tipos de vehículo ---------------
+
+P1_FAMILIA_INICIAL = "Eléctrico"   # filtro inicial de la pregunta P1
+TODAS = "todas"                    # valor de «familia» que quita ese filtro
+NIVEL_INICIAL = olap.ORDEN_NIVELES[0]
+ETIQUETA_DIMENSION = {"tiempo": "tiempo", "vehiculo": "vehículo", "combustible": "combustible"}
+
+
+def _p1_leer_estado(args, perm):
+    """Convierte los parámetros GET en un estado válido. Lo que no está en las listas cerradas se ignora y avisa."""
+    avisos = []
+
+    def uno(nombre):
+        valor = args.get(nombre, "").strip()
+        if valor and valor not in perm[nombre]:
+            avisos.append(f"Se ignoró «{valor}» en {olap.FILTROS[nombre][2].lower()}: no existe en el modelo.")
+            return ""
+        return valor
+
+    familia = args.get("familia", P1_FAMILIA_INICIAL).strip() or P1_FAMILIA_INICIAL
+    if familia != TODAS and familia not in perm["familia"]:
+        avisos.append(f"Se ignoró «{familia}» en familia de combustible: no existe en el modelo.")
+        familia = P1_FAMILIA_INICIAL
+
+    anios = []
+    for valor in args.getlist("anio"):
+        try:
+            anio = int(valor)
+        except ValueError:
+            anio = None
+        if anio in perm["anio"]:
+            anios.append(anio)
+        elif valor.strip():
+            avisos.append(f"Se ignoró «{valor}» en año de registro: no existe en el modelo.")
+
+    nivel = args.get("nivel", NIVEL_INICIAL)
+    if nivel not in olap.NIVELES_VEHICULO:
+        avisos.append(f"Se ignoró el nivel «{nivel}»: los niveles válidos son categoría, clase y carrocería.")
+        nivel = NIVEL_INICIAL
+
+    estado = {
+        "familia": familia,
+        "periodo": uno("periodo"),
+        "anio": sorted(set(anios)),
+        "categoria": uno("categoria"),
+        "clase": uno("clase"),
+        "nivel": nivel,
+        "pivot": args.get("pivot") == "1",
+    }
+    return estado, avisos
+
+
+def _p1_url(estado, **cambios):
+    """URL canónica de un estado: cada selección tiene su propia dirección (solo se escriben valores no iniciales)."""
+    e = {**estado, **cambios}
+    params = {}
+    if e["familia"] != P1_FAMILIA_INICIAL:
+        params["familia"] = e["familia"]
+    for nombre in ("periodo", "categoria", "clase"):
+        if e[nombre]:
+            params[nombre] = e[nombre]
+    if e["anio"]:
+        params["anio"] = e["anio"]
+    if e["nivel"] != NIVEL_INICIAL:
+        params["nivel"] = e["nivel"]
+    if e["pivot"]:
+        params["pivot"] = "1"
+    return url_for("analisis_p1", **params)
+
+
+def _p1_filtros(estado):
+    """Estado -> filtros para olap.py ({nombre: [valores]})."""
+    return {
+        "familia": [] if estado["familia"] == TODAS else [estado["familia"]],
+        "periodo": [estado["periodo"]] if estado["periodo"] else [],
+        "anio": estado["anio"],
+        "categoria": [estado["categoria"]] if estado["categoria"] else [],
+        "clase": [estado["clase"]] if estado["clase"] else [],
+    }
+
+
+def _p1_operacion(estado):
+    """Nombre de la operación que describe los filtros de análisis (tiempo y vehículo)."""
+    valores = {
+        "tiempo": ([estado["periodo"]] if estado["periodo"] else []) + estado["anio"],
+        "vehiculo": [v for v in (estado["categoria"], estado["clase"]) if v],
+    }
+    activas = {d: v for d, v in valores.items() if v}
+    if not activas:
+        return "Sin filtros de análisis", "Se ven todos los años y todos los tipos de vehículo."
+    if len(activas) >= 2:
+        return "Dice", "Filtros combinados en las dimensiones tiempo y vehículo."
+    (dim, vals), = activas.items()
+    if len(vals) == 1:
+        return "Slice", f"Un solo valor de la dimensión {ETIQUETA_DIMENSION[dim]}."
+    return "Filtro en una dimensión", f"Varios valores de la dimensión {ETIQUETA_DIMENSION[dim]}."
+
+
+@app.route("/analisis-multidimensional/p1")
+def analisis_p1():
+    pregunta = MODELO_PREGUNTAS[0]
+    try:
+        con = olap.conectar()
+    except (FileNotFoundError, sqlite3.Error) as exc:
+        return render_template("etapa5/p1.html", active="multidimensional", q=pregunta,
+                               error_modelo=f"No se pudo abrir el modelo estrella: {exc}")
+
+    with closing(con):
+        perm = olap.valores_permitidos(con)
+        estado, avisos = _p1_leer_estado(request.args, perm)
+
+        # Slice: un solo valor de una dimensión de análisis. Se quitan los demás filtros de análisis
+        # y se redirige a la URL canónica de esa selección.
+        if "slice" in request.args:
+            dim, _, valor = request.args.get("slice", "").partition(":")
+            limpio = {**estado, "periodo": "", "anio": [], "categoria": "", "clase": ""}
+            if dim == "anio" and valor.isdigit() and int(valor) in perm["anio"]:
+                return redirect(_p1_url(limpio, anio=[int(valor)]))
+            if dim in ("periodo", "categoria", "clase") and valor in perm[dim]:
+                return redirect(_p1_url(limpio, **{dim: valor}))
+            avisos.append("Se ignoró el slice elegido: la dimensión o el valor no son válidos.")
+
+        # Años visibles: los del periodo y los años elegidos (si hay). Son el eje de la tendencia.
+        anios = [a for a in perm["anio"]
+                 if (not estado["periodo"] or perm["periodo_de_anio"][a] == estado["periodo"])
+                 and (not estado["anio"] or a in estado["anio"])]
+
+        filtros = _p1_filtros(estado)
+        cubo = olap.consultar(con, filtros, estado["nivel"], anios) if anios else None
+        rollup = {n: olap.total_por_nivel(con, filtros, n) for n in olap.ORDEN_NIVELES} if cubo else None
+
+    i = olap.ORDEN_NIVELES.index(estado["nivel"])
+    siguiente = olap.ORDEN_NIVELES[i + 1] if i + 1 < len(olap.ORDEN_NIVELES) else None
+    anterior = olap.ORDEN_NIVELES[i - 1] if i > 0 else None
+
+    # Drill-down sobre un miembro: se filtra ese miembro y se baja un nivel.
+    def url_drill_miembro(llave):
+        if estado["nivel"] == "categoria":
+            return _p1_url(estado, categoria=llave[0], nivel="clase")
+        if estado["nivel"] == "clase":
+            return _p1_url(estado, clase=llave[0], nivel="carroceria")
+        return None
+
+    # Filtros activos, cada uno con la URL que lo quita.
+    activos = [("Familia de combustible",
+                "Todas" if estado["familia"] == TODAS else estado["familia"],
+                _p1_url(estado, familia=TODAS) if estado["familia"] != TODAS else None)]
+    if estado["periodo"]:
+        activos.append(("Periodo", estado["periodo"], _p1_url(estado, periodo="")))
+    if estado["anio"]:
+        activos.append(("Año de registro", ", ".join(map(str, estado["anio"])), _p1_url(estado, anio=[])))
+    if estado["categoria"]:
+        activos.append(("Categoría", estado["categoria"], _p1_url(estado, categoria="")))
+    if estado["clase"]:
+        activos.append(("Clase", estado["clase"], _p1_url(estado, clase="")))
+
+    return render_template(
+        "etapa5/p1.html",
+        active="multidimensional",
+        q=pregunta,
+        error_modelo=None,
+        perm=perm,
+        estado=estado,
+        avisos=avisos,
+        anios=anios,
+        cubo=cubo,
+        rollup=rollup,
+        activos=activos,
+        operacion=_p1_operacion(estado),
+        niveles=olap.NIVELES_VEHICULO,
+        orden_niveles=olap.ORDEN_NIVELES,
+        url_drill=_p1_url(estado, nivel=siguiente) if siguiente else None,
+        url_rollup=_p1_url(estado, nivel=anterior) if anterior else None,
+        url_pivot=_p1_url(estado, pivot=not estado["pivot"]),
+        url_limpiar=_p1_url({**estado, "familia": P1_FAMILIA_INICIAL, "periodo": "", "anio": [],
+                             "categoria": "", "clase": "", "nivel": NIVEL_INICIAL, "pivot": False}),
+        url_drill_miembro=url_drill_miembro,
+        nivel_siguiente=siguiente,
+        nivel_anterior=anterior,
+        todas=TODAS,
     )
 
 

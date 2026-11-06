@@ -297,9 +297,9 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
   <div>
     <h2 class="h4 fw-bold mb-1 text-dark">
-      <i class="bi bi-question-circle-fill text-success me-2"></i>Preguntas de negocio
+      <i class="bi bi-question-circle-fill text-success me-2"></i>Preguntas de análisis
     </h2>
-    <p class="text-muted small mb-0">Cada pregunta tendrá su propia página de análisis sobre el modelo estrella.</p>
+    <p class="text-muted small mb-0">Cada pregunta tiene su propia página de análisis sobre el modelo estrella.</p>
   </div>
 </div>
 
@@ -310,15 +310,25 @@
         <div class="card-body d-flex flex-column">
           <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
             <span class="pregunta-num">{{ q.id }}</span>
-            <span class="badge-construccion"><i class="bi bi-cone-striped me-1"></i>En construcción</span>
+            {% if q.endpoint %}
+              <span class="badge-forest"><i class="bi bi-check-circle me-1"></i>Vista interactiva</span>
+            {% else %}
+              <span class="badge-construccion"><i class="bi bi-cone-striped me-1"></i>En construcción</span>
+            {% endif %}
           </div>
           <h5 class="card-title fw-bold text-dark fs-6 mb-2">{{ q.pregunta }}</h5>
           <p class="small text-muted mb-1"><strong>Dimensiones:</strong> {{ q.dimensiones }}.</p>
           <p class="small text-muted mb-3"><strong>Medidas:</strong> {{ q.medidas }}.</p>
           <div class="mt-auto pt-3 border-top">
-            <span class="btn btn-sm btn-outline-secondary w-100 disabled" aria-disabled="true">
-              Análisis de {{ q.id }} · disponible próximamente
-            </span>
+            {% if q.endpoint %}
+              <a class="btn btn-sm btn-outline-forest w-100" href="{{ url_for(q.endpoint) }}">
+                Abrir el análisis de {{ q.id }} <i class="bi bi-arrow-right-circle ms-1"></i>
+              </a>
+            {% else %}
+              <span class="btn btn-sm btn-outline-secondary w-100 disabled" aria-disabled="true">
+                Análisis de {{ q.id }} · disponible próximamente
+              </span>
+            {% endif %}
           </div>
         </div>
       </div>

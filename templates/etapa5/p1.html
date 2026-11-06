@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+
+{% block title %}P1 · Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('analisis_multidimensional') }}" class="text-decoration-none">Análisis multidimensional</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">P1</li>
+  </ol>
+</nav>
+
+<!-- Encabezado -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Pregunta de análisis {{ q.id }}
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-2">Tendencia de los vehículos eléctricos y tipos de vehículo</h1>
+  <p class="lead fs-6 text-dark mb-0">{{ q.pregunta }}</p>
+</div>
+
+<!-- Dimensiones, medidas y jerarquías -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <div class="row g-4 small">
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-layers-fill text-warning me-1"></i>Dimensiones</h6>
+      <ul class="ps-3 mb-0">
+        <li><code>dim_tiempo</code>: año de registro</li>
+        <li><code>dim_combustible</code>: familia (filtro inicial: Eléctrico)</li>
+        <li><code>dim_vehiculo</code>: tipo de vehículo</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-calculator-fill text-warning me-1"></i>Medidas</h6>
+      <ul class="ps-3 mb-0">
+        <li><strong>Vehículos registrados</strong>: <code>SUM(cantidad)</code>, aditiva</li>
+        <li><strong>Participación %</strong>: vehículos del tipo / vehículos de la selección × 100, no aditiva</li>
+        <li><strong>Variación</strong>: último año − primer año (absoluta) y ÷ primer año × 100 (porcentual)</li>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <h6 class="fw-bold text-dark"><i class="bi bi-diagram-2-fill text-warning me-1"></i>Jerarquías</h6>
+      <ul class="ps-3 mb-0">
+        <li>Tiempo: <code>periodo</code> → <code>anio</code></li>
+        <li>Vehículo: <code>categoria</code> → <code>clase</code> → <code>carroceria</code></li>
+        <li>Combustible: <code>familia</code> → <code>combustible</code></li>
+      </ul>
+    </div>
+  </div>
+  <p class="text-muted small mt-3 mb-0">
+    Todas las cifras se recalculan en cada consulta desde <code>hechos_registros</code> en
+    <code>data/modelo/modelo_estrella.db</code> (solo lectura).
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}</div>
+{% else %}
+
+{% for a in avisos %}
+  <div class="alert alert-warning py-2 small"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ a }}</div>
+{% endfor %}
+
+<!-- Estado de la consulta: siempre visible -->
+<div class="card border-0 shadow-sm mb-4 p-3 bg-white" id="estado">
+  <div class="row g-3 small align-items-start">
+    <div class="col-md-3">
+      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Nivel de vehículo</div>
+      <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
+        {% for n in orden_niveles %}
+          <span class="olap-nivel{{ ' olap-nivel--activo' if n == estado.nivel }}">{{ niveles[n].etiqueta }}</span>
+          {% if not loop.last %}<i class="bi bi-chevron-right text-muted"></i>{% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Operación actual</div>
+      <div class="mt-1"><strong>{{ operacion[0] }}</strong>{% if estado.pivot %} + <strong>Pivot</strong>{% endif %}</div>
+      <div class="text-muted">{{ operacion[1] }}</div>
+    </div>
+    <div class="col-md-6">
+      <div class="text-muted text-uppercase fw-bold" style="font-size:.7rem">Filtros activos</div>
+      <div class="d-flex flex-wrap gap-1 mt-1">
+        {% for etiqueta, valor, url_quitar in activos %}
+          <span class="olap-filtro">
+            {{ etiqueta }} = <strong>{{ valor }}</strong>
+            {% if url_quitar %}
+              <a href="{{ url_quitar }}" class="olap-filtro__quitar" title="Quitar este filtro"
+                 aria-label="Quitar el filtro {{ etiqueta }}"><i class="bi bi-x-lg"></i></a>
+            {% endif %}
+          </span>
+        {% endfor %}
+      </div>
+      <div class="mt-2">
+        <span class="text-muted">Denominador de los porcentajes:</span>
+        {% if cubo %}
+          <strong>{{ cubo.vehiculos | miles }}</strong> vehículos de la selección actual (todos los filtros activos).
+        {% else %}
+          sin vehículos en la selección.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Controles OLAP -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-4">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-arrows-move text-success me-1"></i>Navegar la jerarquía</h6>
+        <div class="d-grid gap-2">
+          {% if url_drill %}
+            <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_drill }}">
+              <i class="bi bi-arrow-down-right-circle me-1"></i><strong>Drill-down</strong> a {{ niveles[nivel_siguiente].etiqueta | lower }}
+            </a>
+          {% else %}
+            <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
+              <i class="bi bi-arrow-down-right-circle me-1"></i>Drill-down: ya está en el nivel más detallado
+            </span>
+          {% endif %}
+          {% if url_rollup %}
+            <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_rollup }}">
+              <i class="bi bi-arrow-up-left-circle me-1"></i><strong>Roll-up</strong> a {{ niveles[nivel_anterior].etiqueta | lower }}
+            </a>
+          {% else %}
+            <span class="btn btn-sm btn-outline-secondary text-start disabled" aria-disabled="true">
+              <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: ya está en el nivel más agregado
+            </span>
+          {% endif %}
+          <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_pivot }}">
+            <i class="bi bi-arrow-left-right me-1"></i><strong>Pivot</strong>:
+            {% if estado.pivot %}filas = tipo de vehículo, columnas = año{% else %}filas = año, columnas = tipo de vehículo{% endif %}
+          </a>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          También puede hacer drill-down sobre un tipo de vehículo con el enlace de su fila en la matriz.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-scissors text-success me-1"></i>Slice</h6>
+        <p class="text-muted small">Un solo valor de una dimensión. Reemplaza los demás filtros de tiempo y vehículo.</p>
+        <form method="get" action="{{ url_for('analisis_p1') }}" class="olap-form">
+          {% if estado.familia != 'Eléctrico' %}<input type="hidden" name="familia" value="{{ estado.familia }}">{% endif %}
+          {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
+          {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
+          <label for="slice" class="form-label small fw-semibold">Valor</label>
+          <select id="slice" name="slice" class="form-select form-select-sm mb-2" required>
+            <option value="" selected disabled>Elija un valor…</option>
+            <optgroup label="Tiempo · periodo">
+              {% for p in perm.periodo %}<option value="periodo:{{ p }}">{{ p }}</option>{% endfor %}
+            </optgroup>
+            <optgroup label="Tiempo · año">
+              {% for a in perm.anio %}<option value="anio:{{ a }}">{{ a }}</option>{% endfor %}
+            </optgroup>
+            <optgroup label="Vehículo · categoría">
+              {% for c in perm.categoria %}<option value="categoria:{{ c }}">{{ c }}</option>{% endfor %}
+            </optgroup>
+            <optgroup label="Vehículo · clase">
+              {% for c in perm.clase %}<option value="clase:{{ c }}">{{ c }}</option>{% endfor %}
+            </optgroup>
+          </select>
+          <button type="submit" class="btn btn-sm btn-energy w-100">Aplicar slice</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1"><i class="bi bi-grid-3x3-gap-fill text-success me-1"></i>Dice y filtros</h6>
+        <p class="text-muted small">Combine filtros en dos o más dimensiones.</p>
+        <form method="get" action="{{ url_for('analisis_p1') }}" class="olap-form">
+          {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
+          {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
+          <div class="row g-2 small">
+            <div class="col-sm-6">
+              <label for="f-familia" class="form-label fw-semibold mb-1">Familia de combustible</label>
+              <select id="f-familia" name="familia" class="form-select form-select-sm">
+                {% for f in perm.familia %}
+                  <option value="{{ f }}" {{ 'selected' if estado.familia == f }}>{{ f }}</option>
+                {% endfor %}
+                <option value="{{ todas }}" {{ 'selected' if estado.familia == todas }}>Todas</option>
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label for="f-periodo" class="form-label fw-semibold mb-1">Periodo</label>
+              <select id="f-periodo" name="periodo" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                {% for p in perm.periodo %}
+                  <option value="{{ p }}" {{ 'selected' if estado.periodo == p }}>{{ p }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label for="f-categoria" class="form-label fw-semibold mb-1">Categoría</label>
+              <select id="f-categoria" name="categoria" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% for c in perm.categoria %}
+                  <option value="{{ c }}" {{ 'selected' if estado.categoria == c }}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label for="f-clase" class="form-label fw-semibold mb-1">Clase</label>
+              <select id="f-clase" name="clase" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% for cat, clases in perm.clases_por_categoria %}
+                  <optgroup label="{{ cat }}">
+                    {% for c in clases %}
+                      <option value="{{ c }}" {{ 'selected' if estado.clase == c }}>{{ c }}</option>
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <span class="form-label fw-semibold d-block mb-1">Años de registro <span class="text-muted fw-normal">(ninguno marcado = todos)</span></span>
+              <div class="d-flex flex-wrap gap-2">
+                {% for a in perm.anio %}
+                  <label class="olap-anio">
+                    <input type="checkbox" name="anio" value="{{ a }}" {{ 'checked' if a in estado.anio }}> {{ a }}
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-sm btn-energy flex-grow-1">Aplicar filtros</button>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_limpiar }}">Volver al inicio de P1</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if not cubo or cubo.vehiculos == 0 %}
+  <!-- Selección sin datos -->
+  <div class="alert alert-info d-flex gap-3 align-items-start">
+    <i class="bi bi-info-circle-fill fs-4"></i>
+    <div>
+      <strong>La selección no tiene vehículos registrados.</strong>
+      <p class="mb-2 small">
+        {% if not anios %}
+          Los años elegidos no pertenecen al periodo elegido, así que no queda ningún año para consultar.
+        {% else %}
+          En el modelo no hay registros que cumplan a la vez todos los filtros activos
+          (por ejemplo, una clase que no pertenece a la categoría elegida o un tipo de vehículo sin registros en esos años).
+        {% endif %}
+      </p>
+      <p class="mb-0 small">Quite alguno de los filtros activos o
+        <a href="{{ url_limpiar }}">vuelva a la selección inicial</a>.</p>
+    </div>
+  </div>
+{% else %}
+
+<!-- Indicadores -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      <div class="estrella-cifra__etiqueta">Vehículos registrados</div>
+      <div class="estrella-cifra__valor">{{ cubo.vehiculos | miles }}</div>
+      <div class="small text-muted mt-1">
+        <code>SUM(cantidad)</code> en {{ anios | length }} año{{ 's' if anios | length != 1 }}
+        ({{ anios[0] }}{% if anios | length > 1 %}–{{ anios[-1] }}{% endif %}) · {{ cubo.grupos | miles }} grupos de registro
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set v = cubo.variacion %}
+      {% if v %}
+        <div class="estrella-cifra__etiqueta">Variación {{ v.anio_inicial }} → {{ v.anio_final }}</div>
+        <div class="estrella-cifra__valor">
+          {{ '+' if v.absoluta > 0 }}{{ v.absoluta | miles }}
+          <span class="fs-6 fw-semibold">
+            ({% if v.pct is not none %}{{ '+' if v.pct > 0 }}{{ v.pct | pct(1) }}{% else %}% no definido{% endif %})
+          </span>
+        </div>
+        <div class="small text-muted mt-1">
+          De {{ v.inicial | miles }} vehículos en {{ v.anio_inicial }} a {{ v.final | miles }} en {{ v.anio_final }}.
+          {% if v.pct is none %}El primer año no tiene vehículos, así que la variación porcentual no se puede calcular.{% endif %}
+        </div>
+      {% else %}
+        <div class="estrella-cifra__etiqueta">Variación entre el primer y el último año</div>
+        <div class="estrella-cifra__valor">—</div>
+        <div class="small text-muted mt-1">Se necesitan al menos dos años en la selección.</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="estrella-cifra">
+      {% set l = cubo.lider %}
+      <div class="estrella-cifra__etiqueta">Participación del tipo líder ({{ niveles[estado.nivel].etiqueta | lower }})</div>
+      <div class="estrella-cifra__valor">{{ l.pct | pct(2) }}</div>
+      <div class="small text-muted mt-1">
+        <strong>{{ l.miembro }}</strong>: {{ l.vehiculos | miles }} vehículos.
+        Denominador: {{ cubo.vehiculos | miles }} vehículos de la selección actual.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficas -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Tendencia anual</h6>
+        <p class="text-muted small mb-2">Vehículos registrados por año de registro en la selección actual.</p>
+        <div style="height: 300px"><canvas id="grafTendencia" aria-label="Tendencia anual de vehículos registrados" role="img"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <h6 class="fw-bold text-dark mb-1">Composición por tipo de vehículo · {{ niveles[estado.nivel].etiqueta | lower }}</h6>
+        <p class="text-muted small mb-2">Participación % sobre {{ cubo.vehiculos | miles }} vehículos de la selección actual.</p>
+        <div style="height: {{ [300, cubo.composicion | length * 24 + 60] | max }}px">
+          <canvas id="grafComposicion" aria-label="Composición por tipo de vehículo" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Matriz tipo de vehículo × año -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-2">
+  <div>
+    <h2 class="h5 fw-bold text-dark mb-1"><i class="bi bi-table text-success me-2"></i>Matriz {{ 'año × tipo de vehículo' if estado.pivot else 'tipo de vehículo × año' }}</h2>
+    <p class="text-muted small mb-0">
+      Vehículos registrados. Filas: {{ 'año de registro' if estado.pivot else niveles[estado.nivel].etiqueta | lower }} ·
+      columnas: {{ niveles[estado.nivel].etiqueta | lower if estado.pivot else 'año de registro' }}.
+    </p>
+  </div>
+  <a class="btn btn-sm btn-outline-forest" href="{{ url_pivot }}"><i class="bi bi-arrow-left-right me-1"></i>Pivot</a>
+</div>
+<div class="table-responsive mb-2 olap-matriz">
+  <table class="table table-sm table-bordered small align-middle bg-white mb-0">
+    {% if not estado.pivot %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">{{ niveles[estado.nivel].etiqueta }}</th>
+          {% for a in anios %}<th scope="col" class="text-end">{{ a }}</th>{% endfor %}
+          <th scope="col" class="text-end">Total</th>
+          <th scope="col" class="text-end">%</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in cubo.composicion %}
+          {% set drill = url_drill_miembro(fila.llave) %}
+          <tr>
+            <th scope="row" class="fw-semibold">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }} <i class="bi bi-arrow-down-right-circle"></i></a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+            {% for a in anios %}
+              {% set n = cubo.celdas.get((fila.llave, a), 0) %}
+              <td class="text-end{{ ' text-muted' if n == 0 }}">{{ n | miles }}</td>
+            {% endfor %}
+            <td class="text-end fw-bold">{{ fila.vehiculos | miles }}</td>
+            <td class="text-end">{{ fila.pct | dec(2) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for s in cubo.serie %}<td class="text-end">{{ s.vehiculos | miles }}</td>{% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+          <td class="text-end">100,00</td>
+        </tr>
+      </tfoot>
+    {% else %}
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Año</th>
+          {% for fila in cubo.composicion %}
+            {% set drill = url_drill_miembro(fila.llave) %}
+            <th scope="col" class="text-end">
+              {% if drill %}<a href="{{ drill }}" title="Drill-down en {{ fila.miembro }}">{{ fila.miembro }}</a>{% else %}{{ fila.miembro }}{% endif %}
+            </th>
+          {% endfor %}
+          <th scope="col" class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in cubo.serie %}
+          <tr>
+            <th scope="row">{{ s.anio }}</th>
+            {% for fila in cubo.composicion %}
+              {% set n = cubo.celdas.get((fila.llave, s.anio), 0) %}
+              <td class="text-end{{ ' text-muted' if n == 0 }}">{{ n | miles }}</td>
+            {% endfor %}
+            <td class="text-end fw-bold">{{ s.vehiculos | miles }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <th scope="row">Total</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.vehiculos | miles }}</td>{% endfor %}
+          <td class="text-end">{{ cubo.vehiculos | miles }}</td>
+        </tr>
+        <tr class="fw-normal">
+          <th scope="row">%</th>
+          {% for fila in cubo.composicion %}<td class="text-end">{{ fila.pct | dec(2) }}</td>{% endfor %}
+          <td class="text-end">100,00</td>
+        </tr>
+      </tfoot>
+    {% endif %}
+  </table>
+</div>
+<p class="text-muted small mb-4">
+  La columna o fila «%» es la participación de cada tipo de vehículo; denominador: {{ cubo.vehiculos | miles }}
+  vehículos de la selección actual. Los porcentajes no se suman entre selecciones distintas.
+</p>
+
+<!-- Comprobación de roll-up -->
+<div class="card border-0 shadow-sm mb-4 p-3 bg-white">
+  <h6 class="fw-bold text-dark mb-2"><i class="bi bi-check2-square text-success me-1"></i>Comprobación de roll-up</h6>
+  <p class="text-muted small mb-2">
+    Con los mismos filtros, la suma de los subtotales de cada nivel debe ser igual al total de la selección.
+  </p>
+  <div class="table-responsive">
+    <table class="table table-sm small align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>Nivel</th><th class="text-end">Miembros</th><th class="text-end">Suma de subtotales</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        {% for n in orden_niveles %}
+          <tr{{ ' class="fw-semibold"' | safe if n == estado.nivel }}>
+            <td>{{ niveles[n].etiqueta }}</td>
+            <td class="text-end">{{ rollup[n].miembros | miles }}</td>
+            <td class="text-end">{{ rollup[n].vehiculos | miles }}</td>
+            <td>
+              {% if rollup[n].vehiculos == cubo.vehiculos %}
+                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Igual al total</span>
+              {% else %}
+                <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (rollup[n].vehiculos - cubo.vehiculos) | miles }}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('analisis_multidimensional') }}">
+    <i class="bi bi-arrow-left me-1"></i> Análisis multidimensional
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Volver al inicio
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Los campos vacíos de los formularios no se envían, para que la URL quede limpia.
+  document.querySelectorAll('.olap-form').forEach(function (form) {
+    form.addEventListener('submit', function () {
+      form.querySelectorAll('select, input').forEach(function (el) {
+        if (el.value === '') { el.disabled = true; }
+      });
+    });
+  });
+</script>
+{% if cubo and cubo.vehiculos %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const serie = {{ cubo.serie | tojson }};
+    const comp = {{ cubo.composicion | map(attribute='miembro') | list | tojson }};
+    const compVeh = {{ cubo.composicion | map(attribute='vehiculos') | list | tojson }};
+    const compPct = {{ cubo.composicion | map(attribute='pct') | list | tojson }};
+    const fmt = n => n.toLocaleString('es-CO');
+    const fmtPct = n => n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %';
+
+    new Chart(document.getElementById('grafTendencia'), {
+      type: 'line',
+      data: {
+        labels: serie.map(s => s.anio),
+        datasets: [{
+          label: 'Vehículos registrados', data: serie.map(s => s.vehiculos),
+          borderColor: '#2d5a43', backgroundColor: 'rgba(242, 186, 29, 0.25)',
+          pointBackgroundColor: '#f2ba1d', pointBorderColor: '#2d5a43', pointRadius: 4, fill: true, tension: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.parsed.y) + ' vehículos' } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => fmt(v) }, title: { display: true, text: 'Vehículos' } },
+          x: { title: { display: true, text: 'Año de registro' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('grafComposicion'), {
+      type: 'bar',
+      data: {
+        labels: comp,
+        datasets: [{ label: 'Participación %', data: compPct, backgroundColor: '#2d5a43', borderRadius: 4 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => fmtPct(c.parsed.x) + ' · ' + fmt(compVeh[c.dataIndex]) + ' vehículos' } }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { callback: v => v + ' %' }, title: { display: true, text: 'Participación % (denominador: selección actual)' } },
+          y: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}
