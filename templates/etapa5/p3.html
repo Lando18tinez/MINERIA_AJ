@@ -131,7 +131,7 @@
   <div class="col-lg-5">
     <div class="content-card card h-100 border">
       <div class="card-body">
-        <h6 class="fw-bold text-dark mb-1">Vehículos por {{ niveles[estado.nivel_extra].etiqueta | lower }}</h6>
+        <h6 class="fw-bold text-dark mb-1">Vehículos por {{ niveles[estado.nivel_modelo].etiqueta | lower }}</h6>
         <p class="text-muted small mb-2">
           Vehículos registrados en la selección actual, en orden cronológico del modelo.
           % sobre {{ cubo.vehiculos | miles }} vehículos de la selección.
@@ -142,7 +142,7 @@
         <div class="table-responsive mt-2">
           <table class="table table-sm small align-middle mb-0">
             <thead class="table-light">
-              <tr><th>{{ niveles[estado.nivel_extra].etiqueta }}</th><th class="text-end">Vehículos</th><th class="text-end">%</th></tr>
+              <tr><th>{{ niveles[estado.nivel_modelo].etiqueta }}</th><th class="text-end">Vehículos</th><th class="text-end">%</th></tr>
             </thead>
             <tbody>
               {% for b in p3.barras_modelo %}

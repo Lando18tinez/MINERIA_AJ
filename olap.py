@@ -9,6 +9,7 @@ SUM(cantidad), no contando filas.
 """
 
 import sqlite3
+import statistics
 from contextlib import closing
 from pathlib import Path
 
@@ -41,12 +42,20 @@ NIVELES_MODELO = {
     "anio_modelo": {"columnas": ("m.anio_modelo",), "etiqueta": "Año del modelo"},
 }
 
+# Jerarquía de la dimensión combustible (superior -> inferior). El combustible se identifica por su etiqueta.
+ORDEN_NIVELES_COMBUSTIBLE = ("familia", "combustible")
+NIVELES_COMBUSTIBLE = {
+    "familia": {"columnas": ("c.familia",), "etiqueta": "Familia de combustible"},
+    "combustible": {"columnas": ("c.etiqueta",), "etiqueta": "Combustible"},
+}
+
 # Todos los niveles que se pueden usar como filas del cubo.
-NIVELES = {**NIVELES_VEHICULO, **NIVELES_TERRITORIO, **NIVELES_MODELO}
+NIVELES = {**NIVELES_VEHICULO, **NIVELES_TERRITORIO, **NIVELES_MODELO, **NIVELES_COMBUSTIBLE}
 
 # Filtros permitidos: nombre -> (columna SQL, dimensión a la que pertenece, etiqueta).
 FILTROS = {
     "familia": ("c.familia", "combustible", "Familia de combustible"),
+    "combustible": ("c.etiqueta", "combustible", "Combustible"),
     "periodo": ("t.periodo", "tiempo", "Periodo"),
     "anio": ("t.anio", "tiempo", "Año de registro"),
     "categoria": ("v.categoria", "vehiculo", "Categoría"),
@@ -101,7 +110,16 @@ def valores_permitidos(con):
         for rango in rangos
     ]
 
+    familias = columna("SELECT DISTINCT familia FROM dim_combustible ORDER BY familia")
+    combustibles_por_familia = [
+        (fam, [fila[0] for fila in con.execute(
+            "SELECT etiqueta FROM dim_combustible WHERE familia = ? ORDER BY etiqueta", (fam,))])
+        for fam in familias
+    ]
+
     return {
+        "combustible": columna("SELECT etiqueta FROM dim_combustible ORDER BY etiqueta"),
+        "combustibles_por_familia": combustibles_por_familia,
         "rango_modelo": rangos,
         "anio_modelo": columna("SELECT anio_modelo FROM dim_modelo ORDER BY anio_modelo"),
         "anios_modelo_por_rango": anios_modelo_por_rango,
@@ -230,6 +248,55 @@ def modelo_reciente(con, filtros, anios):
     recientes = sum(s["recientes"] for s in serie)
     veh = sum(s["vehiculos"] for s in serie)
     return {"serie": serie, "recientes": recientes, "vehiculos": veh, "pct": recientes / veh * 100 if veh else None}
+
+
+def totales_por_territorio(con, filtros, nivel_territorio, agrupar=()):
+    """Vehículos de cada territorio del nivel elegido, dentro de cada grupo.
+
+    agrupar: niveles (de NIVELES, de una columna) que definen los grupos; vacío = un solo grupo, la selección.
+    Devuelve {llave del grupo: [(territorio, vehículos), ...]} con los territorios de mayor a menor. La llave
+    es una tupla con la llave de cada nivel (como en consultar), por ejemplo (("CAMIONETA",), ("Eléctrico",)).
+    Solo aparecen los territorios con al menos un vehículo en el grupo.
+    """
+    if nivel_territorio not in NIVELES_TERRITORIO:
+        raise ValueError(f"Nivel no permitido: {nivel_territorio}")
+    for n in agrupar:
+        if n not in NIVELES or len(NIVELES[n]["columnas"]) != 1:
+            raise ValueError(f"Nivel no permitido para agrupar: {n}")
+    cols_grupo = [NIVELES[n]["columnas"][0] for n in agrupar]
+    col_ter = NIVELES_TERRITORIO[nivel_territorio]["columnas"][0]
+    cols = ", ".join(cols_grupo + [col_ter])
+    where, params = _where(filtros)
+    grupos = {}
+    for fila in con.execute(
+        f"SELECT {cols}, SUM(h.cantidad) AS veh {_FROM}{where} GROUP BY {cols} ORDER BY veh DESC, {col_ter}", params
+    ):
+        llave = tuple((v,) for v in fila[:len(agrupar)])
+        grupos.setdefault(llave, []).append((fila[-2], fila[-1]))
+    return grupos
+
+
+def resumen_territorial(filas, top=5):
+    """Promedio, mediana y concentración de los totales por territorio [(territorio, vehículos)] (de mayor a menor).
+
+    Promedio = vehículos / territorios con registros. Participación del top = vehículos de los «top» primeros /
+    vehículos del grupo × 100. Ninguna de estas medidas es aditiva.
+    """
+    valores = [v for _, v in filas]
+    total = sum(valores)
+    if not valores:
+        return {"vehiculos": 0, "territorios": 0, "promedio": None, "mediana": None, "top": top,
+                "top_vehiculos": 0, "top_pct": None, "lider": None}
+    return {
+        "vehiculos": total,
+        "territorios": len(valores),
+        "promedio": total / len(valores),
+        "mediana": statistics.median(valores),
+        "top": top,
+        "top_vehiculos": sum(valores[:top]),
+        "top_pct": sum(valores[:top]) / total * 100,
+        "lider": {"territorio": filas[0][0], "vehiculos": filas[0][1], "pct": filas[0][1] / total * 100},
+    }
 
 
 def total_por_nivel(con, filtros, nivel):

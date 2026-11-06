@@ -25,8 +25,7 @@
               <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: ya está en el nivel más agregado
             </span>
           {% endif %}
-          {% if jerarquia_extra %}
-            {% set je = jerarquia_extra %}
+          {% for je in jerarquias_extra %}
             <div class="small text-muted fw-semibold mt-1">Jerarquía del {{ je.dimension }}</div>
             {% if je.url_drill %}
               <a class="btn btn-sm btn-outline-forest text-start" href="{{ je.url_drill }}">
@@ -46,10 +45,10 @@
                 <i class="bi bi-arrow-up-left-circle me-1"></i>Roll-up: {{ niveles[je.nivel].etiqueta | lower }} es el nivel más agregado
               </span>
             {% endif %}
-          {% endif %}
+          {% endfor %}
           <a class="btn btn-sm btn-outline-forest text-start" href="{{ url_pivot }}">
             <i class="bi bi-arrow-left-right me-1"></i><strong>Pivot</strong>:
-            {% if estado.pivot %}filas = {{ vista.eje_texto }}, columnas = año{% else %}filas = año, columnas = {{ vista.eje_texto }}{% endif %}
+            {% set eje_cols = vista.eje_columnas | default('año') %}{% if estado.pivot %}filas = {{ vista.eje_texto }}, columnas = {{ eje_cols }}{% else %}filas = {{ eje_cols }}, columnas = {{ vista.eje_texto }}{% endif %}
           </a>
         </div>
         <p class="text-muted small mt-3 mb-0">
@@ -67,7 +66,7 @@
         <form method="get" action="{{ url_for(endpoint) }}" class="olap-form">
           {% if estado.familia != familia_inicial %}<input type="hidden" name="familia" value="{{ estado.familia }}">{% endif %}
           {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
-          {% if jerarquia_extra and jerarquia_extra.nivel != jerarquia_extra.niveles[0] %}<input type="hidden" name="{{ jerarquia_extra.param }}" value="{{ jerarquia_extra.nivel }}">{% endif %}
+          {% for je in jerarquias_extra if je.nivel != je.inicial %}<input type="hidden" name="{{ je.param }}" value="{{ je.nivel }}">{% endfor %}
           {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
           <label for="slice" class="form-label small fw-semibold">Valor</label>
           <select id="slice" name="slice" class="form-select form-select-sm mb-2" required>
@@ -91,7 +90,7 @@
         <p class="text-muted small">Combine filtros en dos o más dimensiones.</p>
         <form method="get" action="{{ url_for(endpoint) }}" class="olap-form">
           {% if estado.nivel != orden_niveles[0] %}<input type="hidden" name="nivel" value="{{ estado.nivel }}">{% endif %}
-          {% if jerarquia_extra and jerarquia_extra.nivel != jerarquia_extra.niveles[0] %}<input type="hidden" name="{{ jerarquia_extra.param }}" value="{{ jerarquia_extra.nivel }}">{% endif %}
+          {% for je in jerarquias_extra if je.nivel != je.inicial %}<input type="hidden" name="{{ je.param }}" value="{{ je.nivel }}">{% endfor %}
           {% if estado.pivot %}<input type="hidden" name="pivot" value="1">{% endif %}
           <div class="row g-2 small">
             <div class="col-sm-6">
@@ -103,6 +102,7 @@
                 <option value="{{ todas }}" {{ 'selected' if estado.familia == todas }}>Todas</option>
               </select>
             </div>
+            {% if vista.tiempo is not defined or vista.tiempo %}
             <div class="col-sm-6">
               <label for="f-periodo" class="form-label fw-semibold mb-1">Periodo</label>
               <select id="f-periodo" name="periodo" class="form-select form-select-sm">
@@ -112,7 +112,10 @@
                 {% endfor %}
               </select>
             </div>
-            {% for (sup_nombre, sup_etiqueta, sup_valores), (inf_nombre, inf_etiqueta, inf_grupos) in dice_pares %}
+            {% endif %}
+            {% for sup, inf in dice_pares %}
+            {% if sup %}
+            {% set sup_nombre, sup_etiqueta, sup_valores = sup %}
             <div class="col-sm-6">
               <label for="f-{{ sup_nombre }}" class="form-label fw-semibold mb-1">{{ sup_etiqueta }}</label>
               <select id="f-{{ sup_nombre }}" name="{{ sup_nombre }}" class="form-select form-select-sm">
@@ -122,6 +125,9 @@
                 {% endfor %}
               </select>
             </div>
+            {% endif %}
+            {% if inf %}
+            {% set inf_nombre, inf_etiqueta, inf_grupos = inf %}
             <div class="col-sm-6">
               <label for="f-{{ inf_nombre }}" class="form-label fw-semibold mb-1">{{ inf_etiqueta }}</label>
               <select id="f-{{ inf_nombre }}" name="{{ inf_nombre }}" class="form-select form-select-sm">
@@ -135,7 +141,9 @@
                 {% endfor %}
               </select>
             </div>
+            {% endif %}
             {% endfor %}
+            {% if vista.tiempo is not defined or vista.tiempo %}
             <div class="col-12">
               <span class="form-label fw-semibold d-block mb-1">Años de registro <span class="text-muted fw-normal">(ninguno marcado = todos)</span></span>
               <div class="d-flex flex-wrap gap-2">
@@ -146,6 +154,7 @@
                 {% endfor %}
               </div>
             </div>
+            {% endif %}
           </div>
           <div class="d-flex gap-2 mt-3">
             <button type="submit" class="btn btn-sm btn-energy flex-grow-1">Aplicar filtros</button>

@@ -13,7 +13,7 @@
       </thead>
       <tbody>
         {% for n in niveles_rollup | default(orden_niveles) %}
-          <tr{{ ' class="fw-semibold"' | safe if n == estado.nivel or (jerarquia_extra and n == jerarquia_extra.nivel) }}>
+          <tr{{ ' class="fw-semibold"' | safe if n in niveles_activos }}>
             <td>{{ niveles[n].etiqueta }}</td>
             <td class="text-end">{{ rollup[n].miembros | miles }}</td>
             <td class="text-end">{{ rollup[n].vehiculos | miles }}</td>

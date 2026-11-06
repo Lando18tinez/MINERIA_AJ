@@ -519,6 +519,14 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+/* Detalle de una celda de la matriz de P4 (territorios, promedio y mediana). */
+.olap-celda-detalle {
+  font-size: 0.7rem;
+  line-height: 1.25;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .olap-var--sube {
   color: var(--color-primary);
 }
