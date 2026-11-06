@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis multidimensional · {{ proyecto }}{% endblock %}
+
+{# Caja de una tabla en el diagrama SVG: encabezado + un renglón por campo. #}
+{% macro caja(x, y, titulo, filas, campos, hechos=false) %}
+  {% set alto = 38 + campos | length * 20 + 12 %}
+  <g class="estrella-tabla{{ ' estrella-tabla--hechos' if hechos }}">
+    <rect x="{{ x }}" y="{{ y }}" width="220" height="{{ alto }}" rx="10" class="estrella-cuerpo"/>
+    <path d="M{{ x }},{{ y + 10 }} a10,10 0 0 1 10,-10 h200 a10,10 0 0 1 10,10 v28 h-220 z" class="estrella-cabecera"/>
+    <text x="{{ x + 12 }}" y="{{ y + 24 }}" class="estrella-titulo">{{ titulo }}</text>
+    <text x="{{ x + 208 }}" y="{{ y + 24 }}" text-anchor="end" class="estrella-filas">{{ filas }}</text>
+    {% for nombre, llave in campos %}
+      <text x="{{ x + 12 }}" y="{{ y + 56 + loop.index0 * 20 }}" class="estrella-campo">
+        {%- if llave %}<tspan class="estrella-llave">{{ llave }}</tspan> {% endif %}{{ nombre -}}
+      </text>
+    {% endfor %}
+  </g>
+{% endmacro %}
+
+{% block content %}
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Análisis multidimensional</li>
+  </ol>
+</nav>
+
+<!-- Encabezado de sección -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-boxes text-warning me-1"></i>Etapa 5 · Modelo estrella
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-1">Análisis multidimensional</h1>
+  <p class="text-muted mb-0">
+    Organización de los vehículos eléctricos e híbridos registrados en un modelo estrella, para analizarlos por
+    tiempo, territorio, combustible, tipo de vehículo y año del modelo.
+  </p>
+</div>
+
+{% if error_modelo %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error_modelo }}
+    Las cifras de esta página se leen de esa base y no se muestran hasta que esté disponible.
+  </div>
+{% endif %}
+
+<!-- Propósito de la etapa -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <h4 class="fw-bold text-dark mb-2"><i class="bi bi-bullseye text-warning me-2"></i>Propósito de la etapa</h4>
+  <p class="mb-2">
+    Pasar de las tablas planas del conocimiento evidente a un <strong>modelo estrella</strong>: una tabla de hechos
+    con los grupos de registro y cinco dimensiones con jerarquías. Así las preguntas de negocio se responden
+    subiendo, bajando y cruzando niveles sin perder la consistencia de los totales.
+  </p>
+  <p class="text-muted small mb-0">
+    El diseño lógico (granularidad, dimensiones, medidas y reglas para valores faltantes) está documentado en
+    <code>docs/etapa5/modelo_multidimensional.md</code>, y la carga se valida contra el origen en
+    <code>docs/etapa5/resultados_validacion.md</code>.
+  </p>
+</div>
+
+<!-- Fuente y cifras del modelo -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-primary">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-database-check text-primary me-2"></i>Fuente y cobertura</h4>
+  <div class="row g-4 align-items-start">
+    <div class="col-lg-6">
+      <dl class="row small mb-0">
+        <dt class="col-sm-4">Fuente</dt>
+        <dd class="col-sm-8">
+          {{ ce.meta.fuente }} · <code>{{ ce.meta.identificador }}</code> ·
+          <a href="{{ ce.meta.url_portal }}" target="_blank" rel="noopener noreferrer">portal datos.gov.co
+            <i class="bi bi-box-arrow-up-right"></i></a>
+        </dd>
+
+        <dt class="col-sm-4">Base del modelo</dt>
+        <dd class="col-sm-8"><code>data/modelo/modelo_estrella.db</code> (SQLite, abierta en solo lectura)</dd>
+
+        <dt class="col-sm-4">Cobertura</dt>
+        <dd class="col-sm-8">
+          {% if m %}
+            Años de registro <strong>{{ m.anio_min }}–{{ m.anio_max }}</strong>
+          {% else %}
+            Años de registro {{ ce.meta.periodo.desde }}–{{ ce.meta.periodo.hasta }}
+          {% endif %}
+          · quedan fuera {{ ce.meta.fuera_de_la_ventana.vehiculos | miles }} vehículos de
+          {{ ce.meta.fuera_de_la_ventana.anios }}.
+        </dd>
+
+        <dt class="col-sm-4">Granularidad</dt>
+        <dd class="col-sm-8">
+          Una fila por combinación única de combustible, clase, carrocería, año de registro, año del modelo y
+          territorio. Cada fila es un <em>grupo</em> de vehículos.
+        </dd>
+      </dl>
+    </div>
+
+    <div class="col-lg-6">
+      {% if m %}
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.grupos | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Filas de hechos (grupos)</div>
+              <code class="small">COUNT(*)</code>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.vehiculos | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Vehículos registrados</div>
+              <code class="small">SUM(cantidad)</code>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.territorios | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Territorios con registros</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="estrella-cifra">
+              <div class="estrella-cifra__valor">{{ m.departamentos | miles }}</div>
+              <div class="estrella-cifra__etiqueta">Departamentos</div>
+            </div>
+          </div>
+        </div>
+        <p class="text-muted small mt-2 mb-0">Cifras consultadas en la base al cargar esta página.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Relación con el conocimiento evidente -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-success">
+  <h4 class="fw-bold text-dark mb-2">
+    <i class="bi bi-link-45deg text-success me-2"></i>Relación con el conocimiento evidente
+  </h4>
+  <p class="mb-2">
+    Esta etapa parte de los mismos datos tratados que alimentan los tableros de
+    <a href="{{ url_for('conocimiento_evidente') }}">Conocimiento evidente</a>
+    (<code>data/powerbi/hechos_vehiculos.csv</code>). Esos tableros usan una tabla de hechos con llaves naturales y
+    tres dimensiones; el modelo estrella agrega llaves sustitutas, las dimensiones de vehículo y de año del modelo, y
+    jerarquías en cada dimensión.
+  </p>
+  {% if m %}
+    <div class="table-responsive">
+      <table class="table table-sm small align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Cifra</th><th class="text-end">Conocimiento evidente</th><th class="text-end">Modelo estrella</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for etiqueta, origen, modelo in [
+               ('Grupos de registro', ce.preparacion.registros_analisis, m.grupos),
+               ('Vehículos registrados', ce.preparacion.vehiculos, m.vehiculos)] %}
+            <tr>
+              <td>{{ etiqueta }}</td>
+              <td class="text-end">{{ origen | miles }}</td>
+              <td class="text-end">{{ modelo | miles }}</td>
+              <td>
+                {% if origen == modelo %}
+                  <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Coinciden</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i>Diferencia de {{ (modelo - origen) | miles }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Diagrama del modelo estrella -->
+<div class="d-flex align-items-center justify-content-between mb-3 mt-5">
+  <div>
+    <h2 class="h4 fw-bold mb-1 text-dark"><i class="bi bi-diagram-3-fill text-success me-2"></i>Modelo estrella</h2>
+    <p class="text-muted small mb-0">
+      Relaciones muchos a uno; cada dimensión filtra la tabla de hechos en un solo sentido.
+    </p>
+  </div>
+</div>
+
+{% set f = (m.filas_dim_tiempo, m.filas_dim_territorio, m.filas_dim_combustible, m.filas_dim_vehiculo, m.filas_dim_modelo, m.grupos) if m else ('', '', '', '', '', '') %}
+<div class="content-card card border mb-5">
+  <div class="card-body estrella-lienzo">
+    <svg viewBox="0 0 960 600" class="estrella-svg" role="img"
+         aria-labelledby="estrella-titulo estrella-desc">
+      <title id="estrella-titulo">Diagrama del modelo estrella</title>
+      <desc id="estrella-desc">
+        La tabla de hechos hechos_registros está en el centro y se relaciona con cinco dimensiones:
+        dim_tiempo, dim_territorio, dim_combustible, dim_vehiculo y dim_modelo.
+      </desc>
+
+      <!-- Relaciones: 1 en la dimensión, N en los hechos -->
+      <g class="estrella-relacion">
+        <line x1="250" y1="95"  x2="370" y2="200"/>
+        <line x1="710" y1="105" x2="590" y2="200"/>
+        <line x1="250" y1="470" x2="370" y2="390"/>
+        <line x1="710" y1="470" x2="590" y2="390"/>
+        <line x1="480" y1="470" x2="480" y2="426"/>
+      </g>
+      <g class="estrella-cardinalidad">
+        <text x="262" y="92">1</text>   <text x="352" y="196">N</text>
+        <text x="692" y="102">1</text>  <text x="598" y="196">N</text>
+        <text x="262" y="466">1</text>  <text x="350" y="388">N</text>
+        <text x="692" y="466">1</text>  <text x="600" y="388">N</text>
+        <text x="488" y="464">1</text>  <text x="488" y="442">N</text>
+      </g>
+
+      {% set sufijo = ' filas' %}
+      {{ caja(370, 190, 'hechos_registros', (f[5] | miles ~ sufijo) if m else '', [
+           ('id_hecho', 'PK'), ('id_tiempo', 'FK'), ('id_territorio', 'FK'), ('id_combustible', 'FK'),
+           ('id_vehiculo', 'FK'), ('id_modelo', 'FK'), ('cantidad', ''), ('modelo_inusual', ''),
+           ('grupo_grande', '')], hechos=true) }}
+      {{ caja(30, 30, 'dim_tiempo', (f[0] ~ sufijo) if m else '', [
+           ('id_tiempo', 'PK'), ('anio', ''), ('periodo', '')]) }}
+      {{ caja(710, 30, 'dim_territorio', (f[1] ~ sufijo) if m else '', [
+           ('id_territorio', 'PK'), ('territorio', ''), ('municipio', ''), ('departamento', '')]) }}
+      {{ caja(30, 410, 'dim_combustible', (f[2] ~ sufijo) if m else '', [
+           ('id_combustible', 'PK'), ('codigo', ''), ('etiqueta', ''), ('familia', '')]) }}
+      {{ caja(710, 410, 'dim_vehiculo', (f[3] ~ sufijo) if m else '', [
+           ('id_vehiculo', 'PK'), ('categoria', ''), ('clase', ''), ('carroceria', '')]) }}
+      {{ caja(370, 470, 'dim_modelo', (f[4] ~ sufijo) if m else '', [
+           ('id_modelo', 'PK'), ('anio_modelo', ''), ('rango_modelo', '')]) }}
+    </svg>
+  </div>
+</div>
+
+<!-- Dimensiones y jerarquías -->
+<h2 class="h4 fw-bold mb-3 text-dark"><i class="bi bi-layers-fill text-success me-2"></i>Dimensiones y jerarquías</h2>
+<div class="table-responsive mb-5">
+  <table class="table table-sm small align-middle bg-white border">
+    <thead class="table-light">
+      <tr><th>Dimensión</th><th>Qué describe</th><th>Jerarquía (superior → inferior)</th><th class="text-end">Filas</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>dim_tiempo</code></td>
+        <td>Año de registro{% if m %} ({{ m.anio_min }}–{{ m.anio_max }}){% endif %}. La fuente no trae mes.</td>
+        <td><code>periodo</code> → <code>anio</code></td>
+        <td class="text-end">{{ m.filas_dim_tiempo | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_territorio</code></td>
+        <td>Municipio y departamento. La llave es <code>territorio</code> porque hay municipios homónimos en distintos departamentos.</td>
+        <td><code>departamento</code> → <code>municipio</code></td>
+        <td class="text-end">{{ m.filas_dim_territorio | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_combustible</code></td>
+        <td>Tipo de combustible y su familia (Eléctrico, Híbrido u Otro). La fuente no distingue HEV de PHEV.</td>
+        <td><code>familia</code> → <code>combustible</code></td>
+        <td class="text-end">{{ m.filas_dim_combustible | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_vehiculo</code></td>
+        <td>Pareja clase-carrocería, agrupada en categorías. «SIN DATO» y «SIN CARROCERIA» son miembros distintos.</td>
+        <td><code>categoria</code> → <code>clase</code> → <code>carroceria</code></td>
+        <td class="text-end">{{ m.filas_dim_vehiculo | miles if m else '—' }}</td>
+      </tr>
+      <tr>
+        <td><code>dim_modelo</code></td>
+        <td>Año del modelo{% if m %} ({{ m.modelo_min }}–{{ m.modelo_max }}){% endif %}. No es el año de registro.</td>
+        <td><code>rango_modelo</code> → <code>anio_modelo</code></td>
+        <td class="text-end">{{ m.filas_dim_modelo | miles if m else '—' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Medidas -->
+<h2 class="h4 fw-bold mb-3 text-dark"><i class="bi bi-calculator-fill text-success me-2"></i>Medidas</h2>
+<div class="table-responsive mb-2">
+  <table class="table table-sm small align-middle bg-white border">
+    <thead class="table-light">
+      <tr><th>Medida</th><th>Fórmula</th><th>¿Se puede sumar?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Vehículos registrados</td><td><code>SUM(cantidad)</code></td><td><span class="text-success fw-semibold">Sí</span>, en todas las dimensiones</td></tr>
+      <tr><td>Grupos de registro</td><td><code>COUNT(*)</code></td><td><span class="text-success fw-semibold">Sí</span>, en todas las dimensiones</td></tr>
+      <tr><td>Territorios distintos</td><td><code>COUNT(DISTINCT id_territorio)</code></td><td><span class="text-danger fw-semibold">No</span>: se recalcula en cada nivel</td></tr>
+      <tr><td>Participación %</td><td>vehículos del grupo / vehículos del denominador × 100</td><td><span class="text-danger fw-semibold">No</span>: solo suman 100 % las partes de un mismo denominador</td></tr>
+      <tr><td>Promedio de vehículos por territorio</td><td><code>SUM(cantidad) / COUNT(DISTINCT id_territorio)</code></td><td><span class="text-danger fw-semibold">No</span>: cociente de dos totales</td></tr>
+      <tr><td>Mediana de vehículos por territorio</td><td>mediana de los totales por territorio</td><td><span class="text-danger fw-semibold">No</span>: se recalcula desde los totales por territorio</td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="text-muted small mb-5">
+  Las marcas <code>modelo_inusual</code> y <code>grupo_grande</code> de la tabla de hechos son atributos del grupo,
+  no medidas: sirven para filtrar o segmentar.
+</p>
+
+<!-- Las cuatro preguntas -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h2 class="h4 fw-bold mb-1 text-dark">
+      <i class="bi bi-question-circle-fill text-success me-2"></i>Preguntas de negocio
+    </h2>
+    <p class="text-muted small mb-0">Cada pregunta tendrá su propia página de análisis sobre el modelo estrella.</p>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-lg-2 g-4 mb-5">
+  {% for q in preguntas %}
+    <div class="col">
+      <div class="content-card card h-100 border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+            <span class="pregunta-num">{{ q.id }}</span>
+            <span class="badge-construccion"><i class="bi bi-cone-striped me-1"></i>En construcción</span>
+          </div>
+          <h5 class="card-title fw-bold text-dark fs-6 mb-2">{{ q.pregunta }}</h5>
+          <p class="small text-muted mb-1"><strong>Dimensiones:</strong> {{ q.dimensiones }}.</p>
+          <p class="small text-muted mb-3"><strong>Medidas:</strong> {{ q.medidas }}.</p>
+          <div class="mt-auto pt-3 border-top">
+            <span class="btn btn-sm btn-outline-secondary w-100 disabled" aria-disabled="true">
+              Análisis de {{ q.id }} · disponible próximamente
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Secciones pendientes -->
+<h2 class="h4 fw-bold mb-3 text-dark"><i class="bi bi-hourglass-split text-success me-2"></i>Resultados del análisis</h2>
+<div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+  {% for icono, titulo, texto in [
+       ('bi-arrows-move', 'Operaciones', 'Operaciones multidimensionales (roll-up, drill-down, slice, dice y pivot) aplicadas al modelo.'),
+       ('bi-lightbulb-fill', 'Conocimientos', 'Conocimientos obtenidos al responder las preguntas de negocio.'),
+       ('bi-exclamation-diamond-fill', 'Limitaciones', 'Limitaciones del modelo y de la fuente que afectan la interpretación.'),
+       ('bi-flag-fill', 'Conclusiones', 'Conclusiones de la etapa.')] %}
+    <div class="col">
+      <div class="card h-100 border border-dashed bg-white estrella-pendiente">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h5 class="fw-bold text-dark fs-6 mb-0"><i class="bi {{ icono }} text-warning me-2"></i>{{ titulo }}</h5>
+            <span class="badge-construccion"><i class="bi bi-cone-striped me-1"></i>En construcción</span>
+          </div>
+          <p class="small text-muted mb-0">{{ texto }}</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('conocimiento_evidente') }}">
+    <i class="bi bi-arrow-left me-1"></i> Conocimiento evidente
+  </a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}">
+    <i class="bi bi-house-door me-1"></i> Volver al inicio
+  </a>
+</div>
+{% endblock %}

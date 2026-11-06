@@ -1,4 +1,5 @@
 import json
+import sqlite3
 from pathlib import Path
 
 from flask import Flask, abort, render_template, send_from_directory, url_for
@@ -21,6 +22,9 @@ RESULTADOS = json.loads(
 CONOCIMIENTO = json.loads(
     (RAIZ / "data" / "processed" / "resultados_conocimiento_evidente.json").read_text(encoding="utf-8")
 )
+
+# Modelo estrella de la Etapa 5 (SQLite). La app solo lo lee: se abre con mode=ro.
+MODELO_DB = RAIZ / "data" / "modelo" / "modelo_estrella.db"
 
 # Archivos que la app permite descargar/consultar (evidencia de dónde salen los resultados).
 DATOS_PUBLICOS = {
@@ -342,6 +346,95 @@ def conocimiento_evidente():
         active="conocimiento",
         powerbi_url=POWERBI_URL,
         preguntas=CONOCIMIENTO_PREGUNTAS,
+        ce=CONOCIMIENTO,
+    )
+
+
+# --- Análisis multidimensional (Etapa 5: modelo estrella) -------------------
+
+# Preguntas de negocio del modelo (docs/etapa5/modelo_multidimensional.md, sección 2).
+# Sus páginas de análisis aún no existen: se muestran como «En construcción», sin enlace.
+MODELO_PREGUNTAS = [
+    {
+        "id": "P1",
+        "pregunta": (
+            "¿Cuál es la tendencia de crecimiento de los vehículos eléctricos registrados entre 2015 y 2024, "
+            "y qué tipos de vehículo la impulsan?"
+        ),
+        "dimensiones": "dim_tiempo, dim_combustible (familia = Eléctrico), dim_vehiculo",
+        "medidas": "Vehículos registrados, Participación %",
+    },
+    {
+        "id": "P2",
+        "pregunta": "¿El crecimiento anual de los eléctricos es homogéneo entre territorios?",
+        "dimensiones": "dim_tiempo, dim_territorio, dim_combustible",
+        "medidas": "Vehículos registrados por año y territorio, Territorios distintos, Participación %",
+    },
+    {
+        "id": "P3",
+        "pregunta": (
+            "¿Cómo cambia la distribución de los vehículos registrados por clase y año del modelo a lo largo "
+            "del tiempo?"
+        ),
+        "dimensiones": "dim_tiempo, dim_vehiculo, dim_modelo",
+        "medidas": "Vehículos registrados, Participación % (denominador: el año de registro)",
+    },
+    {
+        "id": "P4",
+        "pregunta": (
+            "¿Qué diferencias muestran el promedio, la mediana y la concentración por combustible, tipo de "
+            "vehículo y territorio?"
+        ),
+        "dimensiones": "dim_combustible, dim_vehiculo, dim_territorio",
+        "medidas": "Promedio y Mediana de vehículos por territorio, Participación %, Grupos de registro",
+    },
+]
+
+# Consultas de la portada. Los vehículos se cuentan con SUM(cantidad), no contando filas.
+_CONSULTAS_MODELO = {
+    "grupos": "SELECT COUNT(*) FROM hechos_registros",
+    "vehiculos": "SELECT SUM(cantidad) FROM hechos_registros",
+    "anio_min": "SELECT MIN(t.anio) FROM hechos_registros h JOIN dim_tiempo t USING (id_tiempo)",
+    "anio_max": "SELECT MAX(t.anio) FROM hechos_registros h JOIN dim_tiempo t USING (id_tiempo)",
+    "territorios": "SELECT COUNT(DISTINCT id_territorio) FROM hechos_registros",
+    "departamentos": "SELECT COUNT(DISTINCT departamento) FROM dim_territorio",
+    "filas_dim_tiempo": "SELECT COUNT(*) FROM dim_tiempo",
+    "filas_dim_territorio": "SELECT COUNT(*) FROM dim_territorio",
+    "filas_dim_combustible": "SELECT COUNT(*) FROM dim_combustible",
+    "filas_dim_vehiculo": "SELECT COUNT(*) FROM dim_vehiculo",
+    "filas_dim_modelo": "SELECT COUNT(*) FROM dim_modelo",
+    "modelo_min": "SELECT MIN(anio_modelo) FROM dim_modelo",
+    "modelo_max": "SELECT MAX(anio_modelo) FROM dim_modelo",
+}
+
+
+def _resumen_modelo():
+    """Lee las cifras de la portada desde el modelo estrella, en modo de solo lectura.
+
+    Devuelve (resumen, error). Si la base no existe o no se puede leer, resumen es None.
+    """
+    if not MODELO_DB.is_file():
+        return None, f"No se encontró la base {MODELO_DB.relative_to(RAIZ).as_posix()}."
+    try:
+        con = sqlite3.connect(f"{MODELO_DB.as_uri()}?mode=ro", uri=True)
+        try:
+            resumen = {k: con.execute(sql).fetchone()[0] for k, sql in _CONSULTAS_MODELO.items()}
+        finally:
+            con.close()
+    except sqlite3.Error as exc:
+        return None, f"No se pudo leer el modelo estrella: {exc}"
+    return resumen, None
+
+
+@app.route("/analisis-multidimensional")
+def analisis_multidimensional():
+    resumen, error = _resumen_modelo()
+    return render_template(
+        "etapa5/analisis_multidimensional.html",
+        active="multidimensional",
+        m=resumen,
+        error_modelo=error,
+        preguntas=MODELO_PREGUNTAS,
         ce=CONOCIMIENTO,
     )
 

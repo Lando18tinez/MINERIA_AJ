@@ -92,9 +92,15 @@
       </div>
 
       <!-- Conocimiento evidente: tableros de Power BI (misma píldora, enlace directo) -->
-      <a class="brand-badge brand-badge--menu text-decoration-none me-auto {{ 'active' if active == 'conocimiento' }}"
+      <a class="brand-badge brand-badge--menu text-decoration-none me-2 {{ 'active' if active == 'conocimiento' }}"
          href="{{ url_for('conocimiento_evidente') }}" title="Conocimiento evidente: tableros de Power BI">
         <span>E4</span><i class="bi bi-bar-chart-line-fill"></i>Conocimiento evidente
+      </a>
+
+      <!-- Análisis multidimensional: modelo estrella (misma píldora, enlace directo) -->
+      <a class="brand-badge brand-badge--menu text-decoration-none me-auto {{ 'active' if active == 'multidimensional' }}"
+         href="{{ url_for('analisis_multidimensional') }}" title="Análisis multidimensional: modelo estrella">
+        <span>E5</span><i class="bi bi-boxes"></i>Análisis multidimensional
       </a>
 
       <!-- Botón colapsable para móviles -->
