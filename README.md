@@ -53,6 +53,15 @@ El informe (4 páginas: poblacional, territorial, temporal y multivariada) se pu
 cambiarla basta editar esa constante (con `""` la página muestra un aviso en lugar del informe). Cada pregunta tiene un botón que abre su página del informe mediante el parámetro `pageName`, y el recuadro
 incluye un botón de pantalla completa y un enlace de respaldo «Abrir en pestaña nueva».
 
+### Etapa 6 · Conocimiento oculto
+
+| Ruta | Contenido |
+|---|---|
+| `/conocimiento-oculto` | Síntesis de hallazgos; modelo supervisado (¿eléctrico o híbrido?: regresión logística, árbol y Random Forest comparados con la misma validación cruzada); clustering de territorios (k-Means); análisis de comentarios de YouTube; conclusiones integradas; informe técnico, video y enlaces de reproducción |
+
+Todo lo que muestra la página sale de `data/processed/etapa6/*.json`. Si un resultado aún no existe (p. ej. los comentarios de YouTube), la sección lo indica en lugar de fallar.
+El informe técnico se publica copiando el PDF a `static/docs/Informe_ET6_AJ.pdf`; el video se enlaza en `VIDEO_ETAPA6_URL` (`app.py`).
+
 Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 
 ### Evidencia: datos y código
@@ -131,6 +140,36 @@ Las cifras y el modelo de datos de **Conocimiento evidente** salen de `conocimie
 ```bash
 python conocimiento_evidente.py   # escribe data/powerbi/*.csv y data/processed/resultados_conocimiento_evidente.json
 ```
+
+### Reproducir la Etapa 6 (Orange Data Mining)
+
+Requiere Orange 3.40 con el complemento Text (su Python ya trae todo; ver `requirements-etapa6.txt`). Desde la raíz del proyecto, con el Python de Orange:
+
+```bash
+python etapa6_preparar_datos.py     # data/processed/etapa6/*.tab (supervisado y territorios)
+python etapa6_modelos.py            # 3 modelos supervisados -> resultados_etapa6_supervisado.json
+python etapa6_clustering.py         # k-Means de territorios -> resultados_etapa6_clustering.json
+```
+
+Los flujos de Orange (supervisado, clustering y comentarios) **no se incluyen en el repositorio**: se documentan widget por widget, con parámetros y capturas, en el informe técnico.
+Se construyen a partir de los CSV del modelo en estrella (`data/powerbi/`) con widgets (`Merge Data`, `Select Rows`, `Formula`, `Group by`, `Select Columns`), sin Python, y dan los mismos resultados que los scripts.
+Los scripts `etapa6_*.py` son la réplica por código para auditar las cifras.
+En `Test and Score` hay que elegir manualmente la clase objetivo **ELECTRICO** para ver precisión, recall y F1.
+
+**Comentarios de YouTube.** Es la única parte que sí requiere Python: Orange no tiene un widget de YouTube, así que la extracción con la API y la limpieza (duplicados, spam, idioma, anonimización) se hacen con scripts.
+El flujo de comentarios en Orange parte del archivo ya limpio. La extracción necesita una clave de YouTube Data API v3, que **no** se publica:
+
+```bash
+set YOUTUBE_API_KEY=su_clave                 # PowerShell: $env:YOUTUBE_API_KEY="su_clave"  (o línea YOUTUBE_API_KEY=... en un .env local)
+python etapa6_youtube_extraer.py --simular   # plan y cuota estimada, sin llamar a la API
+python etapa6_youtube_extraer.py             # videos + comentarios
+python etapa6_youtube_limpieza.py            # duplicados, vacíos, spam, idioma, anonimización
+python etapa6_stopwords.py                   # stopwords del español transformadas como el texto
+python etapa6_youtube_analisis.py            # términos, bigramas, temas LDA y categorías
+```
+
+Los comentarios (crudos y limpios) están en `.gitignore`: se regeneran con los scripts y no se redistribuyen. Se publican solo los metadatos de los videos y los resultados agregados.
+No se guarda nombre, canal ni foto de los autores.
 
 El CSV se descargó de `https://www.datos.gov.co/resource/ntxy-q9ix.csv?$limit=50000&$order=:id` (ver `data/raw/FUENTE.json`).
 Es un dataset **agregado**: cada fila es un grupo de vehículos y `cantidad` indica cuántos son, por eso los porcentajes se ponderan por `cantidad`.
