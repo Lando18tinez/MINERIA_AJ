@@ -1,0 +1,12 @@
+# Dependencias para reproducir la Etapa 6 (no se necesitan para ejecutar la app Flask).
+# Opción 1: usar el Python que trae Orange Data Mining 3.40 (ya incluye todo lo de abajo).
+# Opción 2: un entorno propio con:
+Orange3==3.40.0
+Orange3-Text==1.16.3
+gensim
+nltk
+langdetect
+requests
+pandas
+numpy
+scikit-learn

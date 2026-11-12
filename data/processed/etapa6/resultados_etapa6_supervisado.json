@@ -1,0 +1,363 @@
+{
+  "parametros": {
+    "validacion": "validación cruzada estratificada de 10 pliegues, semilla 42",
+    "clase_positiva": "ELECTRICO",
+    "regresion_logistica": "penalización L2 (Ridge), C = 1; variables numéricas estandarizadas con Preprocess y categóricas en one-hot (automático)",
+    "arbol": "divisiones multivía (sin binarizar: carrocería y departamento tienen más de 16 valores), mín. 2 instancias por hoja, no dividir subconjuntos < 5, profundidad máx. 100, mayoría suficiente 95 %",
+    "random_forest": "100 árboles, no dividir subconjuntos < 5, semilla fija"
+  },
+  "ranking_variables": {
+    "Ganancia de información": {
+      "clase": 0.4678,
+      "carroceria": 0.5543,
+      "departamento": 0.0532,
+      "anio_registro": 0.0204,
+      "modelo": 0.0544,
+      "antiguedad_modelo": 0.0611
+    },
+    "Razón de ganancia": {
+      "clase": 0.1856,
+      "carroceria": 0.1921,
+      "departamento": 0.0133,
+      "anio_registro": 0.0103,
+      "modelo": 0.0275,
+      "antiguedad_modelo": 0.0345
+    },
+    "Gini": {
+      "clase": 0.2477,
+      "carroceria": 0.3041,
+      "departamento": 0.0346,
+      "anio_registro": 0.0139,
+      "modelo": 0.0365,
+      "antiguedad_modelo": 0.0388
+    },
+    "ReliefF": {
+      "clase": 0.376,
+      "carroceria": 0.292,
+      "departamento": 0.014,
+      "anio_registro": 0.0004,
+      "modelo": 0.0007,
+      "antiguedad_modelo": 0.0013
+    }
+  },
+  "modelos": {
+    "Regresión logística": {
+      "por_grupo": {
+        "accuracy": 0.8703,
+        "precision": 0.9442,
+        "recall": 0.8024,
+        "f1": 0.8675,
+        "auc": 0.9407
+      },
+      "por_vehiculo": {
+        "accuracy": 0.8815,
+        "precision": 0.7731,
+        "recall": 0.7088,
+        "f1": 0.7396,
+        "auc": 0.8998
+      },
+      "matriz_por_grupo": [
+        [
+          3015,
+          170
+        ],
+        [
+          708,
+          2875
+        ]
+      ],
+      "matriz_por_vehiculo": [
+        [
+          111115,
+          7689
+        ],
+        [
+          10765,
+          26204
+        ]
+      ],
+      "por_tamano_de_grupo": {
+        "grandes_cantidad_mayor_16": {
+          "grupos": 942,
+          "vehiculos": 137628,
+          "accuracy_por_grupo": 0.8822
+        },
+        "pequenos_cantidad_hasta_16": {
+          "grupos": 5826,
+          "vehiculos": 18145,
+          "accuracy_por_grupo": 0.8683
+        }
+      },
+      "subconjunto_automovil_camioneta": {
+        "grupos": 3811,
+        "por_grupo": {
+          "accuracy": 0.7882,
+          "precision": 0.7972,
+          "recall": 0.3926,
+          "f1": 0.5261,
+          "auc": 0.8032
+        },
+        "por_vehiculo": {
+          "accuracy": 0.8565,
+          "precision": 0.4459,
+          "recall": 0.3595,
+          "f1": 0.3981,
+          "auc": 0.7642
+        }
+      }
+    },
+    "Árbol de decisión": {
+      "por_grupo": {
+        "accuracy": 0.8449,
+        "precision": 0.8715,
+        "recall": 0.8292,
+        "f1": 0.8498,
+        "auc": 0.9032
+      },
+      "por_vehiculo": {
+        "accuracy": 0.5833,
+        "precision": 0.3127,
+        "recall": 0.6307,
+        "f1": 0.4181,
+        "auc": 0.702
+      },
+      "matriz_por_grupo": [
+        [
+          2747,
+          438
+        ],
+        [
+          612,
+          2971
+        ]
+      ],
+      "matriz_por_vehiculo": [
+        [
+          67549,
+          51255
+        ],
+        [
+          13653,
+          23316
+        ]
+      ],
+      "por_tamano_de_grupo": {
+        "grandes_cantidad_mayor_16": {
+          "grupos": 942,
+          "vehiculos": 137628,
+          "accuracy_por_grupo": 0.7909
+        },
+        "pequenos_cantidad_hasta_16": {
+          "grupos": 5826,
+          "vehiculos": 18145,
+          "accuracy_por_grupo": 0.8536
+        }
+      },
+      "subconjunto_automovil_camioneta": {
+        "grupos": 3811,
+        "por_grupo": {
+          "accuracy": 0.7449,
+          "precision": 0.5906,
+          "recall": 0.4829,
+          "f1": 0.5313,
+          "auc": 0.7391
+        },
+        "por_vehiculo": {
+          "accuracy": 0.4899,
+          "precision": 0.0589,
+          "recall": 0.1912,
+          "f1": 0.09,
+          "auc": 0.3557
+        }
+      }
+    },
+    "Random Forest": {
+      "por_grupo": {
+        "accuracy": 0.8682,
+        "precision": 0.9141,
+        "recall": 0.8289,
+        "f1": 0.8694,
+        "auc": 0.9328
+      },
+      "por_vehiculo": {
+        "accuracy": 0.6653,
+        "precision": 0.3761,
+        "recall": 0.6225,
+        "f1": 0.4689,
+        "auc": 0.7348
+      },
+      "matriz_por_grupo": [
+        [
+          2906,
+          279
+        ],
+        [
+          613,
+          2970
+        ]
+      ],
+      "matriz_por_vehiculo": [
+        [
+          80624,
+          38180
+        ],
+        [
+          13955,
+          23014
+        ]
+      ],
+      "por_tamano_de_grupo": {
+        "grandes_cantidad_mayor_16": {
+          "grupos": 942,
+          "vehiculos": 137628,
+          "accuracy_por_grupo": 0.8344
+        },
+        "pequenos_cantidad_hasta_16": {
+          "grupos": 5826,
+          "vehiculos": 18145,
+          "accuracy_por_grupo": 0.8737
+        }
+      },
+      "subconjunto_automovil_camioneta": {
+        "grupos": 3811,
+        "por_grupo": {
+          "accuracy": 0.7796,
+          "precision": 0.6922,
+          "recall": 0.475,
+          "f1": 0.5634,
+          "auc": 0.7747
+        },
+        "por_vehiculo": {
+          "accuracy": 0.5898,
+          "precision": 0.069,
+          "recall": 0.1687,
+          "f1": 0.0979,
+          "auc": 0.3811
+        }
+      }
+    }
+  },
+  "linea_base": {
+    "accuracy_por_grupo": 0.5294,
+    "accuracy_por_vehiculo": 0.7627,
+    "descripcion": "predecir siempre la clase mayoritaria"
+  },
+  "arbol_completo": {
+    "nodos": 973,
+    "hojas": 913,
+    "profundidad": 11
+  },
+  "electricos_micromovilidad": {
+    "clases": [
+      "CICLOMOTOR",
+      "CUADRICICLO",
+      "CUATRIMOTO",
+      "MOTOCARRO",
+      "MOTOCICLETA",
+      "MOTOTRICICLO",
+      "TRICIMOTO"
+    ],
+    "vehiculos_electricos": 36969,
+    "vehiculos_electricos_micromovilidad": 17969,
+    "pct_de_los_electricos": 48.61,
+    "pct_de_todos_los_vehiculos": 11.54
+  },
+  "composicion_por_clase": {
+    "CAMIONETA": {
+      "grupos": 2180,
+      "vehiculos": 90709,
+      "pct_electricos_grupos": 27.43,
+      "pct_electricos_vehiculos": 10.84
+    },
+    "AUTOMOVIL": {
+      "grupos": 1631,
+      "vehiculos": 36170,
+      "pct_electricos_grupos": 33.29,
+      "pct_electricos_vehiculos": 19.1
+    },
+    "CICLOMOTOR": {
+      "grupos": 1561,
+      "vehiculos": 14440,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "CAMPERO": {
+      "grupos": 435,
+      "vehiculos": 8434,
+      "pct_electricos_grupos": 0.46,
+      "pct_electricos_vehiculos": 0.02
+    },
+    "MOTOCICLETA": {
+      "grupos": 274,
+      "vehiculos": 1158,
+      "pct_electricos_grupos": 98.54,
+      "pct_electricos_vehiculos": 99.65
+    },
+    "CUADRICICLO": {
+      "grupos": 200,
+      "vehiculos": 1410,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "MOTOCARRO": {
+      "grupos": 192,
+      "vehiculos": 674,
+      "pct_electricos_grupos": 99.48,
+      "pct_electricos_vehiculos": 99.85
+    },
+    "CAMION": {
+      "grupos": 157,
+      "vehiculos": 718,
+      "pct_electricos_grupos": 57.32,
+      "pct_electricos_vehiculos": 85.1
+    },
+    "TRICIMOTO": {
+      "grupos": 86,
+      "vehiculos": 275,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "BUS": {
+      "grupos": 33,
+      "vehiculos": 1750,
+      "pct_electricos_grupos": 78.79,
+      "pct_electricos_vehiculos": 93.09
+    },
+    "MOTOTRICICLO": {
+      "grupos": 6,
+      "vehiculos": 15,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "TRACTOCAMION": {
+      "grupos": 4,
+      "vehiculos": 4,
+      "pct_electricos_grupos": 75.0,
+      "pct_electricos_vehiculos": 75.0
+    },
+    "MICROBUS": {
+      "grupos": 3,
+      "vehiculos": 10,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "BUSETA": {
+      "grupos": 2,
+      "vehiculos": 2,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "CUATRIMOTO": {
+      "grupos": 2,
+      "vehiculos": 2,
+      "pct_electricos_grupos": 100.0,
+      "pct_electricos_vehiculos": 100.0
+    },
+    "VOLQUETA": {
+      "grupos": 2,
+      "vehiculos": 2,
+      "pct_electricos_grupos": 0.0,
+      "pct_electricos_vehiculos": 0.0
+    }
+  }
+}

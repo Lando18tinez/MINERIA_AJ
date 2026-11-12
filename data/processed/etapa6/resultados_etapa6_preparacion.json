@@ -1,0 +1,70 @@
+{
+  "fuente": "data/powerbi/hechos_vehiculos.csv + dim_territorio.csv (datos.gov.co ntxy-q9ix, 2015-2024, tratado en Etapa 2)",
+  "base": {
+    "grupos": 6772,
+    "vehiculos": 155777
+  },
+  "supervisado": {
+    "archivo": "data/processed/etapa6/supervisado_tipo_motorizacion.tab",
+    "variable_objetivo": "tipo_motorizacion (ELECTRICO | HIBRIDO)",
+    "predictoras": [
+      "clase",
+      "carroceria",
+      "departamento",
+      "anio_registro",
+      "modelo",
+      "antiguedad_modelo"
+    ],
+    "excluida_hidrogeno": {
+      "grupos": 4,
+      "vehiculos": 4
+    },
+    "grupos": 6768,
+    "vehiculos": 155773,
+    "balance": {
+      "ELECTRICO": {
+        "grupos": 3583,
+        "pct_grupos": 52.94,
+        "vehiculos": 36969,
+        "pct_vehiculos": 23.73
+      },
+      "HIBRIDO": {
+        "grupos": 3185,
+        "pct_grupos": 47.06,
+        "vehiculos": 118804,
+        "pct_vehiculos": 76.27
+      }
+    },
+    "vectores_predictores_unicos": 2980,
+    "vectores_con_ambas_clases": 364,
+    "antiguedad_negativa_grupos": 2227
+  },
+  "clustering": {
+    "archivo": "data/processed/etapa6/clustering_territorios.tab",
+    "min_vehiculos": 30,
+    "territorios_totales": 247,
+    "territorios_incluidos": 98,
+    "territorios_excluidos": 149,
+    "vehiculos_incluidos": 154513,
+    "pct_vehiculos_incluidos": 99.19,
+    "variables": [
+      "log10_vehiculos",
+      "pct_camioneta",
+      "pct_automovil",
+      "pct_campero",
+      "pct_micromovilidad",
+      "pct_registro_2022_2024",
+      "anio_registro_medio",
+      "antiguedad_media"
+    ],
+    "agrupacion_micromovilidad": [
+      "CICLOMOTOR",
+      "CUADRICICLO",
+      "CUATRIMOTO",
+      "MOTOCARRO",
+      "MOTOCICLETA",
+      "MOTOTRICICLO",
+      "TRICIMOTO"
+    ]
+  }
+}
