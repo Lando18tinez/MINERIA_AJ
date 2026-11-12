@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="Etapa 6 · Comentarios de YouTube" description="Corpus en español: minúsculas, sin tildes ni URL, tokens \w+, stemmer Snowball español, stopwords en español (archivo etapa6_stopwords_es.txt), documentos con &gt;= 3 apariciones; TF-IDF; LDA, agrupación jerárquica y colocaciones. Réplica: etapa6_youtube_analisis.py.">
+	<nodes>
+		<node id="0" name="Corpus" qualified_name="orangecontrib.text.widgets.owcorpus.OWCorpus" project_name="Orange3-Text" version="" title="Comentarios limpios (cargar comentarios_limpios.tab)" position="(60, 220)" />
+		<node id="1" name="Preprocess Text" qualified_name="orangecontrib.text.widgets.owpreprocess.OWPreprocess" project_name="Orange3-Text" version="" title="Preprocesar texto (español)" position="(260, 220)" />
+		<node id="2" name="Bag of Words" qualified_name="orangecontrib.text.widgets.owbagofwords.OWTBagOfWords" project_name="Orange3-Text" version="" title="Bolsa de palabras (TF-IDF)" position="(460, 220)" />
+		<node id="3" name="Topic Modelling" qualified_name="orangecontrib.text.widgets.owtopicmodeling.OWTopicModeling" project_name="Orange3-Text" version="" title="Temas (LDA)" position="(660, 120)" />
+		<node id="4" name="Corpus Viewer" qualified_name="orangecontrib.text.widgets.owcorpusviewer.OWCorpusViewer" project_name="Orange3-Text" version="" title="Visor de comentarios" position="(860, 120)" />
+		<node id="5" name="Distances" qualified_name="Orange.widgets.unsupervised.owdistances.OWDistances" project_name="Orange3" version="" title="Distancias coseno" position="(660, 260)" />
+		<node id="6" name="Hierarchical Clustering" qualified_name="Orange.widgets.unsupervised.owhierarchicalclustering.OWHierarchicalClustering" project_name="Orange3" version="" title="Agrupación jerárquica de comentarios" position="(860, 260)" />
+		<node id="7" name="Collocations" qualified_name="orangecontrib.text.widgets.owcollocations.OWCollocations" project_name="Orange3-Text" version="" title="Colocaciones (bigramas)" position="(460, 380)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Corpus" sink_channel="Corpus" enabled="true" source_channel_id="corpus" sink_channel_id="corpus" />
+		<link id="1" source_node_id="1" sink_node_id="2" source_channel="Corpus" sink_channel="Corpus" enabled="true" source_channel_id="corpus" sink_channel_id="corpus" />
+		<link id="2" source_node_id="1" sink_node_id="7" source_channel="Corpus" sink_channel="Corpus" enabled="true" source_channel_id="corpus" sink_channel_id="corpus" />
+		<link id="3" source_node_id="2" sink_node_id="3" source_channel="Corpus" sink_channel="Corpus" enabled="true" source_channel_id="corpus" sink_channel_id="corpus" />
+		<link id="4" source_node_id="3" sink_node_id="4" source_channel="Corpus" sink_channel="Corpus" enabled="true" source_channel_id="corpus" sink_channel_id="corpus" />
+		<link id="5" source_node_id="2" sink_node_id="5" source_channel="Corpus" sink_channel="Data" enabled="true" source_channel_id="corpus" sink_channel_id="data" />
+		<link id="6" source_node_id="5" sink_node_id="6" source_channel="Distances" sink_channel="Distances" enabled="true" source_channel_id="distances" sink_channel_id="distances" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties>
+		<properties node_id="1" format="pickle">gASVHAIAAAAAAAB9lCiMDnN0b3JlZHNldHRpbmdzlH2UjA1wcmVwcm9jZXNzb3JzlF2UKIwUcHJl
+cHJvY2Vzcy50cmFuc2Zvcm2UfZSMB21ldGhvZHOUXZQoSwBLAUsDZXOGlIwTcHJlcHJvY2Vzcy50
+b2tlbml6ZZR9lCiMBm1ldGhvZJRLA4wHcGF0dGVybpSMA1x3K5R1hpSMFHByZXByb2Nlc3Mubm9y
+bWFsaXpllH2UKGgMSwGMEXNub3diYWxsX2xhbmd1YWdllIwCZXOUdYaUjBFwcmVwcm9jZXNzLmZp
+bHRlcpR9lChoB12UKEsASwJLBGWMCGxhbmd1YWdllE6MB3N3X3BhdGiUjB5vcmFuZ2V3aWRnZXQu
+dXRpbHMuZmlsZWRpYWxvZ3OUjApSZWNlbnRQYXRolJOUKYGUfZQojAdhYnNwYXRolIwlQzovTUlO
+RVJJQV9BSi9ldGFwYTZfc3RvcHdvcmRzX2VzLnR4dJSMBnByZWZpeJSMB2Jhc2VkaXKUjAdyZWxw
+YXRolIwaLi4vZXRhcGE2X3N0b3B3b3Jkc19lcy50eHSUjAV0aXRsZZSMAJSMBXNoZWV0lGgmjAtm
+aWxlX2Zvcm1hdJROdWKMB3N3X2xpc3SUXZRoHWGMCWZyZXFfdHlwZZRLAYwJYWJzX3N0YXJ0lEsD
+jAdhYnNfZW5klEpAQg8AdYaUZXOMC19fdmVyc2lvbl9flEsEdS4=
+</properties>
+		<properties node_id="2" format="literal">{'wlocal': 'Count', 'wglobal': 'IDF', 'normalization': 'L2 (Euclidean)', '__version__': 1}</properties>
+		<properties node_id="3" format="literal">{'method_index': 1, '__version__': 1}</properties>
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>

@@ -143,9 +143,18 @@ def main():
 
     # --- Modelo interpretable: árbol entrenado con todos los datos (solo para leer reglas).
     arbol = aprendices["Árbol de decisión"](datos)
+    # OJO: arbol.leaf_count() cuenta también las ramas vacías (valores de una variable categórica sin ejemplos en ese
+    # nodo, hijos None) y da 913; las hojas reales, con instancias, se cuentan recorriendo solo los hijos existentes.
+    def _recorrer(nodo):
+        yield nodo
+        for hijo in nodo.children:
+            if hijo is not None:
+                yield from _recorrer(hijo)
+
+    nodos_arbol = list(_recorrer(arbol.root))
     salida["arbol_completo"] = {
-        "nodos": int(arbol.node_count()),
-        "hojas": int(arbol.leaf_count()),
+        "nodos": len(nodos_arbol),
+        "hojas": sum(1 for n in nodos_arbol if not any(h is not None for h in n.children)),
         "profundidad": int(arbol.depth()),
     }
 
