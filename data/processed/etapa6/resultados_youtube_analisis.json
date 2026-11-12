@@ -1,0 +1,629 @@
+{
+  "entrada": "data/processed/etapa6/comentarios_limpios.tab",
+  "comentarios": 2657,
+  "comentarios_con_3_o_mas_terminos": 2369,
+  "vocabulario": 1690,
+  "procesamiento": "minúsculas, sin tildes, sin URL, tokens \\w+, stemmer Snowball (es), stopwords es (NLTK + propias, transformadas igual que el texto), sin números, términos en >= 3 comentarios",
+  "terminos_por_frecuencia_documental": [
+    {
+      "termino": "electrico",
+      "comentarios": 693,
+      "pct": 26.08
+    },
+    {
+      "termino": "carro",
+      "comentarios": 610,
+      "pct": 22.96
+    },
+    {
+      "termino": "carga",
+      "comentarios": 324,
+      "pct": 12.19
+    },
+    {
+      "termino": "comprar",
+      "comentarios": 292,
+      "pct": 10.99
+    },
+    {
+      "termino": "colombia",
+      "comentarios": 283,
+      "pct": 10.65
+    },
+    {
+      "termino": "vehiculo",
+      "comentarios": 259,
+      "pct": 9.75
+    },
+    {
+      "termino": "bateria",
+      "comentarios": 253,
+      "pct": 9.52
+    },
+    {
+      "termino": "mejor",
+      "comentarios": 184,
+      "pct": 6.93
+    },
+    {
+      "termino": "gasolina",
+      "comentarios": 179,
+      "pct": 6.74
+    },
+    {
+      "termino": "casa",
+      "comentarios": 171,
+      "pct": 6.44
+    },
+    {
+      "termino": "hibrido",
+      "comentarios": 147,
+      "pct": 5.53
+    },
+    {
+      "termino": "pais",
+      "comentarios": 142,
+      "pct": 5.34
+    },
+    {
+      "termino": "precio",
+      "comentarios": 141,
+      "pct": 5.31
+    },
+    {
+      "termino": "vender",
+      "comentarios": 140,
+      "pct": 5.27
+    },
+    {
+      "termino": "auto",
+      "comentarios": 135,
+      "pct": 5.08
+    },
+    {
+      "termino": "colombianos",
+      "comentarios": 135,
+      "pct": 5.08
+    },
+    {
+      "termino": "cambio",
+      "comentarios": 128,
+      "pct": 4.82
+    },
+    {
+      "termino": "cargador",
+      "comentarios": 126,
+      "pct": 4.74
+    },
+    {
+      "termino": "problema",
+      "comentarios": 126,
+      "pct": 4.74
+    },
+    {
+      "termino": "energia",
+      "comentarios": 117,
+      "pct": 4.4
+    },
+    {
+      "termino": "debe",
+      "comentarios": 114,
+      "pct": 4.29
+    },
+    {
+      "termino": "costo",
+      "comentarios": 114,
+      "pct": 4.29
+    },
+    {
+      "termino": "cuanto",
+      "comentarios": 109,
+      "pct": 4.1
+    },
+    {
+      "termino": "marca",
+      "comentarios": 109,
+      "pct": 4.1
+    },
+    {
+      "termino": "nuevo",
+      "comentarios": 100,
+      "pct": 3.76
+    },
+    {
+      "termino": "llegar",
+      "comentarios": 100,
+      "pct": 3.76
+    },
+    {
+      "termino": "apoyar",
+      "comentarios": 99,
+      "pct": 3.73
+    },
+    {
+      "termino": "va",
+      "comentarios": 95,
+      "pct": 3.58
+    },
+    {
+      "termino": "instalacion",
+      "comentarios": 92,
+      "pct": 3.46
+    },
+    {
+      "termino": "tiempo",
+      "comentarios": 87,
+      "pct": 3.27
+    }
+  ],
+  "terminos_por_tfidf": [
+    {
+      "termino": "carro",
+      "tfidf": 112.388
+    },
+    {
+      "termino": "electrico",
+      "tfidf": 106.223
+    },
+    {
+      "termino": "comprar",
+      "tfidf": 90.718
+    },
+    {
+      "termino": "carga",
+      "tfidf": 80.256
+    },
+    {
+      "termino": "colombia",
+      "tfidf": 70.883
+    },
+    {
+      "termino": "vehiculo",
+      "tfidf": 65.292
+    },
+    {
+      "termino": "colombianos",
+      "tfidf": 61.559
+    },
+    {
+      "termino": "informacion",
+      "tfidf": 60.274
+    },
+    {
+      "termino": "bateria",
+      "tfidf": 59.723
+    },
+    {
+      "termino": "hibrido",
+      "tfidf": 56.836
+    },
+    {
+      "termino": "mejor",
+      "tfidf": 56.087
+    },
+    {
+      "termino": "apoyar",
+      "tfidf": 55.597
+    },
+    {
+      "termino": "precio",
+      "tfidf": 54.247
+    },
+    {
+      "termino": "gasolina",
+      "tfidf": 51.79
+    },
+    {
+      "termino": "cuanto",
+      "tfidf": 50.871
+    },
+    {
+      "termino": "cargador",
+      "tfidf": 49.313
+    },
+    {
+      "termino": "claro",
+      "tfidf": 46.566
+    },
+    {
+      "termino": "vender",
+      "tfidf": 46.495
+    },
+    {
+      "termino": "problema",
+      "tfidf": 46.013
+    },
+    {
+      "termino": "auto",
+      "tfidf": 44.957
+    },
+    {
+      "termino": "casa",
+      "tfidf": 44.053
+    },
+    {
+      "termino": "pais",
+      "tfidf": 39.495
+    },
+    {
+      "termino": "debe",
+      "tfidf": 38.458
+    },
+    {
+      "termino": "felicitaciones",
+      "tfidf": 37.196
+    },
+    {
+      "termino": "costo",
+      "tfidf": 36.094
+    },
+    {
+      "termino": "bien",
+      "tfidf": 35.347
+    },
+    {
+      "termino": "esperar",
+      "tfidf": 34.852
+    },
+    {
+      "termino": "pregunta",
+      "tfidf": 34.11
+    },
+    {
+      "termino": "energia",
+      "tfidf": 34.086
+    },
+    {
+      "termino": "millones",
+      "tfidf": 33.631
+    }
+  ],
+  "bigramas": [
+    {
+      "bigrama": "carro electrico",
+      "veces": 139
+    },
+    {
+      "bigrama": "carros electricos",
+      "veces": 118
+    },
+    {
+      "bigrama": "vehiculos electricos",
+      "veces": 52
+    },
+    {
+      "bigrama": "pico placa",
+      "veces": 47
+    },
+    {
+      "bigrama": "medio ambiente",
+      "veces": 36
+    },
+    {
+      "bigrama": "autos electricos",
+      "veces": 34
+    },
+    {
+      "bigrama": "auto electrico",
+      "veces": 33
+    },
+    {
+      "bigrama": "vehiculo electrico",
+      "veces": 31
+    },
+    {
+      "bigrama": "comprar carro",
+      "veces": 27
+    },
+    {
+      "bigrama": "vida util",
+      "veces": 24
+    },
+    {
+      "bigrama": "carga rapida",
+      "veces": 21
+    },
+    {
+      "bigrama": "movilidad electrica",
+      "veces": 20
+    },
+    {
+      "bigrama": "vale pena",
+      "veces": 19
+    },
+    {
+      "bigrama": "cargar carro",
+      "veces": 17
+    },
+    {
+      "bigrama": "puntos carga",
+      "veces": 16
+    },
+    {
+      "bigrama": "energia electrica",
+      "veces": 15
+    },
+    {
+      "bigrama": "cada vez",
+      "veces": 15
+    },
+    {
+      "bigrama": "estaciones carga",
+      "veces": 13
+    },
+    {
+      "bigrama": "industria colombiana",
+      "veces": 13
+    },
+    {
+      "bigrama": "comprar electrico",
+      "veces": 12
+    },
+    {
+      "bigrama": "cargador casa",
+      "veces": 12
+    },
+    {
+      "bigrama": "carros gasolina",
+      "veces": 12
+    },
+    {
+      "bigrama": "tal vez",
+      "veces": 12
+    },
+    {
+      "bigrama": "paneles solares",
+      "veces": 12
+    },
+    {
+      "bigrama": "hibrido enchufable",
+      "veces": 11
+    }
+  ],
+  "lda": {
+    "comparacion_k": [
+      {
+        "k": 3,
+        "coherencia_cv": 0.4797
+      },
+      {
+        "k": 4,
+        "coherencia_cv": 0.4392
+      },
+      {
+        "k": 5,
+        "coherencia_cv": 0.4696
+      },
+      {
+        "k": 6,
+        "coherencia_cv": 0.432
+      },
+      {
+        "k": 7,
+        "coherencia_cv": 0.4341
+      },
+      {
+        "k": 8,
+        "coherencia_cv": 0.4218
+      }
+    ],
+    "k_elegido": 3,
+    "criterio": "mayor coherencia c_v entre k = 3..8 (semilla 0, 10 pasadas)",
+    "temas": [
+      {
+        "tema": 3,
+        "palabras": [
+          "bateria",
+          "carga",
+          "cargador",
+          "carro",
+          "cuanto",
+          "electrico",
+          "colombia",
+          "vehiculo",
+          "toma",
+          "comprar"
+        ],
+        "comentarios": 841,
+        "pct_comentarios": 35.5,
+        "ejemplos": [
+          "hay conceptos errados además... Ojo una toma NEMA 5-20 no es para conectar a 220V como se indica en el minuto 34 del video, una toma con esta especificacion un…",
+          "Por favor corrije las indicaciones: El máximo amperaje al que puedes cargar en cualquier circuito es al 80% de su diseño. Es decir, en una toma de 120 Voltios…",
+          "Eso que dice el señor de la revista motor esta fuera de la realidad en una gran parte. Es falso que eso venga para 8000 kms. Sieso fuera asi. Los carros eléctr…"
+        ]
+      },
+      {
+        "tema": 2,
+        "palabras": [
+          "electrico",
+          "carro",
+          "colombia",
+          "comprar",
+          "precio",
+          "vender",
+          "vehiculo",
+          "gasolina",
+          "marca",
+          "placa"
+        ],
+        "comentarios": 817,
+        "pct_comentarios": 34.49,
+        "ejemplos": [
+          "El gobierno pregona la descarbonizacion del país pero permite precios a los vehículos eléctricos de 3 y 4 veces el valor real. Así será imposible masificar el…",
+          "Su problema es que el desarrollo de su idea es igual al muchas compañías que al inicio tratan de competir con muchos productores y asy de uno mismo creo la des…",
+          "El carro más vendido en colombia este año es un carro eléctrico, se trata del Tesla model Y, me encanta que un eléctrico sea el más vendido acá, si esto sigue…"
+        ]
+      },
+      {
+        "tema": 1,
+        "palabras": [
+          "carga",
+          "electrico",
+          "casa",
+          "carro",
+          "hibrido",
+          "cargador",
+          "comprar",
+          "vehiculo",
+          "instalacion",
+          "auto"
+        ],
+        "comentarios": 711,
+        "pct_comentarios": 30.01,
+        "ejemplos": [
+          "Muy buenas, primero que todo me parecen unos muy buenos datos y video, yo también vivo en Colombia y de hecho ya llevo 2 meses muy contento con el seagull y lo…",
+          "Hola, buen review. Tengo la versión del video, soy de Chile, acá se llama Yuan Pro Dm-i GS. Está muy bien el auto, muy cómodo y fácil de manejar por su suavida…",
+          "Explica mucho pero no aclara los errores que comenta, personalmente lo entiendo porque trabajo con energia pero no lo entiende cualquier usuario. Hay un error…"
+        ]
+      }
+    ]
+  },
+  "categorias": {
+    "precio_costo": {
+      "comentarios": 496,
+      "pct": 18.67,
+      "pct_ponderado_me_gusta": 23.87,
+      "ejemplos": [
+        "El que no tiene dónde cargarlo en su casa o en su apartamento en Bogotá, que no lo compre, porque en todos los puntos de carga siempre está lleno. Me toca ir h…",
+        "El problema real es el precio del producto cuando esta de moda y es escaso. No es que el carro se devaluó muchísimo, es que el precio super inflado esta bajand…"
+      ]
+    },
+    "carga_infraestructura": {
+      "comentarios": 477,
+      "pct": 17.95,
+      "pct_ponderado_me_gusta": 16.89,
+      "ejemplos": [
+        "El que no tiene dónde cargarlo en su casa o en su apartamento en Bogotá, que no lo compre, porque en todos los puntos de carga siempre está lleno. Me toca ir h…",
+        "El cargador debe ser universal sería más fácil y ágil así como los de los celulares , universal"
+      ]
+    },
+    "autonomia_bateria": {
+      "comentarios": 335,
+      "pct": 12.61,
+      "pct_ponderado_me_gusta": 11.83,
+      "ejemplos": [
+        "en 5 años, las baterías costaran mucho menos de lo que valen hoy",
+        "Hola César como va, buen video pero que posibilidad hay de que ya cambie el formato y por ejemplo haga un Review no se con otros escenarios o condiciones de lo…"
+      ]
+    },
+    "incentivos_impuestos": {
+      "comentarios": 119,
+      "pct": 4.48,
+      "pct_ponderado_me_gusta": 6.38,
+      "ejemplos": [
+        "Que saquen a la venta el 15% y que solo los colombianos podamos comprar acciones y otra con go foudme y podamos todos comprar o apoya y quienes lo hagan tengan…",
+        "Me parece el colmo que estén buscando ahora ponerle un impuesto a ese tipo de vehículos, no hayan como sacar plata"
+      ]
+    },
+    "mantenimiento_repuestos": {
+      "comentarios": 104,
+      "pct": 3.91,
+      "pct_ponderado_me_gusta": 6.06,
+      "ejemplos": [
+        "Que saquen a la venta el 15% y que solo los colombianos podamos comprar acciones y otra con go foudme y podamos todos comprar o apoya y quienes lo hagan tengan…",
+        "Seria super un electrico Colombiano,no tendriamos problemas con los repuestos."
+      ]
+    },
+    "ambiente": {
+      "comentarios": 173,
+      "pct": 6.51,
+      "pct_ponderado_me_gusta": 4.77,
+      "ejemplos": [
+        "El señor Clopatofsky debe informarse más del carro eléctrico, se nota su sesgo sobre todo en lo relacionado con la vida útil de las baterías (-40%? a los 8 año…",
+        "El carro eléctrico no es ecológico, son carros de emisiones indirectas eso es muy diferente."
+      ]
+    },
+    "desconfianza_problemas": {
+      "comentarios": 232,
+      "pct": 8.73,
+      "pct_ponderado_me_gusta": 7.83,
+      "ejemplos": [
+        "El problema real es el precio del producto cuando esta de moda y es escaso. No es que el carro se devaluó muchísimo, es que el precio super inflado esta bajand…",
+        "Seria super un electrico Colombiano,no tendriamos problemas con los repuestos."
+      ]
+    },
+    "hibrido_mencion": {
+      "comentarios": 171,
+      "pct": 6.44,
+      "pct_ponderado_me_gusta": 7.4,
+      "ejemplos": [
+        "Tuve la versión 2.0 por año y medio, ahora tengo esta versión mild-hybrid y estoy súper contento. A los que piensan que “casi no anda” se equivocan, anda sabro…",
+        "No es buena idea comprar carro eléctrico en Colombia x ahora: sencillamente porque no hay INFRAESTRUCTURA (suficientes sitios de carga en ciudad y sobre todo e…"
+      ]
+    },
+    "electrico_mencion": {
+      "comentarios": 711,
+      "pct": 26.76,
+      "pct_ponderado_me_gusta": 25.19,
+      "ejemplos": [
+        "Tengo un BYD SEAGULL y una BYD Yuan Up hace 2 años. No los pienso vender sino disfrutarlos al menos por 10 años. Es cierto no hay mercado para los eléctricos p…",
+        "Seria super un electrico Colombiano,no tendriamos problemas con los repuestos."
+      ]
+    },
+    "marcas_modelos": {
+      "comentarios": 205,
+      "pct": 7.72,
+      "pct_ponderado_me_gusta": 8.67,
+      "ejemplos": [
+        "Tengo un BYD SEAGULL y una BYD Yuan Up hace 2 años. No los pienso vender sino disfrutarlos al menos por 10 años. Es cierto no hay mercado para los eléctricos p…",
+        "Yo tengo un toyota gasolina y un chevrolet electrico comprados hace 10 años y sin duda que en el electrico me he ahorrado mucho mas que en el gasolina en todos…"
+      ]
+    },
+    "micromovilidad": {
+      "comentarios": 28,
+      "pct": 1.05,
+      "pct_ponderado_me_gusta": 0.55,
+      "ejemplos": [
+        "Todo depende del poder económico,yo compré una patineta eléctrica",
+        "Con razón el tráfico cada vez es peor, tanto excento de pico y placa. Que le pongan pico y placa a todo el mundo incluyendo motos."
+      ]
+    },
+    "territorio_ciudad": {
+      "comentarios": 210,
+      "pct": 7.9,
+      "pct_ponderado_me_gusta": 12.21,
+      "ejemplos": [
+        "El que no tiene dónde cargarlo en su casa o en su apartamento en Bogotá, que no lo compre, porque en todos los puntos de carga siempre está lleno. Me toca ir h…",
+        "Tuve la versión 2.0 por año y medio, ahora tengo esta versión mild-hybrid y estoy súper contento. A los que piensan que “casi no anda” se equivocan, anda sabro…"
+      ]
+    },
+    "gasolina_comparacion": {
+      "comentarios": 312,
+      "pct": 11.74,
+      "pct_ponderado_me_gusta": 14.59,
+      "ejemplos": [
+        "Tuve la versión 2.0 por año y medio, ahora tengo esta versión mild-hybrid y estoy súper contento. A los que piensan que “casi no anda” se equivocan, anda sabro…",
+        "Lo mismo pasa con el de gasolina apenas lo sacas del concesionario pierdes como 10 millones"
+      ]
+    }
+  },
+  "mencion_hibrido_vs_electrico": {
+    "solo_hibrido": 110,
+    "solo_electrico": 650,
+    "ambos": 61,
+    "ninguno": 1836,
+    "co_ocurrencia": {
+      "precio_costo": {
+        "pct_en_comentarios_que_mencionan_hibrido": 14.55,
+        "pct_en_comentarios_que_mencionan_electrico": 25.38
+      },
+      "carga_infraestructura": {
+        "pct_en_comentarios_que_mencionan_hibrido": 20.0,
+        "pct_en_comentarios_que_mencionan_electrico": 24.77
+      },
+      "autonomia_bateria": {
+        "pct_en_comentarios_que_mencionan_hibrido": 15.45,
+        "pct_en_comentarios_que_mencionan_electrico": 21.85
+      },
+      "incentivos_impuestos": {
+        "pct_en_comentarios_que_mencionan_hibrido": 6.36,
+        "pct_en_comentarios_que_mencionan_electrico": 6.31
+      },
+      "desconfianza_problemas": {
+        "pct_en_comentarios_que_mencionan_hibrido": 2.73,
+        "pct_en_comentarios_que_mencionan_electrico": 16.31
+      }
+    }
+  },
+  "advertencia": "Los comentarios son de quienes comentaron en los videos seleccionados; no representan a toda la población."
+}

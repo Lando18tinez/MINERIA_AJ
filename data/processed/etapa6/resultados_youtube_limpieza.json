@@ -1,0 +1,41 @@
+{
+  "entrada": "data/raw/youtube/comentarios_crudos.csv",
+  "reglas_en_orden": [
+    "vacios",
+    "publicidad",
+    "muy_cortos",
+    "duplicados",
+    "otro_idioma"
+  ],
+  "parametros": {
+    "min_palabras": 4,
+    "umbral_idioma": 0.9,
+    "min_palabras_para_detectar_idioma": 6
+  },
+  "eliminados_por_regla": {
+    "vacios": 13,
+    "publicidad": 27,
+    "muy_cortos": 148,
+    "duplicados": 5,
+    "otro_idioma": 59
+  },
+  "comentarios_crudos": 2909,
+  "comentarios_limpios": 2657,
+  "pct_conservado": 91.34,
+  "menciona_tema": {
+    "si": 1705,
+    "no": 952,
+    "pct_si": 64.17
+  },
+  "palabras_por_comentario": {
+    "mediana": 18.0,
+    "media": 28.6
+  },
+  "comentarios_por_video": {
+    "videos": 20,
+    "max": 477,
+    "min": 20
+  },
+  "privacidad": "Se eliminan URL, correos, @menciones y celulares del texto. No se conserva nombre ni canal del autor.",
+  "idioma": "Análisis en español; los comentarios en otro idioma se excluyen (no se traducen)."
+}
