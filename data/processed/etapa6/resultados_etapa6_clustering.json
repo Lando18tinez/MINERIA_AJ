@@ -1,0 +1,255 @@
+{
+  "algoritmo": "k-Means (Orange): k-means++, 10 inicializaciones, 300 iteraciones máx., semilla 0",
+  "normalizacion": "estandarización μ=0, σ=1 de las 8 variables (Normalize columns)",
+  "variables": [
+    "log10_vehiculos",
+    "pct_camioneta",
+    "pct_automovil",
+    "pct_campero",
+    "pct_micromovilidad",
+    "pct_registro_2022_2024",
+    "anio_registro_medio",
+    "antiguedad_media"
+  ],
+  "excluidas_a_proposito": [
+    "combustible",
+    "tipo_motorizacion"
+  ],
+  "territorios": 98,
+  "vehiculos": 154513,
+  "comparacion_k": [
+    {
+      "k": 2,
+      "silueta": 0.4519,
+      "inercia": 379.3,
+      "tamanos": [
+        62,
+        36
+      ],
+      "grupo_mas_pequeno": 36
+    },
+    {
+      "k": 3,
+      "silueta": 0.2862,
+      "inercia": 320.77,
+      "tamanos": [
+        22,
+        34,
+        42
+      ],
+      "grupo_mas_pequeno": 22
+    },
+    {
+      "k": 4,
+      "silueta": 0.2392,
+      "inercia": 268.64,
+      "tamanos": [
+        20,
+        19,
+        39,
+        20
+      ],
+      "grupo_mas_pequeno": 19
+    },
+    {
+      "k": 5,
+      "silueta": 0.2658,
+      "inercia": 225.26,
+      "tamanos": [
+        31,
+        19,
+        17,
+        16,
+        15
+      ],
+      "grupo_mas_pequeno": 15
+    },
+    {
+      "k": 6,
+      "silueta": 0.2494,
+      "inercia": 203.27,
+      "tamanos": [
+        15,
+        12,
+        19,
+        15,
+        15,
+        22
+      ],
+      "grupo_mas_pequeno": 12
+    },
+    {
+      "k": 7,
+      "silueta": 0.255,
+      "inercia": 190.53,
+      "tamanos": [
+        12,
+        10,
+        20,
+        19,
+        13,
+        15,
+        9
+      ],
+      "grupo_mas_pequeno": 9
+    },
+    {
+      "k": 8,
+      "silueta": 0.262,
+      "inercia": 175.89,
+      "tamanos": [
+        3,
+        11,
+        18,
+        11,
+        12,
+        13,
+        18,
+        12
+      ],
+      "grupo_mas_pequeno": 3
+    }
+  ],
+  "criterio_k": "mayor silueta entre k >= 3 cuyo grupo más pequeño tenga >= 5 territorios",
+  "k_elegido": 3,
+  "silueta_elegida": 0.2862,
+  "silueta_k2": 0.4519,
+  "perfiles": [
+    {
+      "grupo": 1,
+      "territorios": 22,
+      "vehiculos": 134237,
+      "pct_vehiculos": 86.88,
+      "promedio_variables": {
+        "log10_vehiculos": 3.29,
+        "pct_camioneta": 61.54,
+        "pct_automovil": 24.37,
+        "pct_campero": 4.98,
+        "pct_micromovilidad": 8.47,
+        "pct_registro_2022_2024": 79.13,
+        "anio_registro_medio": 2022.54,
+        "antiguedad_media": -0.46
+      },
+      "z_vs_global": {
+        "log10_vehiculos": 1.26,
+        "pct_camioneta": 0.68,
+        "pct_automovil": 1.18,
+        "pct_campero": 0.17,
+        "pct_micromovilidad": -0.82,
+        "pct_registro_2022_2024": 0.6,
+        "anio_registro_medio": 0.56,
+        "antiguedad_media": -0.65
+      },
+      "variables_distintivas": [
+        "log10_vehiculos",
+        "pct_automovil",
+        "pct_micromovilidad"
+      ],
+      "silueta_media": 0.3,
+      "territorios_principales": [
+        "BOGOTA (BOGOTA D.C.) (63.610 veh.)",
+        "MEDELLIN (ANTIOQUIA) (15.414 veh.)",
+        "ENVIGADO (ANTIOQUIA) (9.207 veh.)",
+        "CALI (VALLE DEL CAUCA) (8.781 veh.)",
+        "FUNZA (CUNDINAMARCA) (6.137 veh.)"
+      ],
+      "departamentos_principales": [
+        "BOGOTA D.C. (63.610)",
+        "ANTIOQUIA (29.459)",
+        "CUNDINAMARCA (15.140)"
+      ],
+      "pct_electricos_ilustrativo": 17.77
+    },
+    {
+      "grupo": 2,
+      "territorios": 34,
+      "vehiculos": 12130,
+      "pct_vehiculos": 7.85,
+      "promedio_variables": {
+        "log10_vehiculos": 2.26,
+        "pct_camioneta": 10.62,
+        "pct_automovil": 2.9,
+        "pct_campero": 0.66,
+        "pct_micromovilidad": 83.56,
+        "pct_registro_2022_2024": 45.92,
+        "anio_registro_medio": 2020.98,
+        "antiguedad_media": 0.14
+      },
+      "z_vs_global": {
+        "log10_vehiculos": -0.24,
+        "pct_camioneta": -1.25,
+        "pct_automovil": -1.0,
+        "pct_campero": -0.76,
+        "pct_micromovilidad": 1.24,
+        "pct_registro_2022_2024": -0.93,
+        "anio_registro_medio": -0.92,
+        "antiguedad_media": 1.13
+      },
+      "variables_distintivas": [
+        "pct_camioneta",
+        "pct_micromovilidad",
+        "antiguedad_media"
+      ],
+      "silueta_media": 0.462,
+      "territorios_principales": [
+        "MADRID (CUNDINAMARCA) (1.833 veh.)",
+        "CARTAGENA (BOLIVAR) (1.267 veh.)",
+        "ARJONA (BOLIVAR) (1.238 veh.)",
+        "ZIPAQUIRA (CUNDINAMARCA) (1.057 veh.)",
+        "SOACHA (CUNDINAMARCA) (946 veh.)"
+      ],
+      "departamentos_principales": [
+        "CUNDINAMARCA (3.836)",
+        "BOLIVAR (3.352)",
+        "VALLE DEL CAUCA (1.845)"
+      ],
+      "pct_electricos_ilustrativo": 87.67
+    },
+    {
+      "grupo": 3,
+      "territorios": 42,
+      "vehiculos": 8146,
+      "pct_vehiculos": 5.27,
+      "promedio_variables": {
+        "log10_vehiculos": 2.1,
+        "pct_camioneta": 60.91,
+        "pct_automovil": 14.66,
+        "pct_campero": 6.64,
+        "pct_micromovilidad": 17.61,
+        "pct_registro_2022_2024": 75.63,
+        "anio_registro_medio": 2022.43,
+        "antiguedad_media": -0.43
+      },
+      "z_vs_global": {
+        "log10_vehiculos": -0.46,
+        "pct_camioneta": 0.65,
+        "pct_automovil": 0.19,
+        "pct_campero": 0.53,
+        "pct_micromovilidad": -0.57,
+        "pct_registro_2022_2024": 0.44,
+        "anio_registro_medio": 0.45,
+        "antiguedad_media": -0.58
+      },
+      "variables_distintivas": [
+        "pct_camioneta",
+        "antiguedad_media",
+        "pct_micromovilidad"
+      ],
+      "silueta_media": 0.137,
+      "territorios_principales": [
+        "GIRON (SANTANDER) (872 veh.)",
+        "PASTO (NARINO) (608 veh.)",
+        "RESTREPO (META) (470 veh.)",
+        "NEIVA (HUILA) (448 veh.)",
+        "ARMENIA (QUINDIO) (441 veh.)"
+      ],
+      "departamentos_principales": [
+        "BOYACA (1.261)",
+        "SANTANDER (1.125)",
+        "NARINO (680)"
+      ],
+      "pct_electricos_ilustrativo": 21.59
+    }
+  ],
+  "robustez_ward_ari": 0.685
+}
