@@ -484,10 +484,10 @@
 
 <!-- ===================== ENTREGABLES ===================== -->
 <h2 class="h4 fw-bold mt-5 mb-3 text-dark" id="entregables">
-  <i class="bi bi-box-seam text-success me-2"></i>Informe, video y archivos para reproducir
+  <i class="bi bi-box-seam text-success me-2"></i>Informe y archivos para reproducir
 </h2>
 <div class="row g-4 mb-4">
-  <div class="col-lg-6">
+  <div class="{{ 'col-lg-6' if video_url else 'col-12' }}">
     <div class="card shadow-sm border-0 p-4 bg-white h-100">
       <h5 class="fw-bold text-dark"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Informe técnico</h5>
       {% if informe_url %}
@@ -498,16 +498,14 @@
       {% endif %}
     </div>
   </div>
+  {% if video_url %}
   <div class="col-lg-6">
     <div class="card shadow-sm border-0 p-4 bg-white h-100">
       <h5 class="fw-bold text-dark"><i class="bi bi-play-btn-fill text-danger me-2"></i>Video de sustentación</h5>
-      {% if video_url %}
-        <a class="btn btn-energy btn-sm" href="{{ video_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right me-1"></i>Ver el video</a>
-      {% else %}
-        <p class="small text-muted mb-0">El video de sustentación aún no está disponible.</p>
-      {% endif %}
+      <a class="btn btn-energy btn-sm" href="{{ video_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right me-1"></i>Ver el video</a>
     </div>
   </div>
+  {% endif %}
   <div class="col-12">
     <div class="card shadow-sm border-0 p-4 bg-white">
       <h5 class="fw-bold text-dark"><i class="bi bi-git me-2"></i>Reproducibilidad</h5>

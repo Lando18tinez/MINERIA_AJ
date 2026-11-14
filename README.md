@@ -60,7 +60,7 @@ incluye un botón de pantalla completa y un enlace de respaldo «Abrir en pesta�
 | `/conocimiento-oculto` | Síntesis de hallazgos; modelo supervisado (¿eléctrico o híbrido?: regresión logística, árbol y Random Forest comparados con la misma validación cruzada); clustering de territorios (k-Means); análisis de comentarios de YouTube; conclusiones integradas; informe técnico, video y enlaces de reproducción |
 
 Todo lo que muestra la página sale de `data/processed/etapa6/*.json`. Si un resultado aún no existe (p. ej. los comentarios de YouTube), la sección lo indica en lugar de fallar.
-El informe técnico se publica copiando el PDF a `static/docs/Informe_ET6_AJ.pdf`; el video se enlaza en `VIDEO_ETAPA6_URL` (`app.py`).
+El informe técnico es `static/docs/Informe_ET6_AJ.pdf`. El video de sustentación es opcional: si se define `VIDEO_ETAPA6_URL` (`app.py`), aparece su tarjeta; con `""` no se muestra.
 
 Otras páginas: **Inicio** (`/`) y **Participantes** (`/participantes`).
 
