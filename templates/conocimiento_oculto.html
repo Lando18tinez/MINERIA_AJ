@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+
+{% block title %}Conocimiento oculto · {{ proyecto }}{% endblock %}
+
+{% block content %}
+{% set sup = o.supervisado %}
+{% set clu = o.clustering %}
+{% set prep = o.preparacion %}
+{% set LR = 'Regresión logística' %}
+{% set TR = 'Árbol de decisión' %}
+{% set RF = 'Random Forest' %}
+
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Inicio</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Conocimiento oculto</li>
+  </ol>
+</nav>
+
+<!-- Encabezado -->
+<div class="pb-3 mb-4 border-bottom">
+  <span class="badge-eco mb-2 d-inline-block">
+    <i class="bi bi-eye-slash-fill text-warning me-1"></i>Etapa 6 · Aprendizaje supervisado, no supervisado y texto
+  </span>
+  <h1 class="h2 fw-bold text-dark mb-1">Conocimiento oculto</h1>
+  <p class="text-muted mb-0">
+    Patrones que no se ven en los tableros descriptivos: un modelo que distingue vehículos eléctricos de híbridos, perfiles
+    de territorios descubiertos por agrupamiento y las opiniones de usuarios en YouTube. Todo se hizo en
+    <strong>Orange Data Mining</strong> y se replicó por código para poder verificar cada cifra.
+  </p>
+</div>
+
+<!-- Síntesis -->
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white border-start border-4 border-warning">
+  <h4 class="fw-bold text-dark mb-3"><i class="bi bi-stars text-warning me-2"></i>Síntesis de los hallazgos</h4>
+  <ul class="mb-3">
+    {% if sup %}
+    <li class="mb-2">
+      <strong>Supervisado.</strong> Un modelo de <strong>regresión logística</strong> acierta si un grupo de vehículos es
+      eléctrico o híbrido en el <strong>{{ sup.modelos[LR].por_grupo.accuracy | frac }}</strong> de los grupos
+      (línea base: {{ sup.linea_base.accuracy_por_grupo | frac }}) y en el
+      <strong>{{ sup.modelos[LR].por_vehiculo.accuracy | frac }}</strong> de los vehículos
+      (línea base: {{ sup.linea_base.accuracy_por_vehiculo | frac }}). El árbol y el Random Forest rinden parecido por
+      grupo, pero son menos exactos justo en los grupos grandes (más de 16 vehículos, que reúnen el
+      {{ (100 * sup.modelos[LR].por_tamano_de_grupo.grandes_cantidad_mayor_16.vehiculos / prep.supervisado.vehiculos) | dec(0) }} % de los vehículos):
+      {{ sup.modelos[TR].por_tamano_de_grupo.grandes_cantidad_mayor_16.accuracy_por_grupo | frac }} y
+      {{ sup.modelos[RF].por_tamano_de_grupo.grandes_cantidad_mayor_16.accuracy_por_grupo | frac }}, frente a
+      {{ sup.modelos[LR].por_tamano_de_grupo.grandes_cantidad_mayor_16.accuracy_por_grupo | frac }} de la regresión. Ponderados por vehículo
+      quedan por debajo de la línea base.
+    </li>
+    <li class="mb-2">
+      <strong>Qué explica el combustible.</strong> Casi todo lo explica la <em>clase</em> y la <em>carrocería</em> del vehículo:
+      ciclomotores, cuadriciclos y motocarros son eléctricos y los camperos son híbridos. En automóviles y camionetas, donde
+      conviven ambos tipos, el modelo detecta mal a los eléctricos
+      (recall {{ sup.modelos[LR].subconjunto_automovil_camioneta.por_grupo.recall | num3 }} por grupo).
+    </li>
+    {% endif %}
+    {% if clu %}
+    <li class="mb-2">
+      <strong>Clustering.</strong> Los {{ clu.territorios }} territorios con 30 o más vehículos se agrupan en
+      <strong>{{ clu.k_elegido }} perfiles</strong>: grandes centros urbanos ({{ clu.perfiles[0].territorios }} territorios con el
+      {{ clu.perfiles[0].pct_vehiculos | dec(1) }} % de los vehículos), territorios de micromovilidad eléctrica y ciudades intermedias con parque
+      de camionetas. La estructura es <strong>moderada</strong> (silueta {{ clu.silueta_elegida | num3 }}).
+    </li>
+    {% endif %}
+    <li class="mb-0">
+      <strong>Comentarios de YouTube.</strong>
+      {% if o.yt_analisis %}
+        {% set an = o.yt_analisis %}
+        Se analizaron <strong>{{ an.comentarios | miles }}</strong> comentarios en español de {{ o.yt_extraccion.videos_consultados if o.yt_extraccion else '—' }} videos de contenido colombiano.
+        Lo que más se menciona es el <strong>precio y costo</strong> ({{ an.categorias.precio_costo.pct | dec(1) }} %), la <strong>carga e infraestructura</strong>
+        ({{ an.categorias.carga_infraestructura.pct | dec(1) }} %) y la <strong>batería y autonomía</strong> ({{ an.categorias.autonomia_bateria.pct | dec(1) }} %).
+        Se habla mucho más de eléctricos ({{ an.categorias.electrico_mencion.pct | dec(1) }} %) que de híbridos ({{ an.categorias.hibrido_mencion.pct | dec(1) }} %), al revés de lo que muestra el RUNT.
+      {% else %}
+        <span class="text-muted">Pendiente: la extracción requiere una clave de la API de YouTube (ver sección 3).</span>
+      {% endif %}
+    </li>
+  </ul>
+  <p class="small text-muted mb-0">
+    Fuente única: {{ ' ' }}datos.gov.co · <code>ntxy-q9ix</code>, ventana 2015–2024. El dataset es agregado: cada fila es un grupo de
+    vehículos y los vehículos se cuentan con <code>SUM(cantidad)</code>, no con <code>COUNT(*)</code>.
+  </p>
+</div>
+
+<!-- ===================== 1. SUPERVISADO ===================== -->
+<h2 class="h4 fw-bold mt-5 mb-3 text-dark" id="supervisado">
+  <i class="bi bi-diagram-2-fill text-success me-2"></i>1. Aprendizaje supervisado: ¿eléctrico o híbrido?
+</h2>
+
+{% if sup %}
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Pregunta, variable objetivo y tipo de problema</h5>
+  <p class="mb-2">
+    <strong>Pregunta de predicción:</strong> dados la clase, la carrocería, el departamento, el año de registro y el año del modelo de un
+    grupo de vehículos matriculados, ¿se trata de vehículos <strong>eléctricos (BEV)</strong> o <strong>híbridos</strong>?
+  </p>
+  <ul class="small mb-2">
+    <li><strong>Variable objetivo:</strong> <code>tipo_motorizacion</code> = ELECTRICO | HIBRIDO (el híbrido agrupa gasolina-eléctrico y diésel-eléctrico).</li>
+    <li><strong>Predictoras:</strong> {{ prep.supervisado.predictoras | join(', ') }} (la antigüedad es año de registro menos año del modelo).</li>
+    <li><strong>Tipo:</strong> <strong>clasificación binaria</strong>, porque la variable objetivo es una categoría y no una cantidad.</li>
+    <li><strong>Sin fuga de información:</strong> <code>cantidad</code> no se usa como predictora (no se conoce al predecir; es el peso del grupo) ni el combustible
+      original. Se excluyen {{ prep.supervisado.excluida_hidrogeno.grupos }} grupos de hidrógeno ({{ prep.supervisado.excluida_hidrogeno.vehiculos }} vehículos): no son ni eléctricos ni híbridos y no hay ejemplos suficientes.</li>
+    <li><strong>Datos:</strong> {{ prep.supervisado.grupos | miles }} grupos que suman {{ prep.supervisado.vehiculos | miles }} vehículos.</li>
+  </ul>
+  <div class="alert alert-info small mb-0">
+    <strong>Desbalance de clases depende de la unidad.</strong> Por <em>grupo</em> hay {{ prep.supervisado.balance.ELECTRICO.pct_grupos | dec(1) }} % eléctricos
+    y {{ prep.supervisado.balance.HIBRIDO.pct_grupos | dec(1) }} % híbridos (casi balanceado); por <em>vehículo</em> los eléctricos son solo
+    {{ prep.supervisado.balance.ELECTRICO.pct_vehiculos | dec(1) }} %. Por eso se reportan ambas vistas y, en la vista por vehículo, el
+    accuracy se compara con la línea base de «predecir siempre híbrido» ({{ sup.linea_base.accuracy_por_vehiculo | frac }}), no con 50 %.
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Flujo en Orange y condiciones de evaluación</h5>
+  <p class="small mb-2">
+    El flujo es autónomo y no necesita Python: <code>File</code> (hechos y territorios) → <code>Merge Data</code> (une el departamento) → <code>Select Rows</code> (quita hidrógeno) →
+    <code>Formula</code> (antigüedad y clase <code>tipo_motorizacion</code>) → <code>Select Columns</code> (predictoras, clase y peso) →
+    <code>Rank</code> / <code>Distributions</code> (exploración y relevancia de variables) → <code>Preprocess</code> (estandariza las numéricas) →
+    <code>Logistic Regression</code>, <code>Tree</code> y <code>Random Forest</code> → <code>Test and Score</code> → <code>Confusion Matrix</code> y <code>ROC Analysis</code>
+    (más <code>Tree Viewer</code>). Los tres modelos reciben <strong>exactamente los mismos datos y la misma partición</strong>:
+    {{ sup.parametros.validacion }}; clase positiva para precisión, recall y F1: <strong>{{ sup.parametros.clase_positiva }}</strong>.
+  </p>
+  <ul class="small mb-0">
+    <li><strong>Regresión logística:</strong> {{ sup.parametros.regresion_logistica }}.</li>
+    <li><strong>Árbol de decisión:</strong> {{ sup.parametros.arbol }}.</li>
+    <li><strong>Random Forest:</strong> {{ sup.parametros.random_forest }}.</li>
+  </ul>
+</div>
+
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark mb-3">Comparación de los tres modelos</h5>
+  <h6 class="small text-uppercase text-muted fw-bold">Por grupo de registro (lo que muestra Test and Score)</h6>
+  <div class="table-responsive mb-3">
+    <table class="table table-sm align-middle small">
+      <thead class="table-light"><tr>
+        <th>Modelo</th><th class="text-end">Accuracy</th><th class="text-end">Precisión</th><th class="text-end">Recall</th><th class="text-end">F1</th><th class="text-end">AUC</th>
+        <th class="text-end">Accuracy en grupos grandes (&gt; 16)</th><th class="text-end">Accuracy automóvil + camioneta</th>
+      </tr></thead>
+      <tbody>
+      {% for nombre in [LR, TR, RF] %}{% set mm = sup.modelos[nombre] %}
+        <tr {% if nombre == LR %}class="table-success"{% endif %}>
+          <td><strong>{{ nombre }}</strong>{% if nombre == LR %} <span class="badge bg-success">elegido</span>{% endif %}</td>
+          <td class="text-end">{{ mm.por_grupo.accuracy | num3 }}</td><td class="text-end">{{ mm.por_grupo.precision | num3 }}</td>
+          <td class="text-end">{{ mm.por_grupo.recall | num3 }}</td><td class="text-end">{{ mm.por_grupo.f1 | num3 }}</td>
+          <td class="text-end">{{ mm.por_grupo.auc | num3 }}</td>
+          <td class="text-end">{{ mm.por_tamano_de_grupo.grandes_cantidad_mayor_16.accuracy_por_grupo | num3 }}</td>
+          <td class="text-end">{{ mm.subconjunto_automovil_camioneta.por_grupo.accuracy | num3 }}</td>
+        </tr>
+      {% endfor %}
+        <tr class="text-muted"><td>Línea base (siempre la clase mayoritaria)</td><td class="text-end">{{ sup.linea_base.accuracy_por_grupo | num3 }}</td><td colspan="6"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h6 class="small text-uppercase text-muted fw-bold">Ponderado por vehículo (cada grupo pesa su <code>cantidad</code>)</h6>
+  <div class="table-responsive mb-3">
+    <table class="table table-sm align-middle small">
+      <thead class="table-light"><tr>
+        <th>Modelo</th><th class="text-end">Accuracy</th><th class="text-end">Precisión</th><th class="text-end">Recall</th><th class="text-end">F1</th><th class="text-end">AUC</th>
+      </tr></thead>
+      <tbody>
+      {% for nombre in [LR, TR, RF] %}{% set mm = sup.modelos[nombre] %}
+        <tr {% if nombre == LR %}class="table-success"{% endif %}>
+          <td><strong>{{ nombre }}</strong></td>
+          <td class="text-end">{{ mm.por_vehiculo.accuracy | num3 }}</td><td class="text-end">{{ mm.por_vehiculo.precision | num3 }}</td>
+          <td class="text-end">{{ mm.por_vehiculo.recall | num3 }}</td><td class="text-end">{{ mm.por_vehiculo.f1 | num3 }}</td>
+          <td class="text-end">{{ mm.por_vehiculo.auc | num3 }}</td>
+        </tr>
+      {% endfor %}
+        <tr class="text-muted"><td>Línea base (siempre híbrido)</td><td class="text-end">{{ sup.linea_base.accuracy_por_vehiculo | num3 }}</td><td colspan="5"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small text-muted mb-0">
+    El AUC de Test and Score puede diferir en el tercer decimal del de esta tabla por el método de cálculo. Las métricas por vehículo se calculan con los mismos pliegues y predicciones,
+    sin reentrenar con pesos; las ofrece solo el script <code>etapa6_modelos.py</code> (Orange no pondera por cantidad en Test and Score).
+  </p>
+</div>
+
+<div class="row g-4 mb-4">
+  {% for nombre in [LR, TR, RF] %}{% set mm = sup.modelos[nombre] %}
+  <div class="col-lg-4">
+    <div class="card border h-100 p-3 bg-white {% if nombre == LR %}border-success border-2{% endif %}">
+      <h6 class="fw-bold text-dark">Matriz de confusión · {{ nombre }}</h6>
+      <table class="table table-sm text-center small mb-2">
+        <thead class="table-light"><tr><th></th><th>Pred. HÍBRIDO</th><th>Pred. ELÉCTRICO</th></tr></thead>
+        <tbody>
+          <tr><th class="table-light">Real HÍBRIDO</th><td>{{ mm.matriz_por_grupo[0][0] | miles }}</td><td class="text-danger">{{ mm.matriz_por_grupo[0][1] | miles }}</td></tr>
+          <tr><th class="table-light">Real ELÉCTRICO</th><td class="text-danger">{{ mm.matriz_por_grupo[1][0] | miles }}</td><td>{{ mm.matriz_por_grupo[1][1] | miles }}</td></tr>
+        </tbody>
+      </table>
+      <p class="small text-muted mb-1">Grupos. Por vehículo:</p>
+      <table class="table table-sm text-center small mb-0">
+        <tbody>
+          <tr><th class="table-light">Real HÍBRIDO</th><td>{{ mm.matriz_por_vehiculo[0][0] | miles }}</td><td class="text-danger">{{ mm.matriz_por_vehiculo[0][1] | miles }}</td></tr>
+          <tr><th class="table-light">Real ELÉCTRICO</th><td class="text-danger">{{ mm.matriz_por_vehiculo[1][0] | miles }}</td><td>{{ mm.matriz_por_vehiculo[1][1] | miles }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h5 class="fw-bold text-dark">Selección de variables</h5>
+      <p class="small mb-2">Relevancia de cada variable respecto a la clase (widget <code>Rank</code>, ganancia de información y ReliefF):</p>
+      <table class="table table-sm small mb-2">
+        <thead class="table-light"><tr><th>Variable</th><th class="text-end">Ganancia de información</th><th class="text-end">ReliefF</th></tr></thead>
+        <tbody>
+        {% for v, g in sup.ranking_variables['Ganancia de información'].items() | sort(attribute='1', reverse=True) %}
+          <tr><td><code>{{ v }}</code></td><td class="text-end">{{ g | num3 }}</td><td class="text-end">{{ sup.ranking_variables['ReliefF'][v] | num3 }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p class="small text-muted mb-0">Carrocería y clase dominan; el departamento y los años aportan poco. Se conservaron todas las variables: ninguna es redundante con la clase objetivo ni la revela.</p>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h5 class="fw-bold text-dark">Qué clases son fáciles y cuáles difíciles</h5>
+      <table class="table table-sm small mb-2">
+        <thead class="table-light"><tr><th>Clase</th><th class="text-end">Grupos</th><th class="text-end">% eléctricos (grupos)</th><th class="text-end">% eléctricos (vehículos)</th></tr></thead>
+        <tbody>
+        {% for c, v in sup.composicion_por_clase.items() %}{% if loop.index <= 8 %}
+          <tr><td>{{ c }}</td><td class="text-end">{{ v.grupos | miles }}</td><td class="text-end">{{ v.pct_electricos_grupos | dec(1) }}</td><td class="text-end">{{ v.pct_electricos_vehiculos | dec(1) }}</td></tr>
+        {% endif %}{% endfor %}
+        </tbody>
+      </table>
+      <p class="small text-muted mb-0">Ciclomotor, cuadriciclo y motocarro son (casi) 100 % eléctricos; campero, casi 0 %. La dificultad está en automóvil y camioneta.</p>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-5 p-4 bg-white border-start border-4 border-success">
+  <h5 class="fw-bold text-dark"><i class="bi bi-check2-circle text-success me-2"></i>Modelo seleccionado: regresión logística</h5>
+  <ul class="small mb-2">
+    <li><strong>Desempeño:</strong> por grupo empata con el Random Forest (accuracy {{ sup.modelos[LR].por_grupo.accuracy | num3 }} frente a {{ sup.modelos[RF].por_grupo.accuracy | num3 }}) y supera al árbol ({{ sup.modelos[TR].por_grupo.accuracy | num3 }}).
+      Por vehículo es claramente el mejor: {{ sup.modelos[LR].por_vehiculo.accuracy | num3 }} frente a {{ sup.modelos[RF].por_vehiculo.accuracy | num3 }} (bosque) y {{ sup.modelos[TR].por_vehiculo.accuracy | num3 }} (árbol), y es el único que supera la línea base ({{ sup.linea_base.accuracy_por_vehiculo | num3 }}).</li>
+    <li><strong>Errores:</strong> su error típico es perdonar eléctricos: precisión {{ sup.modelos[LR].por_grupo.precision | num3 }} pero recall {{ sup.modelos[LR].por_grupo.recall | num3 }} ({{ sup.modelos[LR].matriz_por_grupo[1][0] | miles }} grupos eléctricos clasificados como híbridos y {{ sup.modelos[LR].matriz_por_grupo[0][1] | miles }} al revés). Por vehículo, {{ sup.modelos[LR].matriz_por_vehiculo[1][0] | miles }} eléctricos se clasifican como híbridos.</li>
+    <li><strong>Interpretación y utilidad:</strong> es un modelo lineal con coeficientes legibles; el árbol completo tiene {{ sup.arbol_completo.hojas | miles }} hojas y no se puede leer. Sirve para ver qué combinaciones de clase y carrocería son «típicamente eléctricas» y para detectar registros atípicos.</li>
+    <li><strong>Conocimiento que aporta:</strong> el tipo de motorización de un vehículo en Colombia se deduce sobre todo de <em>qué tipo de vehículo es</em>; el territorio y el año casi no ayudan a distinguirlo.</li>
+    <li><strong>Limitaciones:</strong> los {{ prep.supervisado.grupos | miles }} grupos corresponden a solo {{ prep.supervisado.vectores_predictores_unicos | miles }} combinaciones distintas de predictoras, de las cuales {{ prep.supervisado.vectores_con_ambas_clases }} tienen eléctricos <em>y</em> híbridos (ambigüedad que ningún modelo puede resolver).
+      Como combinaciones idénticas pueden caer en pliegues de entrenamiento y de prueba, la validación es optimista para combinaciones nuevas. No hay marca, precio ni potencia (no están en la fuente) y no se evaluó hacia el futuro: describe asociaciones del registro 2015–2024, no causas.</li>
+  </ul>
+</div>
+{% else %}
+<div class="alert alert-warning">Los resultados del aprendizaje supervisado no están disponibles. Ejecute <code>python etapa6_preparar_datos.py</code> y <code>python etapa6_modelos.py</code>.</div>
+{% endif %}
+
+<!-- ===================== 2. CLUSTERING ===================== -->
+<h2 class="h4 fw-bold mt-5 mb-3 text-dark" id="clustering">
+  <i class="bi bi-bounding-box-circles text-success me-2"></i>2. Clustering: perfiles de territorio
+</h2>
+
+{% if clu %}
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Pregunta y datos</h5>
+  <p class="mb-2">
+    <strong>Pregunta:</strong> ¿existen perfiles de territorio (municipio + departamento) distintos según la composición de sus vehículos
+    por clase, la antigüedad de su parque y su tamaño?
+  </p>
+  <ul class="small mb-2">
+    <li><strong>Unidad:</strong> {{ clu.territorios }} territorios con 30 o más vehículos (de {{ prep.clustering.territorios_totales }}), que reúnen el {{ prep.clustering.pct_vehiculos_incluidos | dec(2) }} % de los vehículos. Menos de 30 vehículos daría porcentajes inestables.</li>
+    <li><strong>Variables ({{ clu.variables | length }}):</strong> <code>{{ clu.variables | join('</code>, <code>' | safe) }}</code>.</li>
+    <li><strong>No se usa el combustible ni la variable objetivo</strong> del ejercicio supervisado para formar los grupos; solo se usa después, como variable ilustrativa para describirlos.</li>
+    <li><strong>Normalización:</strong> {{ clu.normalizacion }}. Es necesaria porque las variables están en escalas muy distintas (porcentajes 0–100, años cercanos a 2020, logaritmos de 1 a 5) y k-Means usa distancia euclídea: sin normalizar dominarían los porcentajes y los años.</li>
+    <li><strong>Algoritmo:</strong> {{ clu.algoritmo }}. Flujo autónomo en Orange: <code>File</code> (hechos y territorios) → <code>Merge Data</code> → <code>Formula</code> (columnas ponderadas por cantidad) → <code>Group by</code> (suma por territorio) →
+      <code>Formula</code> (porcentajes y promedios) → <code>Select Rows</code> (30 o más vehículos) → <code>Select Columns</code> → <code>k-Means</code> (con «Normalize columns») → <code>Scatter Plot</code>, <code>Box Plot</code>, <code>Silhouette Plot</code>;
+      <code>Distances</code> → <code>Hierarchical Clustering</code> (Ward) como comprobación.</li>
+  </ul>
+</div>
+
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Elección del número de grupos</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle small text-center mb-2">
+      <thead class="table-light"><tr><th>k</th><th>Silueta media</th><th>Inercia</th><th>Tamaños de los grupos</th></tr></thead>
+      <tbody>
+      {% for c in clu.comparacion_k %}
+        <tr {% if c.k == clu.k_elegido %}class="table-success"{% endif %}>
+          <td><strong>{{ c.k }}</strong>{% if c.k == clu.k_elegido %} <span class="badge bg-success">elegido</span>{% endif %}</td>
+          <td>{{ c.silueta | num3 }}</td><td>{{ c.inercia | dec(1) }}</td><td>{{ c.tamanos | join(' · ') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small mb-0">
+    <strong>Criterio:</strong> {{ clu.criterio_k }}. La silueta más alta es la de <strong>k = 2</strong> ({{ clu.silueta_k2 | num3 }}), pero solo separa «micromovilidad» del resto, algo ya visible en los datos.
+    Con <strong>k = {{ clu.k_elegido }}</strong> (silueta {{ clu.silueta_elegida | num3 }}) ese grupo se conserva y el resto se divide en grandes centros y ciudades intermedias.
+    Es una decisión de interpretabilidad, no de calidad estadística: <strong>ambas siluetas indican una estructura débil a moderada</strong> (por debajo de 0,5). Una comprobación con
+    agrupamiento jerárquico (Ward) coincide solo en parte (índice de Rand ajustado {{ clu.robustez_ward_ari | num3 }}).
+  </p>
+</div>
+
+<div class="row g-4 mb-4">
+  {% for p in clu.perfiles %}{% set d = grupos_desc.get(p.grupo, {}) %}
+  <div class="col-lg-4">
+    <div class="content-card card h-100 border">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <span class="pregunta-num">{{ p.grupo }}</span>
+          <div>
+            <h6 class="fw-bold text-dark mb-0">{{ d.nombre or ('Grupo ' ~ p.grupo) }}</h6>
+            <div class="small text-muted">{{ p.territorios }} territorios · {{ p.vehiculos | miles }} vehículos ({{ p.pct_vehiculos | dec(1) }} %)</div>
+          </div>
+        </div>
+        {% if d.lectura %}<p class="small">{{ d.lectura }}</p>{% endif %}
+        <table class="table table-sm small mb-2">
+          <tbody>
+            <tr><td>% camioneta</td><td class="text-end">{{ p.promedio_variables.pct_camioneta | dec(1) }}</td></tr>
+            <tr><td>% automóvil</td><td class="text-end">{{ p.promedio_variables.pct_automovil | dec(1) }}</td></tr>
+            <tr><td>% campero</td><td class="text-end">{{ p.promedio_variables.pct_campero | dec(1) }}</td></tr>
+            <tr><td>% micromovilidad</td><td class="text-end">{{ p.promedio_variables.pct_micromovilidad | dec(1) }}</td></tr>
+            <tr><td>% registrado 2022–2024</td><td class="text-end">{{ p.promedio_variables.pct_registro_2022_2024 | dec(1) }}</td></tr>
+            <tr><td>Antigüedad media (años)</td><td class="text-end">{{ p.promedio_variables.antiguedad_media | dec(2) }}</td></tr>
+            <tr><td>Silueta media del grupo</td><td class="text-end">{{ p.silueta_media | num3 }}</td></tr>
+            <tr class="table-light"><td><em>% eléctricos (ilustrativa, no se usó)</em></td><td class="text-end">{{ p.pct_electricos_ilustrativo | dec(1) }}</td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted mb-0"><strong>Territorios principales:</strong> {{ p.territorios_principales | join('; ') }}.</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card shadow-sm border-0 mb-5 p-4 bg-white border-start border-4 border-success">
+  <h5 class="fw-bold text-dark"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Qué patrones ocultos aparecen y para qué sirven</h5>
+  <ul class="small mb-2">
+    <li>Hay <strong>dos formas distintas de adoptar vehículos eléctricos</strong>: la de los grandes centros, con parque reciente de camionetas y automóviles, y la de territorios medianos donde lo que se registra son ciclomotores y cuadriciclos. Un promedio nacional las mezcla.</li>
+    <li>El grupo de <strong>micromovilidad</strong> tiene casi todo eléctrico ({{ clu.perfiles[1].pct_electricos_ilustrativo | dec(1) }} % de sus vehículos), mientras que en los otros dos es de {{ clu.perfiles[0].pct_electricos_ilustrativo | dec(1) }} % y {{ clu.perfiles[2].pct_electricos_ilustrativo | dec(1) }} %. Para una política de carga pública o de vehículos livianos, los dos perfiles necesitan medidas diferentes.</li>
+    <li>Las <strong>ciudades intermedias</strong> se parecen en composición a los grandes centros pero con volúmenes pequeños: son los candidatos naturales a seguir la misma trayectoria (hipótesis, ver conclusiones).</li>
+  </ul>
+  <p class="small text-muted mb-0">
+    <strong>Limitaciones:</strong> estructura débil a moderada; el grupo 3 está mal separado del 1 (silueta {{ clu.perfiles[2].silueta_media | num3 }}). La variable «micromovilidad» está casi perfectamente ligada al combustible eléctrico, así que los grupos reflejan
+    en parte la mezcla de clases que ya conocemos. No hay población, ingresos ni infraestructura de carga para explicar los perfiles; {{ prep.clustering.territorios_excluidos }} territorios pequeños quedaron fuera.
+  </p>
+</div>
+{% else %}
+<div class="alert alert-warning">Los resultados del clustering no están disponibles. Ejecute <code>python etapa6_clustering.py</code>.</div>
+{% endif %}
+
+<!-- ===================== 3. YOUTUBE ===================== -->
+<h2 class="h4 fw-bold mt-5 mb-3 text-dark" id="youtube">
+  <i class="bi bi-youtube text-danger me-2"></i>3. Comentarios de YouTube
+</h2>
+
+{% if o.yt_extraccion %}
+{% set ex = o.yt_extraccion %}
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Extracción con la API de YouTube</h5>
+  <p class="small mb-2"><strong>Propósito:</strong> {{ ex.proposito }}</p>
+  <ul class="small mb-3">
+    <li><strong>Fecha de extracción:</strong> {{ ex.fecha_extraccion }} · <strong>API:</strong> {{ ex.api }}.</li>
+    <li><strong>Consultas:</strong> {{ ex.criterios.consultas | join(' · ') }} (región {{ ex.criterios.region }}, idioma {{ ex.criterios.idioma_relevancia }}, videos publicados desde {{ ex.criterios.publicados_desde }}).</li>
+    <li><strong>Selección:</strong> videos con al menos {{ ex.criterios.min_comentarios_por_video }} comentarios, máximo {{ ex.criterios.max_videos_por_canal }} por canal y {{ ex.criterios.max_videos }} en total;
+      hasta {{ ex.criterios.max_comentarios_por_video }} comentarios de primer nivel por video (orden por relevancia).
+      {% if ex.criterios.solo_contenido_colombiano %}<strong>Solo contenido colombiano:</strong> {{ ex.criterios.solo_contenido_colombiano }}; se descartaron {{ ex.videos_descartados_por_no_ser_de_colombia }} videos válidos de otros países.{% endif %}</li>
+    <li><strong>Resultado:</strong> {{ ex.videos_encontrados }} videos encontrados, {{ ex.videos_consultados }} consultados, <strong>{{ ex.comentarios_extraidos | miles }}</strong> comentarios. Cuota usada: {{ ex.cuota_utilizada_unidades | miles }} unidades.</li>
+  </ul>
+  <div class="table-responsive mb-3">
+    <table class="table table-sm small">
+      <thead class="table-light"><tr><th>Video</th><th>Canal</th><th>País del canal</th><th>Publicado</th><th class="text-end">Comentarios extraídos</th></tr></thead>
+      <tbody>
+      {% for v in ex.videos %}
+        <tr><td><a href="{{ v.enlace }}" target="_blank" rel="noopener noreferrer">{{ v.titulo }}</a></td><td>{{ v.canal }}</td><td>{{ v.pais_canal }}</td><td>{{ v.publicado }}</td><td class="text-end">{{ v.comentarios_extraidos | miles }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <h6 class="fw-bold text-dark">Restricciones encontradas</h6>
+  <ul class="small mb-2">{% for r in ex.restricciones %}<li>{{ r }}</li>{% endfor %}</ul>
+  <p class="small text-muted mb-0"><i class="bi bi-shield-lock me-1"></i>{{ ex.privacidad }} La clave de la API no se publica. Los comentarios completos no se redistribuyen; solo se citan fragmentos cortos como evidencia.</p>
+</div>
+{% endif %}
+
+{% if o.yt_limpieza %}
+{% set li = o.yt_limpieza %}
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Calidad y limpieza</h5>
+  <div class="table-responsive">
+    <table class="table table-sm small mb-2" style="max-width:520px">
+      <tbody>
+        <tr><td>Comentarios extraídos</td><td class="text-end">{{ li.comentarios_crudos | miles }}</td></tr>
+        {% for regla, n in li.eliminados_por_regla.items() %}<tr><td class="text-muted">− {{ regla | replace('_', ' ') }}</td><td class="text-end">{{ n | miles }}</td></tr>{% endfor %}
+        <tr class="table-light"><td><strong>Comentarios analizados</strong></td><td class="text-end"><strong>{{ li.comentarios_limpios | miles }}</strong> ({{ li.pct_conservado | dec(1) }} %)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small mb-1">{{ li.idioma }} {{ li.privacidad }} El {{ li.menciona_tema.pct_si | dec(1) }} % de los comentarios conservados menciona el tema de forma explícita; el resto se mantiene pero se marca.</p>
+</div>
+{% endif %}
+
+{% if o.yt_analisis %}
+{% set an = o.yt_analisis %}
+<div class="card shadow-sm border-0 mb-4 p-4 bg-white">
+  <h5 class="fw-bold text-dark">Qué dicen los comentarios</h5>
+  <p class="small text-muted">{{ an.procesamiento }}. Vocabulario: {{ an.vocabulario | miles }} términos.</p>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <h6 class="fw-bold text-dark">Categorías de interés (proporción de comentarios que las mencionan)</h6>
+      <table class="table table-sm small">
+        <thead class="table-light"><tr><th>Categoría</th><th class="text-end">Comentarios</th><th class="text-end">%</th></tr></thead>
+        <tbody>
+        {% for c, v in an.categorias.items() | sort(attribute='1.comentarios', reverse=True) %}
+          <tr><td>{{ c | replace('_', ' ') }}</td><td class="text-end">{{ v.comentarios | miles }}</td><td class="text-end">{{ v.pct | dec(1) }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p class="small text-muted">Codificación por diccionario (palabras clave definidas antes de ver los datos): aproximada, sin análisis de sentimiento.</p>
+    </div>
+    <div class="col-lg-6">
+      <h6 class="fw-bold text-dark">Términos más frecuentes</h6>
+      <p class="small">{% for t in an.terminos_por_frecuencia_documental[:15] %}<span class="badge bg-light text-dark border me-1 mb-1">{{ t.termino }} · {{ t.comentarios | miles }}</span>{% endfor %}</p>
+      {% if an.bigramas %}
+      <h6 class="fw-bold text-dark">Expresiones que se repiten</h6>
+      <p class="small">{% for b in an.bigramas[:10] %}<span class="badge bg-light text-dark border me-1 mb-1">{{ b.bigrama }} · {{ b.veces }}</span>{% endfor %}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% if an.lda.k_elegido %}
+  <h6 class="fw-bold text-dark mt-3">Temas (LDA, k = {{ an.lda.k_elegido }}; {{ an.lda.criterio }})</h6>
+  <div class="row g-3">
+    {% for t in an.lda.temas %}
+    <div class="col-lg-6"><div class="card border p-3 h-100">
+      <div class="small text-muted">Tema {{ t.tema }} · {{ t.pct_comentarios | dec(1) }} % de los comentarios</div>
+      <div class="fw-bold small mb-2">{{ t.palabras[:8] | join(', ') }}</div>
+      {% for e in t.ejemplos[:2] %}<blockquote class="small text-muted border-start ps-2 mb-1">«{{ e }}»</blockquote>{% endfor %}
+    </div></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <p class="small text-muted mt-3 mb-0"><i class="bi bi-exclamation-triangle me-1"></i>{{ an.advertencia }}</p>
+</div>
+{% endif %}
+
+{% if not o.yt_extraccion %}
+<div class="alert alert-warning">
+  <strong>Pendiente de extracción.</strong> La extracción de comentarios necesita una clave de la API de YouTube Data v3, que no se publica en el repositorio.
+  Con la clave definida en la variable de entorno <code>YOUTUBE_API_KEY</code> se ejecutan, en orden,
+  <code>etapa6_youtube_extraer.py</code>, <code>etapa6_youtube_limpieza.py</code>, <code>etapa6_stopwords.py</code> y <code>etapa6_youtube_analisis.py</code>;
+  esta sección se llena sola con los resultados.
+</div>
+{% endif %}
+
+<!-- ===================== 4. CONCLUSIONES ===================== -->
+<h2 class="h4 fw-bold mt-5 mb-3 text-dark" id="conclusiones">
+  <i class="bi bi-intersect text-success me-2"></i>4. Conclusiones integradas
+</h2>
+<div class="row g-4 mb-5">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 bg-white border-start border-4 border-success h-100">
+      <h5 class="fw-bold text-dark">Respaldado por evidencia</h5>
+      <ul class="small mb-0">
+        {% if sup %}<li>El tipo de motorización se deduce principalmente de la <strong>clase y la carrocería</strong>; departamento y años aportan poco (ranking de variables).</li>
+        <li>Los modelos que se ven bien por grupo pueden fallar donde está la mayoría de los vehículos: <strong>hay que evaluar también ponderando por <code>cantidad</code></strong>.</li>{% endif %}
+        {% if o.yt_analisis %}{% set an = o.yt_analisis %}
+        <li><strong>Comentarios:</strong> en una muestra de {{ an.comentarios | miles }} comentarios, las preocupaciones más frecuentes son precio y costo ({{ an.categorias.precio_costo.pct | dec(1) }} %), carga e infraestructura ({{ an.categorias.carga_infraestructura.pct | dec(1) }} %) y batería y autonomía ({{ an.categorias.autonomia_bateria.pct | dec(1) }} %). Los incentivos e impuestos se mencionan poco ({{ an.categorias.incentivos_impuestos.pct | dec(1) }} %).</li>
+        <li><strong>Los comentarios cuestionan el protagonismo de los eléctricos:</strong> mencionan eléctricos en el {{ an.categorias.electrico_mencion.pct | dec(1) }} % de los casos y híbridos en el {{ an.categorias.hibrido_mencion.pct | dec(1) }} %, mientras que el RUNT registra {{ prep.supervisado.balance.HIBRIDO.pct_vehiculos | dec(1) }} % de híbridos. La conversación en estos videos no refleja lo que realmente se matricula (en parte porque las consultas buscaban sobre todo «eléctrico»).</li>
+        <li><strong>Los comentarios amplían lo que no hay en los datos:</strong> marcas y modelos aparecen en el {{ an.categorias.marcas_modelos.pct | dec(1) }} % de los comentarios y el RUNT no trae marca.</li>
+        {% endif %}
+        {% if sup and sup.electricos_micromovilidad %}<li><strong>Brecha de cobertura:</strong> la micromovilidad (ciclomotores, cuadriciclos, motos) es el {{ sup.electricos_micromovilidad.pct_de_los_electricos | dec(1) }} % de los vehículos eléctricos del RUNT ({{ sup.electricos_micromovilidad.vehiculos_electricos_micromovilidad | miles }} de {{ sup.electricos_micromovilidad.vehiculos_electricos | miles }}), pero casi no aparece en los comentarios{% if o.yt_analisis %} ({{ o.yt_analisis.categorias.micromovilidad.pct | dec(1) }} %){% endif %}. Los videos buscados eran sobre carros, así que esto muestra un límite de la muestra, no desinterés.</li>{% endif %}
+        {% if clu %}<li>Los territorios se separan en perfiles distintos, uno de ellos de <strong>micromovilidad eléctrica</strong>, con una estructura débil a moderada.</li>
+        <li>Coincide con el supervisado: la clase del vehículo es lo que más diferencia a eléctricos de híbridos tanto al predecir como al agrupar territorios.</li>{% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 bg-white border-start border-4 border-warning h-100">
+      <h5 class="fw-bold text-dark">Hipótesis que requieren validación</h5>
+      <ul class="small mb-0">
+        <li>El predominio de híbridos en automóviles y camionetas podría deberse a precio, infraestructura de carga o autonomía; el RUNT no trae precio, marca ni puntos de carga, así que <strong>no se puede probar</strong> con estos datos.</li>
+        <li>Las ciudades intermedias podrían seguir la trayectoria de los grandes centros; requiere datos de varios años por territorio y de población.</li>
+        {% if o.yt_analisis %}<li>La desconfianza (fallas, riesgos, problemas) aparece más en comentarios que hablan solo de eléctricos ({{ o.yt_analisis.mencion_hibrido_vs_electrico.co_ocurrencia.desconfianza_problemas.pct_en_comentarios_que_mencionan_electrico | dec(1) }} %) que solo de híbridos ({{ o.yt_analisis.mencion_hibrido_vs_electrico.co_ocurrencia.desconfianza_problemas.pct_en_comentarios_que_mencionan_hibrido | dec(1) }} %). Podría ayudar a explicar por qué dominan los híbridos, pero es solo un indicio: son pocos comentarios de híbridos y no se sabe quién los escribe.</li>{% endif %}
+        <li>Lo que opinan quienes comentan en YouTube puede orientar estas hipótesis, pero <strong>no representa a toda la población</strong>: es una muestra autoseleccionada de los videos consultados.</li>
+        <li>Decisiones que podrían apoyarse: priorizar infraestructura de carga según perfil de territorio, y tratar la micromovilidad eléctrica como una política distinta a la de los automóviles.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ENTREGABLES ===================== -->
+<h2 class="h4 fw-bold mt-5 mb-3 text-dark" id="entregables">
+  <i class="bi bi-box-seam text-success me-2"></i>Informe y archivos para reproducir
+</h2>
+<div class="row g-4 mb-4">
+  <div class="{{ 'col-lg-6' if video_url else 'col-12' }}">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h5 class="fw-bold text-dark"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Informe técnico</h5>
+      {% if informe_url %}
+        <p class="small">Documento paso a paso con flujos, parámetros, evidencias y conclusiones.</p>
+        <a class="btn btn-energy btn-sm" href="{{ informe_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-download me-1"></i>Abrir / descargar (PDF)</a>
+      {% else %}
+        <p class="small text-muted mb-0">El informe técnico en PDF aún no está publicado en la aplicación.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% if video_url %}
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h5 class="fw-bold text-dark"><i class="bi bi-play-btn-fill text-danger me-2"></i>Video de sustentación</h5>
+      <a class="btn btn-energy btn-sm" href="{{ video_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right me-1"></i>Ver el video</a>
+    </div>
+  </div>
+  {% endif %}
+  <div class="col-12">
+    <div class="card shadow-sm border-0 p-4 bg-white">
+      <h5 class="fw-bold text-dark"><i class="bi bi-git me-2"></i>Reproducibilidad</h5>
+      <div class="row small">
+        <div class="col-md-4">
+          <h6 class="fw-bold">Flujos de Orange</h6>
+          <p class="ps-0 mb-0">Los tres flujos (supervisado, clustering y comentarios) se describen widget por widget, con sus parámetros y capturas, en el informe técnico.</p>
+        </div>
+        <div class="col-md-4">
+          <h6 class="fw-bold">Código</h6>
+          <ul class="ps-3">
+            {% for s in ['etapa6_preparar_datos.py', 'etapa6_modelos.py', 'etapa6_clustering.py', 'etapa6_youtube_extraer.py', 'etapa6_youtube_limpieza.py', 'etapa6_stopwords.py', 'etapa6_youtube_analisis.py'] %}
+              <li><a href="{{ url_for('ver_codigo', archivo=s) }}">{{ s }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h6 class="fw-bold">Datos y resultados</h6>
+          <ul class="ps-3">
+            {% for s in ['supervisado_tipo_motorizacion.tab', 'clustering_territorios.tab', 'clustering_territorios_grupos.tab', 'resultados_etapa6_supervisado.json', 'resultados_etapa6_clustering.json'] %}
+              <li><a href="{{ url_for('descargar_datos', archivo=s) }}">{{ s }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <p class="small mb-0 mt-2">
+        Repositorio: <a href="{{ repo_url }}" target="_blank" rel="noopener noreferrer">{{ repo_url }}</a> ·
+        Aplicación: <a href="{{ app_url }}" target="_blank" rel="noopener noreferrer">{{ app_url }}</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end align-items-center mt-4 pt-3 border-top">
+  <a class="btn btn-outline-secondary" href="{{ url_for('home') }}"><i class="bi bi-house-door me-1"></i> Volver al inicio</a>
+</div>
+{% endblock %}

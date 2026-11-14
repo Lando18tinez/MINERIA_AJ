@@ -8,8 +8,13 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Variables de entorno / secretos
+# Variables de entorno / secretos (clave de la API de YouTube: YOUTUBE_API_KEY)
 .env
+
+# Etapa 6: los comentarios de YouTube (crudos y limpios) NO se publican; se regeneran con los scripts.
+# Sí se publican los metadatos de los videos y los resultados agregados.
+data/raw/youtube/comentarios_crudos.csv
+data/processed/etapa6/comentarios_limpios.tab
 
 # Configuración de VS Code
 .vscode/

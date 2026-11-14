@@ -29,6 +29,55 @@ CONOCIMIENTO = json.loads(
 # Modelo estrella de la Etapa 5 (SQLite). La app solo lo lee: se abre con mode=ro (ver olap.py).
 MODELO_DB = olap.MODELO_DB
 
+# --- Etapa 6 · Conocimiento oculto -----------------------------------------------
+# Resultados de los scripts etapa6_*.py (réplica por código de los flujos de Orange). Cada archivo es
+# opcional: si aún no se generó (p. ej. los comentarios de YouTube exigen una clave de API), la página
+# lo indica en lugar de fallar. Nada de lo que muestra la página se escribe a mano: sale de estos JSON.
+ETAPA6 = RAIZ / "data" / "processed" / "etapa6"
+
+
+def _cargar_json(ruta):
+    try:
+        return json.loads(Path(ruta).read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+OCULTO = {
+    "preparacion": _cargar_json(ETAPA6 / "resultados_etapa6_preparacion.json"),
+    "supervisado": _cargar_json(ETAPA6 / "resultados_etapa6_supervisado.json"),
+    "clustering": _cargar_json(ETAPA6 / "resultados_etapa6_clustering.json"),
+    "yt_extraccion": _cargar_json(ETAPA6 / "resultados_youtube_extraccion.json"),
+    "yt_limpieza": _cargar_json(ETAPA6 / "resultados_youtube_limpieza.json"),
+    "yt_analisis": _cargar_json(ETAPA6 / "resultados_youtube_analisis.json"),
+}
+
+# Entregables de la Etapa 6. El informe se publica copiando el PDF a static/docs/; el video se enlaza aquí.
+INFORME_ETAPA6 = "docs/Informe_ET6_AJ.pdf"  # ruta dentro de static/
+VIDEO_ETAPA6_URL = ""  # enlace de YouTube del video de sustentación (máx. 10 min); con "" la página muestra un aviso
+REPO_URL = "https://github.com/Lando18tinez/MINERIA_AJ"
+APP_URL = "https://mineria-aj.onrender.com"
+
+# Nombre y lectura de cada grupo del clustering. Es la INTERPRETACIÓN de los resultados con k = 3 y
+# semilla 0 (resultados_etapa6_clustering.json); si se vuelve a ejecutar con otros datos, revisar.
+GRUPOS_TERRITORIOS = {
+    1: {
+        "nombre": "Grandes centros urbanos",
+        "lectura": "Pocos territorios concentran casi todos los vehículos: parque reciente de camionetas y automóviles, "
+                   "con poca micromovilidad.",
+    },
+    2: {
+        "nombre": "Territorios de micromovilidad eléctrica",
+        "lectura": "Dominan ciclomotores, cuadriciclos y motos (más de 8 de cada 10 vehículos); parque más antiguo, "
+                   "con casi todo eléctrico.",
+    },
+    3: {
+        "nombre": "Ciudades intermedias con parque de camionetas",
+        "lectura": "Perfil parecido al de los grandes centros (camionetas y modelos recientes) pero con volúmenes pequeños "
+                   "y algo más de camperos y micromovilidad. Es el grupo menos nítido (silueta baja).",
+    },
+}
+
 # Archivos que la app permite descargar/consultar (evidencia de dónde salen los resultados).
 DATOS_PUBLICOS = {
     "vehiculos_electricos_hibridos_runt.csv": RAIZ / "data" / "raw",
@@ -39,8 +88,30 @@ DATOS_PUBLICOS = {
     "dim_territorio.csv": RAIZ / "data" / "powerbi",
     "dim_combustible.csv": RAIZ / "data" / "powerbi",
     "dim_anio.csv": RAIZ / "data" / "powerbi",
+    # Etapa 6 (los comentarios de YouTube, crudos y limpios, NO se publican: ver README)
+    "supervisado_tipo_motorizacion.tab": ETAPA6,
+    "clustering_territorios.tab": ETAPA6,
+    "clustering_territorios_grupos.tab": ETAPA6,
+    "resultados_etapa6_preparacion.json": ETAPA6,
+    "resultados_etapa6_supervisado.json": ETAPA6,
+    "resultados_etapa6_clustering.json": ETAPA6,
+    "resultados_youtube_extraccion.json": ETAPA6,
+    "resultados_youtube_limpieza.json": ETAPA6,
+    "resultados_youtube_analisis.json": ETAPA6,
+    "videos_consultados.csv": RAIZ / "data" / "raw" / "youtube",
 }
-CODIGO_PUBLICO = {"calidad_etapa2.py": RAIZ, "conocimiento_evidente.py": RAIZ}
+CODIGO_PUBLICO = {
+    "calidad_etapa2.py": RAIZ,
+    "conocimiento_evidente.py": RAIZ,
+    "etapa6_preparar_datos.py": RAIZ,
+    "etapa6_modelos.py": RAIZ,
+    "etapa6_clustering.py": RAIZ,
+    "etapa6_youtube_extraer.py": RAIZ,
+    "etapa6_youtube_limpieza.py": RAIZ,
+    "etapa6_youtube_analisis.py": RAIZ,
+    "etapa6_stopwords.py": RAIZ,
+}
+# Los flujos de Orange (.ows) no se publican en el repositorio: se documentan widget por widget, con capturas, en el informe técnico.
 
 
 def _numero(valor, decimales=0):
@@ -64,6 +135,18 @@ def filtro_dec(valor, decimales=2):
 @app.template_filter("pct")
 def filtro_pct(valor, decimales=2):
     return "—" if valor is None else f"{_numero(valor, decimales)} %"
+
+
+@app.template_filter("frac")
+def filtro_frac(valor, decimales=1):
+    """Proporción (0-1) a porcentaje: 0.8703 -> «87,0 %»."""
+    return "—" if valor is None else f"{_numero(valor * 100, decimales)} %"
+
+
+@app.template_filter("num3")
+def filtro_num3(valor):
+    """Métrica entre 0 y 1 con tres decimales y coma: 0.8703 -> «0,870»."""
+    return "—" if valor is None else _numero(valor, 3)
 
 
 # --- Datos del proyecto -----------------------------------------------------
@@ -1419,6 +1502,24 @@ def analisis_p4():
         },
         top=P4_TOP,
         **ctx,
+    )
+
+
+# --- Etapa 6: Conocimiento oculto ---------------------------------------------
+
+
+@app.route("/conocimiento-oculto")
+def conocimiento_oculto():
+    informe_existe = (RAIZ / "static" / INFORME_ETAPA6).is_file()
+    return render_template(
+        "conocimiento_oculto.html",
+        active="oculto",
+        o=OCULTO,
+        grupos_desc=GRUPOS_TERRITORIOS,
+        informe_url=url_for("static", filename=INFORME_ETAPA6) if informe_existe else None,
+        video_url=VIDEO_ETAPA6_URL,
+        repo_url=REPO_URL,
+        app_url=APP_URL,
     )
 
 

@@ -98,7 +98,7 @@
       </a>
 
       <!-- Menú Etapa 5: Misma píldora integrada -->
-      <div class="dropdown me-auto">
+      <div class="dropdown me-2">
         <button class="brand-badge brand-badge--menu dropdown-toggle {{ 'active' if active == 'multidimensional' }}"
                 type="button" id="menuEtapa5" data-bs-toggle="dropdown" aria-expanded="false"
                 title="Etapa 5: Análisis multidimensional">
@@ -122,6 +122,11 @@
           {% endfor %}
         </ul>
       </div>
+      <!-- Menú Etapa 6: Conocimiento oculto (enlace directo, una sola página) -->
+      <a class="brand-badge brand-badge--menu text-decoration-none me-auto {{ 'active' if active == 'oculto' }}"
+         href="{{ url_for('conocimiento_oculto') }}" title="Etapa 6: Conocimiento oculto (modelos, clustering y comentarios de YouTube)">
+        Etapa 6
+      </a>
 
       <!-- Botón colapsable para móviles -->
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
