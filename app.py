@@ -88,28 +88,10 @@ DATOS_PUBLICOS = {
     "dim_territorio.csv": RAIZ / "data" / "powerbi",
     "dim_combustible.csv": RAIZ / "data" / "powerbi",
     "dim_anio.csv": RAIZ / "data" / "powerbi",
-    # Etapa 6 (los comentarios de YouTube, crudos y limpios, NO se publican: ver README)
-    "supervisado_tipo_motorizacion.tab": ETAPA6,
-    "clustering_territorios.tab": ETAPA6,
-    "clustering_territorios_grupos.tab": ETAPA6,
-    "resultados_etapa6_preparacion.json": ETAPA6,
-    "resultados_etapa6_supervisado.json": ETAPA6,
-    "resultados_etapa6_clustering.json": ETAPA6,
-    "resultados_youtube_extraccion.json": ETAPA6,
-    "resultados_youtube_limpieza.json": ETAPA6,
-    "resultados_youtube_analisis.json": ETAPA6,
-    "videos_consultados.csv": RAIZ / "data" / "raw" / "youtube",
 }
 CODIGO_PUBLICO = {
     "calidad_etapa2.py": RAIZ,
     "conocimiento_evidente.py": RAIZ,
-    "etapa6_preparar_datos.py": RAIZ,
-    "etapa6_modelos.py": RAIZ,
-    "etapa6_clustering.py": RAIZ,
-    "etapa6_youtube_extraer.py": RAIZ,
-    "etapa6_youtube_limpieza.py": RAIZ,
-    "etapa6_youtube_analisis.py": RAIZ,
-    "etapa6_stopwords.py": RAIZ,
 }
 # Los flujos de Orange (.ows) no se publican en el repositorio: se documentan widget por widget, con capturas, en el informe técnico.
 

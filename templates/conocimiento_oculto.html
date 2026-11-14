@@ -173,7 +173,7 @@
   </div>
   <p class="small text-muted mb-0">
     El AUC de Test and Score puede diferir en el tercer decimal del de esta tabla por el método de cálculo. Las métricas por vehículo se calculan con los mismos pliegues y predicciones,
-    sin reentrenar con pesos; las ofrece solo el script <code>etapa6_modelos.py</code> (Orange no pondera por cantidad en Test and Score).
+    sin reentrenar con pesos (Orange no pondera por cantidad en Test and Score).
   </p>
 </div>
 
@@ -246,7 +246,7 @@
   </ul>
 </div>
 {% else %}
-<div class="alert alert-warning">Los resultados del aprendizaje supervisado no están disponibles. Ejecute <code>python etapa6_preparar_datos.py</code> y <code>python etapa6_modelos.py</code>.</div>
+<div class="alert alert-warning">Los resultados del aprendizaje supervisado no están disponibles.</div>
 {% endif %}
 
 <!-- ===================== 2. CLUSTERING ===================== -->
@@ -340,7 +340,7 @@
   </p>
 </div>
 {% else %}
-<div class="alert alert-warning">Los resultados del clustering no están disponibles. Ejecute <code>python etapa6_clustering.py</code>.</div>
+<div class="alert alert-warning">Los resultados del clustering no están disponibles.</div>
 {% endif %}
 
 <!-- ===================== 3. YOUTUBE ===================== -->
@@ -440,9 +440,6 @@
 {% if not o.yt_extraccion %}
 <div class="alert alert-warning">
   <strong>Pendiente de extracción.</strong> La extracción de comentarios necesita una clave de la API de YouTube Data v3, que no se publica en el repositorio.
-  Con la clave definida en la variable de entorno <code>YOUTUBE_API_KEY</code> se ejecutan, en orden,
-  <code>etapa6_youtube_extraer.py</code>, <code>etapa6_youtube_limpieza.py</code>, <code>etapa6_stopwords.py</code> y <code>etapa6_youtube_analisis.py</code>;
-  esta sección se llena sola con los resultados.
 </div>
 {% endif %}
 
@@ -506,37 +503,6 @@
     </div>
   </div>
   {% endif %}
-  <div class="col-12">
-    <div class="card shadow-sm border-0 p-4 bg-white">
-      <h5 class="fw-bold text-dark"><i class="bi bi-git me-2"></i>Reproducibilidad</h5>
-      <div class="row small">
-        <div class="col-md-4">
-          <h6 class="fw-bold">Flujos de Orange</h6>
-          <p class="ps-0 mb-0">Los tres flujos (supervisado, clustering y comentarios) se describen widget por widget, con sus parámetros y capturas, en el informe técnico.</p>
-        </div>
-        <div class="col-md-4">
-          <h6 class="fw-bold">Código</h6>
-          <ul class="ps-3">
-            {% for s in ['etapa6_preparar_datos.py', 'etapa6_modelos.py', 'etapa6_clustering.py', 'etapa6_youtube_extraer.py', 'etapa6_youtube_limpieza.py', 'etapa6_stopwords.py', 'etapa6_youtube_analisis.py'] %}
-              <li><a href="{{ url_for('ver_codigo', archivo=s) }}">{{ s }}</a></li>
-            {% endfor %}
-          </ul>
-        </div>
-        <div class="col-md-4">
-          <h6 class="fw-bold">Datos y resultados</h6>
-          <ul class="ps-3">
-            {% for s in ['supervisado_tipo_motorizacion.tab', 'clustering_territorios.tab', 'clustering_territorios_grupos.tab', 'resultados_etapa6_supervisado.json', 'resultados_etapa6_clustering.json'] %}
-              <li><a href="{{ url_for('descargar_datos', archivo=s) }}">{{ s }}</a></li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      <p class="small mb-0 mt-2">
-        Repositorio: <a href="{{ repo_url }}" target="_blank" rel="noopener noreferrer">{{ repo_url }}</a> ·
-        Aplicación: <a href="{{ app_url }}" target="_blank" rel="noopener noreferrer">{{ app_url }}</a>
-      </p>
-    </div>
-  </div>
 </div>
 
 <div class="d-flex justify-content-end align-items-center mt-4 pt-3 border-top">
